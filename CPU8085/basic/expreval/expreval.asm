@@ -10,10 +10,9 @@
 .include	'..\strings\strings.def'
 .include	'evaluate.def'
 
-
 .area	_CODE
 
-EXP_STACKSIZE 	= 128
+EXP_STACKSIZE 	= 8
 EXP_STACKHI	= EXP_STACKLO + EXP_STACKSIZE
 
 ;*********************************************************
@@ -1049,11 +1048,18 @@ EXP_SKIPWHITESPACE3:
 	INX	H
 	JMP	1$
 
+;*********************************************************
+;* EXP_CLRSTACK: 	RESETS STACK
+EXP_CLRSTACK::
+	PUSH	H
+	LXI	H,EXP_STACKLO
+	SHLD	EXP_STACKCURR
+	POP	H
+	RET
 
 ;*********************************************************
 ;* EXP_PUSH:  PUSHES DATA AT (H-L) ON EXP STACK
 ;*	      *MODIFIES D-E*
-;*	TODO: ADD VALIDATION
 EXP_PUSH::
 	PUSH	H
 
@@ -1061,6 +1067,16 @@ EXP_PUSH::
 	LHLD	EXP_STACKCURR			; READ CURR STACK POS IN HL
 	XCHG					; HL <-> DE
 
+	; CHECK IF STACK IS FULL
+	MVI	A,>(EXP_STACKHI)		; CHECK HI BYTE
+	CMP	D
+	JNZ	1$
+	
+	MVI	A,<(EXP_STACKHI)		; CHECK LO BYTE
+	CMP	E
+	JZ	ERR_STACKOVERFLOW
+	
+1$:
 	; 1	
 	MOV	A,M				; READ CHAR
 	STAX	D				; PUT ON STACK
@@ -1101,7 +1117,17 @@ EXP_PUSH::
 ;*	TODO: ADD VALIDATION
 EXP_POP::
 	LHLD	EXP_STACKCURR
+
+	; CHECK IF STACK IS EMPTY
+	MVI	A,>(EXP_STACKLO)		; CHECK HI BYTE
+	CMP	H
+	JNZ	1$
 	
+	MVI	A,<(EXP_STACKLO)		; CHECK LO BYTE
+	CMP	L
+	JZ	ERR_STACKUNDERFLOW
+	
+1$:
 	LXI	D,-4
 	DAD	D			; EXP_STACKCURR -= 5
 	
@@ -1235,6 +1261,7 @@ EXP_CLEARSTACK::
 .area	DATA	(REL,CON)
 
 EXP_STACKLO:	.ds	EXP_STACKSIZE	; EXPRESSION STACK
+
 EXP_STACKCURR:	.ds	2		; CURRENT POS IN STACK
 
 EXP_INSNEWLINE:	.ds	1	; USED BY DO_PRINT
