@@ -1,11 +1,5 @@
 #include "stdafx.h"
 
-#include "program.h"
-#include "..\tokenize\untokenize.h"
-#include "..\expreval\exprstack.h"
-#include "..\expreval\expreval.h"
-#include "..\variables\variables.h"
-
 #include <iostream>
 
 // Basic line:  [Size][Line]Data.......[Size][Line]Data....etc...

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "common.h"
 #include <assert.h>
 #include <math.h>
 

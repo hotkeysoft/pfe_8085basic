@@ -16,6 +16,14 @@
 
 #include "..\include\common.h"
 #include "..\include\error.h"
+#include "..\expreval\expreval.h"
+#include "..\expreval\evaluate.h"
+#include "..\expreval\exprstack.h"
+#include "..\program\program.h"
+#include "..\variables\variables.h"
+#include "..\strings\strings.h"
+#include "..\tokenize\tokenize.h"
+#include "..\tokenize\untokenize.h"
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

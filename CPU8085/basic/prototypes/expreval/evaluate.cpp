@@ -1,8 +1,4 @@
 #include "stdafx.h"
-#include "evaluate.h"
-#include "exprstack.h"
-#include "..\variables\variables.h"
-#include "..\strings\strings.h"
 
 #include <math.h>
 

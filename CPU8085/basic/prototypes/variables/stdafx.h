@@ -11,3 +11,11 @@
 
 #include "..\include\common.h"
 #include "..\include\error.h"
+#include "..\expreval\expreval.h"
+#include "..\expreval\evaluate.h"
+#include "..\expreval\exprstack.h"
+#include "..\program\program.h"
+#include "..\variables\variables.h"
+#include "..\strings\strings.h"
+#include "..\tokenize\tokenize.h"
+#include "..\tokenize\untokenize.h"

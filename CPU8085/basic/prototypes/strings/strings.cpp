@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include "strings.h"
-
 CStrings::CStrings(void)
 {
 }

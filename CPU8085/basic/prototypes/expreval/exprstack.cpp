@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "exprstack.h"
 
 #include <iostream>
 

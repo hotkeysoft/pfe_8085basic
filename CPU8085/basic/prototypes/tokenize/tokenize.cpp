@@ -2,8 +2,6 @@
 
 #include <cstring>
 
-#include "tokenize.h"
-
 // Returns token ID from string token
 bool findToken(const char *in, KEYWORDS &token, int &length)
 {

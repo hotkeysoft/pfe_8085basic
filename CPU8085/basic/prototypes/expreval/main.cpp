@@ -3,14 +3,6 @@
 
 #include "stdafx.h"
 
-#include "..\tokenize\tokenize.h"
-#include "..\tokenize\untokenize.h"
-#include "..\variables\variables.h"
-#include "..\strings\strings.h"
-#include "..\program\program.h"
-#include "expreval.h"
-#include "exprstack.h"
-
 #include <iostream>
 #include <string>
 
