@@ -10,4 +10,5 @@
 
 .if DEBUG
 	.globl	EXP_DUMPSTACK
+	.globl	EXP_CLEARSTACK
 .endif
