@@ -25,6 +25,15 @@ void CProgram::New()
 	HiAutoVars = HiProgram;
 }
 
+void CProgram::Init()
+{
+	NewLine = NULL;
+	CurrLine = NULL;
+	CurrPos = NULL;
+	IsEnd = false;
+	InIf = false;
+}
+
 void CProgram::List(short begin, short end)
 {
 	BYTE *curr = LoProgram;
@@ -149,12 +158,6 @@ void CProgram::Run(short lineNo)
 	NewLine = NULL;
 
 	DoIt();
-
-	CurrLine = 0;
-	CurrPos = 0;
-	IsEnd = false;
-	InIf = false;
-
 }
 
 void CProgram::DoIt()
@@ -167,7 +170,7 @@ void CProgram::DoIt()
 			CurrPos = 0;
 			expreval((char *)(temp), InIf);
 		}
-		else
+		else if (CurrLine)
 		{
 			expreval((char *)(CurrLine+3));
 		}
@@ -191,6 +194,11 @@ void CProgram::DoIt()
 			InIf = false;
 		}
 	}  	
+
+	CurrLine = 0;
+	CurrPos = 0;
+	IsEnd = false;
+	InIf = false;
 }
 
 void CProgram::Goto(short lineNo)
@@ -200,6 +208,12 @@ void CProgram::Goto(short lineNo)
 	if (NewLine == NULL)
 	{
 		throw CError(E_EXP_LINENOTFOUND);
+	}
+
+	if (CurrLine == NULL)
+	{
+		IsEnd = false;
+		DoIt();
 	}
 }
 
@@ -220,6 +234,12 @@ void CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 	*(temp+4) = (inIf==true)?1:0;
 
 	CExprStack::push(temp);
+
+	if (CurrLine == NULL)
+	{
+		IsEnd = false;
+		DoIt();
+	}
 }
 
 void CProgram::Return()
@@ -265,8 +285,6 @@ void CProgram::Stop(BYTE *returnPoint, bool inIf)
 
 void CProgram::Continue()
 {
-	IsEnd = false;
-
 	if (CExprStack::isEmpty())
 	{
 		return;
@@ -282,6 +300,7 @@ void CProgram::Continue()
 	CurrLine = Memory+*((WORD *)(temp+1));
 	CurrPos = CurrLine + *(temp+3);
 	InIf = (*(temp+4)==0)?false:true;
+	IsEnd = false;
 
 	DoIt();
 }

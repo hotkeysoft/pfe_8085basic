@@ -6,6 +6,7 @@ public:
 	CProgram() {}
 	~CProgram() {}
 
+	static void Init();
     static void New();
 	static void List(short begin = 0, short end = -1);
 
