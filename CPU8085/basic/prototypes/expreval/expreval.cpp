@@ -641,7 +641,7 @@ void DoNext(bool execute)
 	++currIn;
 	if (execute)
 	{
-		CProgram::Next();
+		CProgram::Next(currIn);
 	}
 }
 
@@ -697,9 +697,9 @@ bool Execute(bool inIf, bool execute)
 	return false;
 }
 
-void expreval(char *in, bool inIf, bool execute)
+bool expreval(char *in, bool inIf, bool execute)
 {
 	currIn = (BYTE *)in;
 
-	Execute(inIf, execute);
+	return Execute(inIf, execute);
 }
