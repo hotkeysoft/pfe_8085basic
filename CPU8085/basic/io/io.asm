@@ -5,7 +5,7 @@
 ;*		UART CONTROL, TIMER CONTROL, SOUND FUNCTIONS,
 ;*		KEYBOARD FUNCTIONS, TERMINAL OUTPUT FUNCTIONS
 ;*
-;* $Id: io.asm,v 1.21 2001-12-03 00:25:10 Dominic Thibodeau Exp $
+;* $Id: io.asm,v 1.22 2001-12-05 11:14:47 Dominic Thibodeau Exp $
 ;*
 
 .module 	io
@@ -391,58 +391,6 @@ IO_GOTOXY::
 	RET
 
 ;*********************************************************
-;* IO_SCROLLUP:  SCROLLS THE SCREEN ONE LINE
-IO_SCROLLUP::
-	MVI	A,TERM_ATTN		;TERM:ATTN
-	CALL	IO_PUTC
-	MVI	A,3			;TERM:SCROLLUP
-	CALL	IO_PUTC
-
-	RET
-
-
-;********************************************************
-; IO_MOVEUP: MOVE CURSOR ONE LINE UP
-IO_MOVEUP::
-	MVI	A,TERM_ATTN		;TERM:ATTN
-	CALL	IO_PUTC
-	MVI	A,4			;TERM:MOVEUP
-	CALL	IO_PUTC
-
-	RET
-
-;********************************************************
-; IO_MOVEDOWN: MOVE CURSOR ONE LINE DOWN
-IO_MOVEDOWN::
-	MVI	A,TERM_ATTN		;TERM:ATTN
-	CALL	IO_PUTC
-	MVI	A,5			;TERM:MOVEDOWN
-	CALL	IO_PUTC
-
-	RET
-
-;********************************************************
-; IO_MOVELEFT: MOVE CURSOR ONE CHAR LEFT
-IO_MOVELEFT::
-	MVI	A,TERM_ATTN		;TERM:ATTN
-	CALL	IO_PUTC
-	MVI	A,6			;TERM:MOVELEFT
-	CALL	IO_PUTC
-
-	RET
-	
-
-;********************************************************
-; IO_MOVERIGHT: MOVE CURSOR ONE CHAR RIGHT
-IO_MOVERIGHT::
-	MVI	A,TERM_ATTN		;TERM:ATTN
-	CALL	IO_PUTC
-	MVI	A,7			;TERM:MOVERIGHT
-	CALL	IO_PUTC
-	RET
-
-
-;*********************************************************
 ;* IO_SETFG:  SET FOREGROUND COLOR (IN ACC) (0-15)
 IO_SETFG::
 	PUSH	B
@@ -694,6 +642,3 @@ IO_KBUF:	.ds	16			;KEYBOARD BUFFER
 IO_KBUFPTR:	.ds	2			;KEYBOARD BUFFER - BEGIN/END PTR
 
 IO_CURRATTR:	.ds	1			;CONSOLE - CURRENT ATTRIBUTE
-
-
-

@@ -20,13 +20,6 @@
 
 	.globl	IO_GOTOXY
 
-	.globl	IO_SCROLLUP
-
-	.globl	IO_MOVEUP
-	.globl	IO_MOVEDOWN
-	.globl	IO_MOVELEFT	
-	.globl	IO_MOVERIGHT	
-	
 	.globl	IO_SETFG
 	.globl	IO_SETBG
 	.globl	IO_SETCOLOR
