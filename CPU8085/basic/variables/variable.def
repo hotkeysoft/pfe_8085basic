@@ -6,6 +6,8 @@
 	.globl	VAR_TEMP2
 	.globl	VAR_TEMP3
 	
+	.globl	VAR_GET
+	.globl	VAR_SET
 	
 	; TESTS ONLY
 	.globl	VAR_INTERNALNEW

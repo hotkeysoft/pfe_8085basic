@@ -1,6 +1,8 @@
 .module 	variable
 .title 		Variable module
 
+.include	'..\common\common.def'
+
 .area	BOOT	(ABS)
 
 .org	0x0038
@@ -8,6 +10,72 @@ RST7:
 	HLT
 
 .area	_CODE
+
+;*********************************************************
+;* VAR_GET:  	GET VARIABLE (TAG IN BC)
+;*		COPY IN VAR AT (H-L)
+VAR_GET::
+	XCHG					; SWAP HL<->DE
+	
+	CALL	VAR_INTERNALGET			; FIND VARIABLE
+	
+	MOV	A,H				; CHECK IF NOT FOUND
+	ORA	A
+	JNZ	SSKIP
+	
+	; NOT FOUND - CREATE NEW VARIABLE
+	CALL	VAR_INTERNALNEW
+	
+SSKIP:	; HL CONTAINS ADDRESS OF VARIABLE
+	XCHG					; SWAP HL<->DE
+
+	INX	D				; GO TO BEGIN OF INT DATA
+	INX	D
+
+	PUSH	H				; SAVE INITIAL PARAM
+
+	INX	H
+	
+	; COPY DATA
+	LDAX	D				; BYTE 1
+	MOV	M,A		
+	INX	D
+	INX	H
+	
+	LDAX	D				; BYTE 2
+	MOV	M,A		
+	INX	D
+	INX	H
+
+	LDAX	D				; BYTE 3
+	MOV	M,A		
+	INX	D
+	INX	H
+
+	LDAX	D				; BYTE 4
+	MOV	M,A		
+	INX	D
+	INX	H
+	
+	POP	H				; GET BACK HL
+
+	; IDENTIFY TYPE OF VARIABLE
+	MOV	A,B				; TAG[0] IN ACC
+	ORA	A				; UPDATE FLAGS
+	JM	FLOAT				; CHECK IF INT/FLOAT
+
+	; WE HAVE AN INTEGER
+	MVI	M,SID_CINT			; SET AS INT
+	RET
+
+FLOAT:	; WE HAVE A STRING
+	MVI	M,SID_CSTR			; SET AS STRING
+	RET
+
+
+VAR_SET::
+	RET
+
 
 ;*********************************************************
 ;* VAR_INTERNALNEW:  	CREATES NEW VARIABLE, FROM TAG IN BC
@@ -43,7 +111,8 @@ VAR_INTERNALNEW::
 ;*			IF FOUND, ELSE 0x0000
 ;*			INPUT: TAG IN BC
 VAR_INTERNALGET::
-
+	PUSH	D
+	
 	LHLD	VAR_HIPTR			; TOP OF VAR PTR IN HL
 	XCHG					; SWAP HL<->DE
 	LHLD	VAR_LOPTR			; DE = BOTTOM OF VAR MEM
@@ -60,6 +129,7 @@ LOOP:
 
 	; EQUAL
 	LXI	H,0				; RETURN 0
+	POP	D
 	RET
 	
 SKIP:
@@ -76,6 +146,7 @@ SKIP:
 	; FOUND IT
 	DCX	H				; GO BACK TO BEGINNING
 	DCX	H				; OF VAR 
+	POP	D
 	RET
 	
 PLUS4:	

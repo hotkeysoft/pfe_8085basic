@@ -1,6 +1,7 @@
 -mxiuz
 variable
 test
+..\common\common
 -b DATA   = 0x8000
 -b _CODE  = 0x0040
 -e
