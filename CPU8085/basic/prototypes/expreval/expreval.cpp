@@ -5,6 +5,7 @@
 #include "expreval.h"
 #include "evaluate.h"
 #include "exprstack.h"
+#include "..\program\program.h"
 
 BYTE *currIn;
 
@@ -260,9 +261,89 @@ void L7()
 	
 }
 
+void DoList()
+{
+	++currIn;
+	CProgram::List();
+}
+
+void DoPrint()
+{
+	++currIn;
+
+	bool insertNewLine = true;
+
+	while(*currIn && *currIn!=':')
+	{
+		insertNewLine = true;
+
+		L0();
+
+		CEvaluate::UnaryOp();	// value in tempVar1
+		switch(*tempVar1)
+		{
+		case SID_CINT: std::cout << GetInt(tempVar1); break;
+		case SID_CFLOAT: std::cout << GetFloat(tempVar1); break;
+		case SID_CSTR: 
+			{
+				std::string tempStr;
+				BYTE size;
+				char *addr = (char *)GetStr(tempVar1, size);
+				tempStr.assign(addr, size);
+
+				std::cout << tempStr;
+			}
+			break;
+		}
+
+		switch(*currIn)
+		{
+		case ',':	std::cout << '\t';	++currIn;	break;
+		case ';':	++currIn;	insertNewLine = false; break;
+		case ':':	break;
+		case 0:		break;
+		default:	throw CError();
+		}
+	}
+
+	if (insertNewLine)
+	{
+		std::cout << std::endl;
+	}
+}
+
 void expreval(char *in)
 {
 	currIn = (BYTE *)in;
 
-	L0();
+	while (*currIn)
+	{
+
+		// ship whitespace
+		while(*currIn == ' ' || *currIn == ':')
+		{
+			++currIn;
+		}
+
+		switch(*currIn)
+		{
+		case K_LIST:		DoList();		break;
+		case K_PRINT:		DoPrint();		break;
+
+		default: throw CError();
+		}
+
+		// ship whitespace
+		while(*currIn == ' ')
+		{
+			++currIn;
+		}
+
+		if (*currIn && *currIn != ':')
+		{
+			throw CError();
+		}
+	}
+
+//	L0();
 }
