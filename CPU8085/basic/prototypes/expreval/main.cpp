@@ -75,6 +75,8 @@ int main(int argc, char* argv[])
 
 	while (1)
 	{
+		CProgram::Init();
+
 		std::cin.getline((char *)Memory, 255);
 //		if (strcmp((char *)Memory, "") == 0)
 //		{
