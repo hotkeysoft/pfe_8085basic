@@ -6,7 +6,6 @@
 #include "evaluate.h"
 #include "exprstack.h"
 
-BYTE *currOut;
 BYTE *currIn;
 
 void L1();
@@ -183,15 +182,14 @@ void L7()
 		}
 		else if (((*currIn & 0xA0) == 0xA0) || ((*currIn & 0xB0) == 0xB0))
 		{
-			BYTE currToken = *currIn;
+			KEYWORDS currToken = (KEYWORDS)*currIn;
 
 			++currIn; // skips keyword
 			++currIn; // skips '('
 			L0();	// expression
 			++currIn; // trailing ')'
 
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		break;
 	}
@@ -199,10 +197,7 @@ void L7()
 
 void expreval(char *in, char *out)
 {
-	currOut = (BYTE *)out;
 	currIn = (BYTE *)in;
 
 	L0();
-
-	*currOut = 0;
 }

@@ -63,6 +63,16 @@ void CEvaluate::Evaluate(KEYWORDS k)
 
 	case K_NEGATE:		UnaryOp();	Negate();	break;
 
+	case K_ABS:			UnaryOp();	Abs();		break;
+	case K_ASC:			UnaryOp();	Asc();		break;
+	case K_INT:			UnaryOp();	Int();		break;
+	case K_LEN:			UnaryOp();	Len();		break;
+	case K_PEEK:		UnaryOp();	Peek();		break;
+	case K_RND:			UnaryOp();	Rnd();		break;
+	case K_SGN:			UnaryOp();	Sgn();		break;
+	case K_SQR:			UnaryOp();	Sqr();		break;
+	case K_VAL:			UnaryOp();	Val();		break;
+
 	default:
 		break;
 	}
@@ -372,4 +382,252 @@ void CEvaluate::Not()
 
 	SetInt(tempVar3, ~op);
 	CExprStack::push(tempVar3);
+}
+
+void CEvaluate::Abs()
+{    
+	if (*tempVar1 == SID_CINT)
+	{
+		short op = GetInt(tempVar1);
+		
+		if (op < 0)
+		{
+			SetInt(tempVar3, -op);
+		}
+		else
+		{
+			SetInt(tempVar3, op);
+		}
+
+		CExprStack::push(tempVar3);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		float op = GetFloat(tempVar1);
+
+		if (op < 0)
+		{
+			SetFloat(tempVar3, -op);
+		}
+		else
+		{
+			SetFloat(tempVar3, op);
+		}
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Asc()
+{
+	if (*tempVar1 == SID_CSTR)
+	{
+		char ch = 0;
+	
+		// Check length first
+		if (*(tempVar1+1) == 0)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+		WORD offset = *((WORD *)(tempVar1+2));
+
+		ch = Memory[offset];
+		
+		SetInt(tempVar3, ch);
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Int()
+{
+	switch (*tempVar1)
+	{
+	case SID_CINT: break; // nothing to do
+	case SID_CFLOAT: 
+		{
+			float fVal = GetFloat(tempVar1);
+			if (fVal>32767.0 || fVal<-32768.0)
+			{
+				throw CError(E_EXP_OVERFLOW);    				
+			}
+			SetInt(tempVar1, (short)fVal);
+		}
+		break;
+	default:
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	CExprStack::push(tempVar1);
+}
+
+void CEvaluate::Len()
+{
+	if (*tempVar1 == SID_CSTR)
+	{
+		short len = *(tempVar1+1);
+		
+		SetInt(tempVar3, len);
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Peek()
+{
+	WORD address;
+	switch (*tempVar1)
+	{
+	case SID_CINT: 
+		address = GetInt(tempVar1);
+		break; 
+	case SID_CFLOAT: 
+		{
+			float fVal = GetFloat(tempVar1);
+			if (fVal>65535.0 || fVal<0.0)
+			{
+				throw CError(E_EXP_ILLEGAL);    				
+			}
+
+			address = (WORD)fVal;
+		}
+		break;
+	default:
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	SetInt(tempVar1, Memory[address]);
+
+	CExprStack::push(tempVar1);
+}
+
+void CEvaluate::Rnd()
+{
+	switch (*tempVar1)
+	{
+	case SID_CINT: 
+	case SID_CFLOAT: 
+		{
+			float fVal = (float)rand()/(float)RAND_MAX;
+
+			SetFloat(tempVar1, fVal);
+
+			CExprStack::push(tempVar1);
+		}
+		break;
+	default:
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Sgn()
+{
+	if (*tempVar1 == SID_CINT)
+	{
+		short op = GetInt(tempVar1);
+		
+		if (op < 0)
+		{
+			SetInt(tempVar3, -1);
+		}
+		else if (op > 0)
+		{
+			SetInt(tempVar3, +1);
+		}
+		else
+		{
+			SetInt(tempVar3, 0);
+		}
+
+		CExprStack::push(tempVar3);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		float op = GetFloat(tempVar1);
+
+		if (op < 0)
+		{
+			SetInt(tempVar3, -1);
+		}
+		else if (op > 0)
+		{
+			SetInt(tempVar3, +1);
+		}
+		else
+		{
+			SetInt(tempVar3, 0);
+		}
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Sqr()
+{	
+	float val;
+
+	if (*tempVar1 == SID_CINT)
+	{
+		val = GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		val = GetFloat(tempVar1);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	if (val < 0.0)
+	{
+		throw CError(E_EXP_ILLEGAL);
+	}
+
+	SetFloat(tempVar3, (float)sqrt(val));
+	CExprStack::push(tempVar3);
+}
+
+void CEvaluate::Val()
+{
+	if (*tempVar1 == SID_CSTR)
+	{
+		// Check length first
+		if (*(tempVar1+1) == 0)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+		WORD offset = *((WORD *)(tempVar1+2));
+
+		int dummy;
+		float value;
+
+		stringToFloat(Memory+offset, value, dummy);
+
+		SetFloat(tempVar3, value);
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
 }
