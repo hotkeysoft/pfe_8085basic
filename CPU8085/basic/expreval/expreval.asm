@@ -104,6 +104,9 @@ EXP_EXPREVAL::
 	CPI	K_SLEEP
 	JZ	20$
 
+	CPI	K_BEEP
+	JZ	21$
+
 .if DEBUG
 	CPI	K_DUMPVAR
 	JZ	90$
@@ -197,6 +200,11 @@ EXP_EXPREVAL::
 20$:	; SLEEP
 	CALL	EXP_DO_SLEEP
 	JMP	100$
+
+21$:	; BEEP
+	CALL	EXP_DO_BEEP
+	JMP	100$
+
 
 .if DEBUG
 90$:	; DUMP VARIABLES
@@ -1027,6 +1035,20 @@ EXP_DO_SLEEP:
 100$:
 	POP	H
 	POP	D
+	RET
+
+;*********************************************************
+;* EXP_DO_BEEP: 	EXECUTE BEEP
+;*			(DIRECT CALL TO IO LIBRARY)
+;*			IN: C = EXECUTE
+EXP_DO_BEEP:
+	INX	H			; SKIP KEYWORD
+
+	MOV	A,C
+	CPI	FALSE
+	RZ
+	
+	CALL	IO_BEEP
 	RET
 
 
