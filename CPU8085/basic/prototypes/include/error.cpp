@@ -10,6 +10,7 @@ Error errorStr[] = {
 	E_EXP_STACKUNDERFLOW,	"EXP: Stack underflow",
 	E_EXP_TYPEMISMATCH,		"EXP: Type mismatch",
 	E_EXP_OVERFLOW,			"EXP: Overflow",
+	E_EXP_ILLEGAL,			"EXP: Illegal argument",
 
 	E_UNKNOWN,			"Unknown Error"
 };
