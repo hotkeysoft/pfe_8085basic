@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
 	while (1)
 	{
 		std::cin.getline(str, 255);
+		if (strcmp(str, "") == 0)
+			break;
 
 		try
 		{
