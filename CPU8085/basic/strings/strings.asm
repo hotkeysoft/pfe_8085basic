@@ -66,8 +66,9 @@ STR_FREE::
 ;*		SOURCE:	DE
 ;*		DEST: 	HL
 STR_COPY::
-	PUSH	D
-	PUSH	H
+
+	ORA	A				; CHECK LENGTH > 0
+	RZ
 
 1$:
 	LDAX	D				; SOURCE IN ACC
@@ -78,8 +79,6 @@ STR_COPY::
 	DCR	B				; COUNTER--
 	JNZ	1$				; LOOP
 	
-	POP	H
-	POP	D
 	RET
 
 ;*********************************************************
