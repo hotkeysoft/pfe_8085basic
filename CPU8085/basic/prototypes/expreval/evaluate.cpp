@@ -3,7 +3,6 @@
 #include "exprstack.h"
 
 #include <math.h>
-#include <assert.h>
 
 CEvaluate::CEvaluate(void)
 {
@@ -11,30 +10,6 @@ CEvaluate::CEvaluate(void)
 
 CEvaluate::~CEvaluate(void)
 {
-}
-
-short CEvaluate::GetInt(BYTE *var)
-{
-	assert(*var == SID_CINT);
-	return *((short *)(var+1));
-}
-
-float CEvaluate::GetFloat(BYTE *var)
-{
-	assert(*var == SID_CFLOAT);
-	return *((float *)(var+1));
-}
-
-void CEvaluate::SetInt(BYTE *var, short value)
-{
-	*var = SID_CINT;
-	*((short *)(var+1)) = value;
-}
-
-void CEvaluate::SetFloat(BYTE *var, float value)
-{
-	*var = SID_CFLOAT;
-	*((float  *)(var+1)) = value;
 }
 
 void CEvaluate::Evaluate(KEYWORDS k)
@@ -219,9 +194,15 @@ void CEvaluate::BinaryCalc(KEYWORDS k)
 		{
 		case K_POWER:		result = (short)pow(op2, op1);	break;
 		case K_MULTIPLY:	result = op2 * op1;		break;
-		case K_IDIVIDE:		result = op2 / op1;		break;
 		case K_ADD:			result = op2 + op1;		break;
 		case K_SUBSTRACT:	result = op2 - op1;		break;
+		case K_IDIVIDE:		
+			if (op1 == 0) 
+			{
+				throw CError(E_EXP_DIVZERO);
+			}
+			result = op2 / op1;		
+			break;
 		default:
 			throw CError(E_EXP_TYPEMISMATCH);
 			break;
@@ -240,9 +221,15 @@ void CEvaluate::BinaryCalc(KEYWORDS k)
 		{
 		case K_POWER:		result = (float)pow(op2, op1);	break;
 		case K_MULTIPLY:	result = op2 * op1;		break;
-		case K_FDIVIDE:		result = op2 / op1;		break;
 		case K_ADD:			result = op2 + op1;		break;
 		case K_SUBSTRACT:	result = op2 - op1;		break;
+		case K_FDIVIDE:		
+			if (op1 == 0.0) 
+			{
+				throw CError(E_EXP_DIVZERO);
+			}
+			result = op2 / op1;		
+			break;
 		default:
 			throw CError(E_EXP_TYPEMISMATCH);
 			break;

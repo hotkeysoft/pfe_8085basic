@@ -18,12 +18,6 @@ protected:
 	static void ConvertToFloat();
 	static void ConvertToInt();
 
-	static short GetInt(BYTE *);
-	static float GetFloat(BYTE *);
-
-	static void SetInt(BYTE *, short);
-	static void SetFloat(BYTE *, float);
-
 	static void BinaryCalc(KEYWORDS);
 	static void BinaryRel(KEYWORDS);
 	static void BinaryLog(KEYWORDS);
