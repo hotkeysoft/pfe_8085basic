@@ -43,9 +43,9 @@ const char *findTokenStr(const unsigned char token)
 
 // Tokenize, pass 1: converts keywords to tokens,
 // ignore variables, constants & delimiters
-bool tokenize1(char *in, char *out)
+bool tokenize1(const char *in, char *out)
 {
-	char *currIn = in;
+	const char *currIn = in;
 	char *currOut = out;
 
 	char token;
@@ -111,7 +111,32 @@ bool tokenize1(char *in, char *out)
 			lastToken = *currIn;
 			break;
 
+		case '+':	// special case not handled by findToken function
+			if ( isdigit(*(currIn+1)) || *(currIn+1) == '.')
+			{
+				*currOut = *currIn;
+				++currIn;
+				++currOut;
+				lastToken = 0;
+			}
+			else
+			{
+				*currOut = (char)K_SUBSTRACT;
+				++currIn;
+				++currOut;
+				lastToken = (char)K_SUBSTRACT;	
+			}
+			break;
 		case '-':	// special case not handled by findToken function
+			if ( isdigit(*(currIn+1)) || *(currIn+1) == '.')
+			{
+				*currOut = *currIn;
+				++currIn;
+				++currOut;
+				lastToken = 0;
+				break;
+			}
+
 			switch (lastToken)
 			{
 			// could be simplified, if whole category is used (check MSBits = 0x80)
@@ -154,7 +179,7 @@ bool tokenize1(char *in, char *out)
 			if (findToken(currIn, token, tokenLength))
 			{
 				*currOut = token;
-				currOut++;
+				++currOut;
 				currIn += tokenLength;
 				lastToken = token;
 			}
@@ -172,15 +197,62 @@ bool tokenize1(char *in, char *out)
 	return true;
 }
 
-bool tokenize2(char *in)
+// Tokenize, pass 2: encodes variables & constants
+bool tokenize2(const char *in, char *out)
 {
-	int pos = 0;
+	const char *currIn = in;
+	char *currOut = out;
 
 	while(1)
 	{
-		char ch = in[pos];
+		if (*currIn == NULL) // end of string
+		{
+			*currOut = NULL;
+			break;
+		}
+		else if ((*currIn & 0x80) == 0x80)	// token
+		{
+			*currOut = *currIn;
+			++currIn;
+			++currOut;
+		}
+		else if (*currIn == '\"')		// const string
+		{
+			++currIn;
+		}
+		else if (*currIn == '-' || *currIn == '.' || isdigit(*currIn)) // const int/float
+		{
+			float number;
+			int length;
+			stringToFloat(currIn, number, length);
 
+			currIn += length;
 
+			if ((short)number == number)		// integer const
+			{
+				short iNumber = (short)number;
+
+				*currOut = SID_CINT;
+				++currOut;
+
+				memcpy(currOut, &iNumber, sizeof(short));
+
+				currOut += sizeof(short);
+			}
+			else	// float const
+			{
+				*currOut = SID_CFLOAT;
+				++currOut;
+
+				memcpy(currOut, &number, sizeof(float));
+
+				currOut += sizeof(float);
+			}
+		}
+		else // variable name
+		{
+			++currIn;
+		}
 	}
 
 	return true;
