@@ -31,9 +31,5 @@
 	.globl	INT_ABS
 	.globl	INT_SGN
 	
-	
-	
-	
-	
-	
-	
+	.globl	INT_RANDOMIZE
+	.globl	INT_RND

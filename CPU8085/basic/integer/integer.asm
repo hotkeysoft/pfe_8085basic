@@ -6,6 +6,23 @@
 .area	_CODE
 
 ;*********************************************************
+;* INT_INIT:  INITIALIZES MODULE
+INT_INIT::
+	; PSEUDO-RANDOM NUMBER GENERATOR INITIALIZATION
+	LXI	H,0x6255			; SET CONSTANTS NEEDED TO
+	SHLD	INT_RNDCONST1			; GENERATE PSEUDO-RANDOM 
+	LXI	H,0x3619			; NUMBERS. (CONSTANTS NEED
+	SHLD	INT_RNDCONST2			; TO BE IN RAM, SINCE INT_MUL
+	LXI	H,0x0000			; SHIFTS THE NUMBER DURING 
+	SHLD	INT_RNDSEED			; MULTIPLY OPERATION
+						
+
+						
+	RET					
+
+
+
+;*********************************************************
 ;* INT_NEG:  NEGATES INTEGER AT [H-L]
 INT_NEG::
 	PUSH	B
@@ -283,7 +300,7 @@ INT_SHLP:
 
 	ORA	B
 	JM	2$					;OVERFLOW IF NUMBER BIT 7 IS SET
-
+55$:
 ;	END SHIFT ONCE
 	
 	DCR	E					;E--
@@ -298,6 +315,7 @@ INT_SHLP:
 2$:
 	MVI	A,0xFF
 	STA	INT_OVERFLOW				;SET OVERFLOW FLAG
+	JMP	55$
 
 3$:
 	POP	D
@@ -377,9 +395,9 @@ INT_MUL::
 	CALL	INT_NEG					;NEGATES IF NEGATIVE
 	
 1$:
-;	CHECK SIGN OF INT_ACC1
-	LXI	H,INT_ACC1+1
-	MOV	C,M					;HI BYTE OF INT_ACC1 IN C
+;	CHECK SIGN OF INT_ACC0
+	LXI	H,INT_ACC0+1
+	MOV	C,M					;HI BYTE OF INT_ACC0 IN C
 	ORA	C
 	JP	2$
 
@@ -951,12 +969,45 @@ INT_SGN::
 	MVI	M,0xFF
 	RET
 
+;*********************************************************
+;* INT_RND: GENERATES PSEUDO-RANDOM NUMBER, FULL
+;*	    RANGE OF INT (-32768..32767)
+;*	    RESULT IN INT_ACC0
+INT_RND::
+	PUSH	H
+	
+	LHLD	INT_RNDSEED		; LOAD CURRENT SEED IN HL
+	SHLD	INT_ACC0		; COPY IN INT_ACC0
+	
+	LXI	H,INT_RNDCONST1		; SEED *= RNDCONST1
+	CALL	INT_MUL
+	
+	LXI	H,INT_RNDCONST2		; SEED += RNDCONST2
+	CALL	INT_ADD
+	
+	LHLD	INT_ACC0		; READ NEW BALUE
+	SHLD	INT_RNDSEED		; SAVE AS NEW SEED
+	
+	MVI	A,0
+	STA	INT_OVERFLOW		; RESET OVERFLOW FLAG
+	
+	POP	H
+	RET
+
+;*********************************************************
+;* INT_RANDOMIZE: SET RANDOM SEED.  SEED IN HL
+INT_RANDOMIZE::
+	SHLD	INT_RNDSEED
+	RET
+
 
 ;*********************************************************
 ;* RAM VARIABLES
 ;*********************************************************
 
 .area	DATA	(REL,CON)
+
+INT_OVERFLOW::	.ds	1
 
 INT_ACC0::	.ds	2
 INT_ACC1::	.ds	2
@@ -965,4 +1016,7 @@ INT_ACC3::	.ds 	2
 
 INT_ACCSTR::	.ds	7
 
-INT_OVERFLOW::	.ds	1
+
+INT_RNDSEED:	.ds	2
+INT_RNDCONST1:	.ds	2
+INT_RNDCONST2:	.ds	2
