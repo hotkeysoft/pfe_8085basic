@@ -75,7 +75,7 @@ K_TO		== K_THEN+1
 
 ; KEYWORDS TABLE
 
-K_TABLE:
+K_TABLE::
 	; arithmetic operators
 	.db K_POWER		.ascii	"^"
 
@@ -143,10 +143,103 @@ K_TABLE:
 	.db K_NONE
 			
 ;*********************************************************
-;* IO_INIT:  INITIALIZES MODULE
-;IO_INIT::
-;	CALL	IO_INITMISC		;INITIALIZE MISC OUTPUTS
-;	RET
+;* TAG2NAME:  	CONVERTS ENCODED VARIABLE NAME (IN B-C)
+;* 		WRITES ASCII NAME IN STR AT (H-L)
+C_TAG2NAME::
+	PUSH	H
+
+	MOV	A,B		; FIRST CHAR IN ACC
+	ANI	127		; STRIP HI BIT
+	
+	MOV	M,A		; FIRST LETTER IN STR
+	INX	H		; HL++
+	
+	MOV	A,C		; SECOND CHAR IN ACC
+	ANI	127		; STRIP HI BIT
+	
+	MOV	M,A		; SECOND LETTER IN STR
+	INX	H		; HL++
+	
+	; SUFFIX, IF ANY
+	MOV	A,B		; FIRST CHAR IN ACC
+	ORA	A		; CHECK SIGN BIT
+	JP	1$		; IF SIGN = 0, NO SUFFIX (INT)
+	
+	MVI	M,'$		; STRING
+	INX	H		; HL++
+	
+1$:
+	MVI	M,0		; END OF STRING
+
+	POP	H
+	RET
+
+;*********************************************************
+;* NAME2TAG:  	CONVERTS NAME AT (X-Y)
+;*		TO ENCODED VARIABLE NAME (IN B-C)
+C_NAME2TAG::
+	PUSH	H
+	
+	MOV	A,M		; FIRST CHAR IN ACC
+	JC	C_ISALPHA	; CHECK IF CHAR
+	
+	
+error:
+	HLT
+	
+	POP	H
+	RET
+
+;*********************************************************
+;* NAME2TAG:  	CONVERTS STRING AT (X-Y)
+;*		TO INTEGER (IN B-C)
+C_STR2INT::	
+
+	RET
+
+;*********************************************************
+;* C_ISALPHA:  	CF=1 IF ACC IN [a..zA..Z]
+C_ISALPHA::
+	CPI	'A		; ACC < 'A'
+	JB	no
+	
+	CPI	'Z + 1		; ACC <= 'Z'
+	JB	yes
+	
+	CPI	'a		; ACC < 'a'
+	JB	no
+	
+	CPI	'z + 1		; ACC <= 'z'
+	jb 	yes
+	
+no:
+	ORA	A		; CLEAR CARRY
+	RET
+
+yes:
+	STC			; SET CARRY
+	RET
+
+
+
+;*********************************************************
+;* C_ISDIGIT:  	CF=1 IF ACC IN [0..9]
+C_ISDIGIT::
+	CPI	'0		; ACC < '0'
+	JB	1$
+	
+	CPI	'9 + 1		; ACC > '9'
+	JAE	1$
+	
+	STC			; SET CARRY
+	RET
+	
+1$:
+	ORA	A		; CLEAR CARRY
+
+	RET
+	
+
 
 ;*********************************************************
 ;* RAM VARIABLES
@@ -155,7 +248,3 @@ K_TABLE:
 .area	DATA	(REL,CON)
 
 ;TICNT:		.ds	2			;TIMER - COUNTER
-
-;IOKBUF:	.ds	16			;KEYBOARD BUFFER
-
-

@@ -66,3 +66,12 @@
 	.globl	K_THEN
 	.globl	K_TO
 
+	.globl	K_TABLE
+	
+	.globl	C_TAG2NAME
+	.globl	C_NAME2TAG
+
+	.globl	C_ISDIGIT
+	.globl	C_ISALPHA
+		
+	.globl	C_STR2INT
