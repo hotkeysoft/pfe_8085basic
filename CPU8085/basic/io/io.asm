@@ -45,7 +45,6 @@ IO_INIT::
 	CALL	IO_INITTIMER		;INITIALIZE TIMER
 	CALL	IO_INITUART		;INITIALIZE UART	
 	CALL	IO_INITKBBUF		;INITIALIZE KEYBOARD BUFFER
-	CALL	IO_INITCONSOLE		;INITIALIZE CONSOLE
 	RET
 
 ;*********************************************************
@@ -277,130 +276,6 @@ IO_PUTHLHEX::
 	CALL	IO_PUTCH	;DISPLAY H IN HEX
 	MOV	A,L		;GET L
 	CALL	IO_PUTCH	;DISPLAY L IN HEX
-	POP	PSW
-	RET
-
-;*********************************************************
-;* OUTPUT CONSOLE ROUTINES (SENDS AVATAR CODES TO TERMINAL
-;*********************************************************
-
-;*********************************************************
-;* IO_INITCONSOLE:  INITIALIZES CONSOLE
-IO_INITCONSOLE:
-	CALL	IO_CLS
-	RET
-
-;*********************************************************
-;* IO_CLS:  CLEARS TERMINAL SCREEN
-IO_CLS::
-	PUSH	PSW
-	
-	MVI	A,12		;^L: CLEARS SCREEN
-	CALL	IO_PUTC
-	
-	MVI	A,3
-	STA	IOCURRATTR	;RESETS ATTRIBUTE
-	
-	POP	PSW
-	RET
-	
-;*********************************************************
-;* IO_GOTOXY:  SET CURSOR POSITION;  X-Y IN H-L
-IO_GOTOXY::
-	PUSH	PSW
-	
-	MVI	A,22		;^V
-	CALL	IO_PUTC
-	MVI	A,8		;^H
-	CALL	IO_PUTC
-	MOV	A,L
-	CALL	IO_PUTC
-	MOV	A,H
-	CALL	IO_PUTC	
-	
-	POP	PSW
-	RET
-
-;*********************************************************
-;* IO_SETCOLOR:  SET COLOR; COMBINED COLOR IN ACC
-IO_SETCOLOR::
-	PUSH	PSW
-	
-	MVI	A,22		;^V
-	CALL	IO_PUTC
-	MVI	A,1		;^A
-	CALL	IO_PUTC
-	
-	POP	PSW
-
-	ANI	0x7F
-	CALL	IO_PUTC		; ATTRIBUTE
-	
-	STA	IOCURRATTR	; REPLACE CURR ATTRIBUTE VAR
-	
-	RET
-
-;*********************************************************
-;* IO_SETBG:  SET BACKGROUND COLOR (IN ACC) (0-7)
-IO_SETBG::
-	PUSH	PSW
-	PUSH	B
-	
-	ANI	0x07		;CLEAR USELESS BITS
-	RLC
-	RLC
-	RLC			;SHIFT 4 BITS TO THE LEFT
-	RLC				
-	MOV 	B,A		;BG COLOR IN B
-	
-	LDA	IOCURRATTR	;CURRENT COLOR IN ACC
-	ANI	0x0F		;CLEAR UPPER BITS
-	
-	ORA	B		;MERGE WITH BG COLOR
-	
-	MOV	B,A		;ATTR IN B
-	
-	STA	IOCURRATTR	;STORE NEW ATTR VALUE
-	
-	MVI	A,22		;^V
-	CALL	IO_PUTC
-	MVI	A,1		;^A
-	CALL	IO_PUTC
-
-	MOV	A,B		;ATTRIBUTE
-	CALL	IO_PUTC	
-
-	POP	B	
-	POP	PSW
-	RET
-
-;*********************************************************
-;* IO_SETFG:  SET FOREGROUND COLOR (IN ACC) (0-15)
-IO_SETFG::
-	PUSH	PSW
-	PUSH	B
-	
-	ANI	0x0F		;CLEAR USELESS BITS
-	MOV 	B,A		;FG COLOR IN B
-	
-	LDA	IOCURRATTR	;CURRENT COLOR IN ACC
-	ANI	0xF0		;CLEAR UPPER BITS
-	
-	ORA	B		;MERGE WITH BG COLOR
-	
-	MOV	B,A		;ATTR IN B
-	
-	STA	IOCURRATTR	;STORE NEW ATTR VALUE
-	
-	MVI	A,22		;^V
-	CALL	IO_PUTC
-	MVI	A,1		;^A
-	CALL	IO_PUTC
-
-	MOV	A,B		;ATTRIBUTE
-	CALL	IO_PUTC	
-	
-	POP	B
 	POP	PSW
 	RET
 
