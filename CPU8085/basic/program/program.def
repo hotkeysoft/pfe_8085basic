@@ -1,2 +1,20 @@
 
-;	.globl	PRG_
+	.globl	PRG_LOPTR
+	.globl	PRG_HIPTR
+
+	.globl	PRG_INIT
+
+	.globl	PRG_NEW
+	.globl	PRG_LIST
+	.globl	PRG_INSERT	
+	.globl	PRG_REMOVE
+	.globl	PRG_RUN
+	.globl	PRG_GOTO
+	.globl	PRG_GOSUB
+	.globl	PRG_RETURN
+	.globl	PRG_END
+	.globl	PRG_STOP
+	.globl	PRG_CONTINUE
+	.globl	PRG_FOR
+	.globl	PRG_NEXT
+	
