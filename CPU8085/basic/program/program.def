@@ -13,6 +13,7 @@
 	.globl	PRG_INSERT	
 	.globl	PRG_REMOVE
 	.globl	PRG_RUN
+	.globl	PRG_RUNIMMEDIATE
 	.globl	PRG_GOTO
 	.globl	PRG_GOSUB
 	.globl	PRG_RETURN
