@@ -23,7 +23,7 @@ STR_ALLOCATE::
 	PUSH	PSW
 	
 	ADI	3				; ADD 3 TO LENGTH
-							; (STRLEN + REF PTR)
+						; (STRLEN + REF PTR)
 	; CALCULATE -ACC
 	CMA					; ACC = ~ACC
 	INR	A				; ACC = ~ACC+1
