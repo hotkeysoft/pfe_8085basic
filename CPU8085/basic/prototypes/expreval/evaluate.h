@@ -10,7 +10,6 @@ public:
 
 	static void Evaluate(KEYWORDS);
 
-protected:
 	static void UnaryOp();
 	static void BinaryOp();
 	static void TernaryOp();
