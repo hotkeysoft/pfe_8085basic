@@ -14,7 +14,7 @@ bool findToken(const char *in, char &token, int &length)
 		if (strnicmp(in, currKeyword->name, strlen(currKeyword->name)) == 0)
 		{
 			token = currKeyword->id;
-			length = strlen(currKeyword->name);
+			length = (int)strlen(currKeyword->name);
 			return true;
 		}
 
@@ -150,7 +150,7 @@ void tokenize1(char *inout)
 }
 
 // Tokenize, pass 2: encodes variables & constants
-void tokenize2(const char *in, char *out)
+BYTE tokenize2(const char *in, char *out)
 {
 	const BYTE *currIn = (const BYTE *)in;
 	char *currOut = out;
@@ -296,5 +296,5 @@ void tokenize2(const char *in, char *out)
 		}
 	}
 
-	return;
+	return (BYTE)(currOut-out+1);
 }
