@@ -3,6 +3,10 @@
 
 #include "stdafx.h"
 
+#include <map>
+
+#include "..\include\common.h"
+
 int main(int argc, char* argv[])
 {
 
