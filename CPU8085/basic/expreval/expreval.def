@@ -8,7 +8,8 @@
 	
 	.globl	EXP_PUSH
 	.globl	EXP_POP
-	
+	.globl	EXP_POPPUSH
+		
 	.globl	EXP_CLRSTACK
 	.globl	EXP_ISSTACKEMPTY	
 
