@@ -5,6 +5,9 @@
 	.globl	STR_CMP
 	.globl	STR_GARBAGECOLLECTION
 	
-	; TESTS ONLY
 	.globl	STR_LOPTR
 	.globl	STR_HIPTR
+
+.if DEBUG
+	.globl	STR_DUMPSTRINGS
+.endif

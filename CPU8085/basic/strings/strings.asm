@@ -2,6 +2,7 @@
 .title 		Strings module
 
 .include	'..\common\common.def'
+.include	'..\io\io.def'
 
 .area	BOOT	(ABS)
 
@@ -114,51 +115,51 @@ STR_COPY::
 ;*
 STR_CMP::
 
-LOOP:	
+1$:	
 	; CHECK FOR END OF STRING
 	MOV	A,B				; LEN1 IN ACC
 	ORA	A				; CHECK FOR 0
-	JZ	END
+	JZ	3$
 
 	MOV	A,C				; LEN2 IN ACC
 	ORA	A				; CHECK FOR 0
-	JZ	END
+	JZ	3$
 	
 	; COMPARE TWO CHARS
 	LDAX	D				; CURR STR1 CHAR IN ACC
 	CMP	M				; COMPARE WITH STR2 CHAR
 	
-	JZ	SKIP
-	JB	LESS
-	JMP	MORE
+	JZ	2$
+	JB	5$
+	JMP	6$
 	
-SKIP:	; THE TWO CHARS ARE EQUAL
+2$:	; THE TWO CHARS ARE EQUAL
 	INX	D				; STR1PTR++
 	INX	H				; STR2PTR++
 	DCR	B				; LENGTH1--
 	DCR	C				; LENGTH2--
-	JMP	LOOP
+	JMP	1$
 	
 	
-END:	; END OF AT LEAST ONE STRING
+3$:	; END OF AT LEAST ONE STRING
 	MOV	A,B				; LEN1 IN ACC
 	ORA	A				; CHECK FOR ZERO
-	JNZ	MORE	
+	JNZ	6$	
 	
 	MOV	A,C				; LEN2 IN ACC
 	ORA	A				; CHECK FOR ZERO
-	JNZ	LESS
+	JNZ	5$
 	
 
-EQUAL:	; EQUAL, RETURN 0
+4$:	; EQUAL, RETURN 0
 	MVI	A,0
 	RET
 
-LESS:	; LESS, RETURN -1
+5$:	; LESS, RETURN -1
 	MVI	A,0xFF
 	RET
 
-MORE:	; MORE, RETURN +1
+6$:	; MORE, RETURN +1
 	MVI	A,0x01
 	RET
 
@@ -167,6 +168,64 @@ MORE:	; MORE, RETURN +1
 ;* STR_GARBAGECOLLECTION:
 STR_GARBAGECOLLECTION::
 	RET
+
+.if DEBUG
+STR_DUMPSTRINGS::
+	PUSH	B
+	PUSH	D
+	PUSH	H
+	
+	LHLD	STR_HIPTR
+	XCHG
+	LHLD	STR_LOPTR
+	
+1$:
+	MOV	A,E
+	CMP	L
+	JNZ	2$
+	
+	MOV	A,D
+	CMP	H
+	JNZ	2$
+	
+	CALL	IO_PUTCR	
+	POP	H
+	POP	D
+	POP	B
+	RET		
+	
+2$:
+	MVI	A,'(
+	CALL	IO_PUTC
+	
+	MOV	C,M			; READ LO BYTE (PARENT)
+	INX	H
+	MOV	B,M			; READ HI BYTE (PARENT)
+	INX	H
+	
+	MOV	A,B
+	CALL	IO_PUTCH		; PRINT PARENT PTR
+	MOV	A,C
+	CALL	IO_PUTCH
+	
+	MVI	A,')
+	CALL	IO_PUTC	
+
+	MVI	A,' 
+	CALL	IO_PUTC
+	MVI	A,'"
+	CALL	IO_PUTC
+	
+	MOV	B,M			; READ SIZE
+	INX	H
+	CALL	IO_PUTSN		; PRINT STRING
+	
+	MVI	A,'"
+	CALL	IO_PUTC
+	CALL	IO_PUTCR
+
+	JMP	1$
+.endif
 
 
 ;*********************************************************
