@@ -311,8 +311,16 @@ void DoPrint(bool execute)
 		switch(*currIn)
 		{
 		case ',':	
-			if (execute) {std::cout << '\t';} ++currIn; break;
-		case ';':	++currIn;	insertNewLine = false; break;
+			if (execute) {std::cout << '\t';} 
+			++currIn; 
+			insertNewLine = false;
+			SkipWhitespace();
+			break;
+		case ';':	
+			++currIn;	
+			insertNewLine = false; 
+			SkipWhitespace();
+			break;
 		case ':':	break;
 		case 0:		break;
 		case K_ELSE:break;
