@@ -2,9 +2,13 @@
 
 Error errorStr[] = {
 	// arithmetic operators
-	E_TOK_UNKNOWN,		"TOK: Unknown",
-	E_TOK_NOENDSTR,		"TOK: Unterminated string constant",
-	E_TOK_INVALIDCHAR,	"TOK: Invalid symbol",
+	E_TOK_UNKNOWN,			"TOK: Unknown",
+	E_TOK_NOENDSTR,			"TOK: Unterminated string constant",
+	E_TOK_INVALIDCHAR,		"TOK: Invalid symbol",
+
+	E_EXP_STACKOVERFLOW,	"EXP: Stack overflow",
+	E_EXP_STACKUNDERFLOW,	"EXP: Stack underflow",
+	E_EXP_TYPEMISMATCH,		"EXP: Type mismatch",
 
 	E_UNKNOWN,			"Unknown Error"
 };

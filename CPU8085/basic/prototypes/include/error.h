@@ -10,6 +10,11 @@ enum ErrorType
 	E_TOK_NOENDSTR,			// unterminated string constant	
 	E_TOK_INVALIDCHAR,		// invalid character
 
+	// expression evaluator error
+	E_EXP_STACKOVERFLOW,	// 'formula too complex'
+	E_EXP_STACKUNDERFLOW,	// syntax error?
+	E_EXP_TYPEMISMATCH,		// type mismatch (i.e. int+str, str*str, etc...)
+
 	E_UNKNOWN				// general error
 };
 
