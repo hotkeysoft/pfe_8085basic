@@ -7,5 +7,7 @@
 ..\..\bin\AS8085.EXE -lo ..\tokenize\tokenize
 ..\..\bin\AS8085.EXE -lo ..\variables\variable
 ..\..\bin\AS8085.EXE -lo ..\strings\strings
+..\..\bin\AS8085.EXE -lo ..\io\io
+..\..\bin\AS8085.EXE -lo ..\error\error
 ..\..\bin\aslink.exe -f expreval
 ..\..\bin\hexbin expreval.ihx
