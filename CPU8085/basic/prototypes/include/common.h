@@ -49,6 +49,8 @@ enum KEYWORDS {
 	K_SGN,
 	K_SQR,
 	K_VAL,
+	K_SIN,
+	K_COS,
 	
 	K_CHR		= 0xB0,
 	K_LEFT,

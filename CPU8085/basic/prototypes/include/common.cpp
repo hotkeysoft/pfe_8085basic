@@ -40,6 +40,9 @@ Keyword keywords[] = {
 	K_SGN,			"SGN",
 	K_SQR,			"SQR",
 	K_VAL,			"VAL",
+	K_SIN,			"SIN",
+	K_COS,			"COS",
+
 	
 	// string functions (return string)
 	K_CHR,			"CHR$",
