@@ -20,7 +20,8 @@ enum KEYWORDS {
 	K_NEGATE,
 
 	K_MULTIPLY,
-	K_DIVIDE,
+	K_IDIVIDE,
+	K_FDIVIDE,
 
 	K_ADD,
 	K_SUBSTRACT,
@@ -100,6 +101,10 @@ extern BYTE *HiStrStack;
 
 extern BYTE *LoAutoVars;
 extern BYTE *HiAutoVars;
+
+extern BYTE *tempVar1;
+extern BYTE *tempVar2;
+extern BYTE *tempVar3;
  
 void Tag2Name(const BYTE tag[2], std::string &name);
 void Name2Tag(std::string name, BYTE tag[2]);

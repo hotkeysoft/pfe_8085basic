@@ -10,7 +10,8 @@ Keyword keywords[] = {
 	K_NEGATE,		"-",	// negation (unary)
 
 	K_MULTIPLY,		"*",
-	K_DIVIDE,		"/",
+	K_FDIVIDE,		"/",
+	K_IDIVIDE,		"\\",
 		
 	K_ADD,			"+",
 	K_SUBSTRACT,	"-",
@@ -90,6 +91,9 @@ BYTE *HiStrStack = 0;
 BYTE *LoAutoVars = 0;
 BYTE *HiAutoVars = 0;
 
+BYTE *tempVar1;
+BYTE *tempVar2;
+BYTE *tempVar3;
 
 void Tag2Name(const BYTE tag[2], std::string &name)
 {
