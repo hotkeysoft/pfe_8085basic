@@ -185,7 +185,7 @@ C_TAG2NAME::
 	RET
 
 ;*********************************************************
-;* C_NAME2TAG:  CONVERTS NAME AT (X-Y)
+;* C_NAME2TAG:  CONVERTS NAME AT (H-L)
 ;*		TO ENCODED VARIABLE NAME (IN B-C)
 C_NAME2TAG::
 	MVI	C,0
