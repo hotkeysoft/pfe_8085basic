@@ -41,6 +41,7 @@
 
 	.globl	K_ABS
 	.globl	K_ASC
+	.globl	K_FRE
 	.globl	K_INT
 	.globl	K_IN
 	.globl	K_LEN
