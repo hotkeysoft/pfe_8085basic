@@ -59,7 +59,8 @@ K_STR		== K_RIGHT+1
 K_BEEP		== 0xC0
 K_CLR		== K_BEEP+1
 K_CLS		== K_CLR+1
-K_ELSE		== K_CLS+1
+K_COLOR		== K_CLS+1
+K_ELSE		== K_COLOR+1
 K_END		== K_ELSE+1
 K_FOR		== K_END+1
 K_GOSUB		== K_FOR+1
@@ -85,8 +86,7 @@ K_TO		== K_THEN+1
 
 .if DEBUG
 K_DUMPVAR	== 0xE0
-K_DUMPSTK	== K_DUMPVAR+1
-K_DUMPSTR	== K_DUMPSTK+1
+K_DUMPSTR	== K_DUMPVAR+1
 .endif
 
 ; KEYWORDS TABLE
@@ -137,6 +137,7 @@ K_TABLE::
 	.db K_BEEP		.ascii "BEEP"	
 	.db K_CLR		.ascii "CLR"
 	.db K_CLS		.ascii "CLS"
+	.db K_COLOR		.ascii "COLOR"	
 	.db K_ELSE		.ascii "ELSE"
 	.db K_END		.ascii "END"
 	.db K_FOR		.ascii "FOR"
@@ -164,7 +165,6 @@ K_TABLE::
 	
 .if DEBUG
 	.db K_DUMPVAR		.ascii "DUMPVAR"
-	.db K_DUMPSTK		.ascii "DUMPSTK"
 	.db K_DUMPSTR		.ascii "DUMPSTR"
 .endif	
 	.db K_NONE

@@ -57,6 +57,7 @@
 	.globl	K_BEEP
 	.globl	K_CLR
 	.globl	K_CLS
+	.globl	K_COLOR
 	.globl	K_ELSE
 	.globl	K_END
 	.globl	K_FOR
@@ -83,7 +84,6 @@
 	
 .if DEBUG
 	.globl	K_DUMPVAR
-	.globl	K_DUMPSTK
 	.globl	K_DUMPSTR
 .endif	
 
