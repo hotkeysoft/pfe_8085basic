@@ -1,0 +1,5 @@
+-mxiuz
+        ..\basic\io\io
+       	monitor
+        -b DATA   = 0x8000
+        -e

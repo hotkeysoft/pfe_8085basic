@@ -1,0 +1,5 @@
+-mxiuz
+        io
+        test
+        -b DATA   = 0x8000
+        -e

@@ -1,0 +1,38 @@
+.module 	iotest
+.title 		Tests IO Module
+
+STACK	==	0xFFFF			;SYSTEM STACK
+
+.area	BOOT	(ABS)
+
+.org 	0x0000
+	
+RST0:
+	DI
+	LXI	SP,STACK		;INITALIZE STACK
+	JMP 	START
+
+
+;*********************************************************
+;* MAIN PROGRAM
+;*********************************************************
+.area 	_CODE
+
+START:
+	CALL	IO_INITMISC		;INITIALIZE MISC OUTPUTS
+	CALL	IO_INITTIMER		;INITIALIZE TIMER
+	CALL	IO_INITUART		;INITIALIZE UART	
+	CALL	IO_INITKBBUF		;INITIALIZE KEYBOARD BUFFER
+
+	MVI	A,8			;SET INTERRUPT MASK
+	SIM
+	EI				;ENABLE INTERRUPTS
+
+LOOP:
+	CALL	IO_BEEP			;MAKE SOME NOISE!
+
+	MVI	A,10		
+	CALL 	IO_DELAY		;WAIT 5 * 100 MS
+
+	JMP	LOOP
+
