@@ -7,6 +7,7 @@
 .include	'..\io\io.def'
 .include	'..\error\error.def'
 .include	'..\program\program.def'
+.include	'..\strings\strings.def'
 .include	'evaluate.def'
 
 
@@ -54,6 +55,9 @@ EXP_EXPREVAL::
 	
 	CPI	SID_VAR
 	JZ	6$
+
+	CPI	K_CLR
+	JZ	7$
 	
 	JMP	ERR_UNKNOWN
 	
@@ -79,6 +83,11 @@ EXP_EXPREVAL::
 6$:	; LET
 	CALL	EXP_DO_LET
 	JMP	100$
+
+7$:	; CLR
+	CALL	EXP_DO_CLR
+	JMP	100$
+
 
 100$:	
 	CALL	EXP_SKIPWHITESPACE
@@ -301,6 +310,26 @@ END:
 	POP	B
 	RET
 
+;*********************************************************
+;* EXP_DO_CLR: 	EXECUTE CLR
+;*		IN: C = EXECUTE
+EXP_DO_CLR:
+	INX	H			; SKIP KEYWORD
+
+	MOV	A,C
+	CPI	FALSE			; CHECK EXECUTE FLAG
+	RZ
+
+	PUSH	H
+	LHLD	PRG_HIPTR		; READ TOP OF PRG MEMORY
+	SHLD	VAR_LOPTR		; CLEAR VARIABLE MEMORY
+	SHLD	VAR_HIPTR
+	
+	LHLD	STR_HIPTR		; CLEAR STRING MEMORY
+	SHLD	STR_LOPTR
+	POP	H
+
+	RET
 
 ;*********************************************************
 ;* EXP_L0:  LEVEL 0 (AND/OR/XOR)
