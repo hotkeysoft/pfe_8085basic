@@ -28,6 +28,8 @@ const short fb_size = (80*25)*2;
 
 enum bool {false, true};
 
+bool echo = true;
+
 bool io_getChar(char &ch)
 {
 	ch = inportb(PORT1 + 5);     /* Check to see if char has been */
@@ -35,6 +37,12 @@ bool io_getChar(char &ch)
 	if (ch & 1)
 	{
 		ch = inportb(PORT1); 	/* If so, then get Char          */
+		return true;
+	}
+
+	if (kbhit())
+	{
+		ch = getch();         	/* If key pressed, get Char */
 		return true;
 	}
 
@@ -80,9 +88,39 @@ void fb_memsetw(char *src, char c, char a, short size)
 	}
 }
 
-void fb_home()
+void fb_homeX()
+{
+	fb_currpos = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer;
+	updateCursor();
+}
+
+void fb_homeY()
+{
+	fb_currpos = (fb_currpos-fb_buffer)%160 + fb_buffer;
+	updateCursor();
+}
+
+void fb_homeXY()
 {
 	fb_currpos = fb_buffer;
+	updateCursor();
+}
+
+void fb_endX()
+{
+	fb_currpos = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer + 158;
+	updateCursor();
+}
+
+void fb_endY()
+{
+	fb_currpos = (fb_currpos-fb_buffer)%160 + fb_buffer + (24*160);
+	updateCursor();
+}
+
+void fb_endXY()
+{
+	fb_currpos = fb_buffer+fb_size-2;
 	updateCursor();
 }
 
@@ -92,7 +130,7 @@ void fb_cls()
 
 	fb_memsetw(fb_buffer, 0, fb_defattr, fb_size);
 
-	fb_home();
+	fb_homeXY();
 }
 
 void fb_setcolor(char c)
@@ -133,12 +171,24 @@ void putChar(const char c)
 
 void fb_moveup()
 {
-
+	if (fb_currpos-fb_buffer >= 160)
+	{
+		fb_currpos -= 160;
+		updateCursor();
+	}
 }
 
 void fb_movedown()
 {
-
+	if ((fb_buffer+fb_size) - fb_currpos > 160)
+	{
+		fb_currpos += 160;
+		updateCursor();
+	}
+	else
+	{
+		fb_scrollup();
+	}
 }
 
 void fb_moveleft()
@@ -163,6 +213,19 @@ void fb_moveright()
 	updateCursor();
 }
 
+void fb_insert()
+{
+
+}
+void fb_backspace()
+{
+
+}
+void fb_delete()
+{
+
+}
+
 void processChar()
 {
 	char x,y;
@@ -179,7 +242,15 @@ void processChar()
 		case 6:		fb_moveleft();	break;
 		case 7:		fb_moveright();	break;
 		case 11:   	x = waitForChar(); y = waitForChar(); fb_gotoxy(x,y);	break;
-		case 12:	fb_home();		break;
+		case 12:	fb_homeX();		break;
+		case 13:	fb_homeY();		break;
+		case 14:	fb_homeXY();	break;
+		case 15:	fb_endX();		break;
+		case 16:	fb_endY();		break;
+		case 17:	fb_endXY();		break;
+		case 32:	fb_insert();	break;
+		case 33:	fb_backspace();	break;
+		case 34:	fb_delete();	break;
 	}
 }
 
@@ -224,11 +295,11 @@ void main(void)
 
 		}
 
-		if (kbhit())
-		{
-			ch = getch();         	/* If key pressed, get Char */
-			outportb(PORT1, ch);	/* Send Char to Serial Port */
-		}
+//		if (kbhit())
+//		{
+//			ch = getch();         	/* If key pressed, get Char */
+//			outportb(PORT1, ch);	/* Send Char to Serial Port */
+//		}
 
 	} while (ch !=27); /* Quit when ESC (ASC 27) is pressed */
 }
