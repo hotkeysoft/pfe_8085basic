@@ -6,8 +6,6 @@
 #include "tokenize.h"
 #include "untokenize.h"
 
-#include "..\include\error.h"
-
 int main(int argc, char* argv[])
 {
 	char str[256];

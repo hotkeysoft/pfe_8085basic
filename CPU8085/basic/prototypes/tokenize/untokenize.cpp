@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-#include "..\include\common.h"
 #include "untokenize.h"
 #include "tokenize.h"
 
