@@ -1,0 +1,4 @@
+
+	.globl	VAR_TEMP1
+	.globl	VAR_TEMP2
+	.globl	VAR_TEMP3
