@@ -7,6 +7,7 @@
 #include "..\tokenize\untokenize.h"
 #include "..\variables\variables.h"
 #include "..\strings\strings.h"
+#include "..\program\program.h"
 #include "expreval.h"
 #include "exprstack.h"
 
@@ -21,6 +22,9 @@ int main(int argc, char* argv[])
 
 	LoStrStack = Memory+30000;
 	HiStrStack = LoStrStack;
+
+	LoProgram = Memory+2048;
+	HiProgram = Memory+2048;
 
 	LoAutoVars = Memory+2048;
 	HiAutoVars = Memory+2048;
@@ -37,8 +41,6 @@ int main(int argc, char* argv[])
 
 	try
 	{
-
-
 		Name2Tag("pi", tag1);
 		Name2Tag("sh%", tag2);
 		Name2Tag("a", tag3);
@@ -83,14 +85,45 @@ int main(int argc, char* argv[])
 		{
 			CExprStack::Empty();
 
-			tokenize1((char *)Memory);
-			tokenize2((char *)Memory, (char *)(Memory+256));
+			if (isdigit(*Memory))
+			{
+				short line;
+				int length;
+				stringToShort(Memory, line, length);
 
-			std::cout << untokenize((char *)(Memory+256)) << std::endl;
+				if (line < 1)
+				{
+					throw CError();
+				}
 
-			expreval((char *)(Memory+256));
+				if (*(Memory+length) == ' ')
+				{
+					++length;
+				}
 
-			CExprStack::Dump();
+				tokenize1((char *)(Memory+length));
+				BYTE lineLength = tokenize2((char *)(Memory+length), (char *)(Memory+256));
+
+				if (strncmp((char *)(Memory+256), "", lineLength) == 0)
+				{
+					CProgram::Remove(line);
+				}
+				else
+				{
+					CProgram::Insert(line, Memory+256, lineLength);
+				}
+
+//				CProgram::List();
+			}
+			else	// Immediate mode
+			{
+				tokenize1((char *)Memory);
+				tokenize2((char *)Memory, (char *)(Memory+256));
+
+				expreval((char *)(Memory+256));
+				std::cout << "Ready." << std::endl;
+//				CExprStack::Dump();
+			}
 		}
 		catch (CError e)
 		{
