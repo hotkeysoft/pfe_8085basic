@@ -296,5 +296,6 @@ BYTE tokenize2(const char *in, char *out)
 		}
 	}
 
+	*currOut = 0;
 	return (BYTE)(currOut-out+1);
 }
