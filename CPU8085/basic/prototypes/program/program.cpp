@@ -181,6 +181,12 @@ void CProgram::Run(short lineNo)
 			InIf = false;
 		}
 	}  	
+
+	CurrLine = 0;
+	CurrPos = 0;
+	IsEnd = false;
+	InIf = false;
+
 }
 
 void CProgram::Goto(short lineNo)
