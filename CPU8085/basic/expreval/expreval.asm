@@ -79,11 +79,8 @@ EXP_EXPREVAL::
 	CPI	K_RETURN
 	JZ	13$
 
-	CPI	K_STOP
-	JZ	14$
-
-	CPI	K_CONT
-	JZ	15$
+	CPI	K_CLS
+	JMP	14$
 
 	CPI	K_FOR
 	JZ	16$
@@ -161,16 +158,11 @@ EXP_EXPREVAL::
 	JZ	101$				; EXIT
 	JMP	100$
 
-14$:	; STOP
-	CALL	EXP_DO_STOP
-	JZ	101$				; EXIT
+14$:	; CLS
+	CALL	EXP_DO_CLS
 	JMP	100$
-	
-15$:	; CONTINUE
-	CALL	EXP_DO_CONT
-	JZ	101$				; EXIT
-	JMP	100$
-	
+
+
 16$:	; FOR
 ;	CALL	EXP_DO_FOR
 	JMP	ERR_UNKNOWN
@@ -257,6 +249,20 @@ EXP_DO_NEW:
 
 	CALL	PRG_NEW
 	RET
+
+;*********************************************************
+;* EXP_DO_CLS: 	EXECUTE CLS
+;*		IN: C = EXECUTE
+EXP_DO_CLS:
+	INX	H			; SKIP KEYWORD
+
+	MOV	A,C
+	CPI	FALSE			; CHECK EXECUTE FLAG
+	RZ
+
+	CALL	IO_CLS
+	RET
+
 
 ;*********************************************************
 ;* EXP_DO_PRINT:EXECUTE PRINT
@@ -555,35 +561,6 @@ EXP_DO_RETURN:
 	RZ
 
 	CALL	PRG_RETURN		; EXECUTE RETURN
-	
-	RET
-
-;*********************************************************
-;* EXP_DO_STOP:		EXECUTE STOP
-;*			IN: B = INIF
-;*			IN: C = EXECUTE
-EXP_DO_STOP:
-	INX	H			; SKIP KEYWORD
-
-	MOV	A,C
-	CPI	FALSE			; CHECK EXECUTE FLAG
-	RZ
-
-	CALL	PRG_STOP		; EXECUTE STOP
-	
-	RET
-
-;*********************************************************
-;* EXP_DO_CONT:		EXECUTE CONTINUE
-;*			IN: C = EXECUTE
-EXP_DO_CONT:
-	INX	H			; SKIP KEYWORD
-
-	MOV	A,C
-	CPI	FALSE			; CHECK EXECUTE FLAG
-	RZ
-
-	CALL	PRG_CONTINUE		; EXECUTE CONTINUE
 	
 	RET
 
