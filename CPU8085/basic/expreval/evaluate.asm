@@ -4,6 +4,7 @@
 .include	'expreval.def'
 .include	'..\common\common.def'
 .include	'..\variables\variable.def'
+.include	'..\integer\integer.def'
 
 .area	_CODE
 
@@ -11,7 +12,8 @@
 ;*********************************************************
 ;* EVAL_EVALUATE: 	EVALUATE FUNCTION (KEYWORD IN ACC)
 EVAL_EVALUATE::
-
+	PUSH	H
+	
 	STA	EVAL_CURRKEYWORD
 
 	CPI	K_POWER
@@ -29,7 +31,7 @@ EVAL_EVALUATE::
 	CPI	K_SUBSTRACT
 	JZ	CALC
 	
-	RET
+	JMP	END
 
 CALC:
 	CALL	EVAL_BINARYOP
@@ -38,6 +40,7 @@ CALC:
 	JMP	END
 	
 END:
+	POP	H
 	RET
 
 ;*********************************************************
@@ -69,14 +72,77 @@ EVAL_TERNARYOP:
 ;* EVAL_CHECKSAMSTYPE: 	CHECKS IF VAR_TEMP1 & VAR_TEMP2
 ;*			ARE OF SAME TYPE
 EVAL_CHECKSAMETYPE:
-
+	LDA	VAR_TEMP1			; TYPE OF VAR1 IN ACC
+	MOV	B,A				; COPY TO B
+	LDA	VAR_TEMP2			; TYPE OF VAR2 IN ACC
+	
+	CMP	B
+	JNZ	TYPEERR
+		
 	RET
+
+TYPEERR:	
+	HLT
 
 ;*********************************************************
 ;* EVAL_BINARYCALC: 	EVALUATES BINARY CALCULATION
 ;*			(+, -, * /)
-EVAL_BINARYCALC:
+EVAL_BINARYCALC::
+	LDA	VAR_TEMP1			; TYPE OF VAR1 IN ACC
+	CPI	SID_CSTR
+	JZ	STR
+	
+	; OPERATION ON INTEGERS
+	
+	LHLD	VAR_TEMP2+1			; HL = VAR_TEMP2 VALUE
+	SHLD	INT_ACC0			; PUT IN INT_ACC0
+	
+	LXI	H,VAR_TEMP1+1
+	
+	LDA	EVAL_CURRKEYWORD		; ACC = CURR KEYWORD
+	
+	CPI	K_ADD
+	JZ	IADD
+	
+	CPI	K_SUBSTRACT
+	JZ	ISUB
+	
+	CPI	K_MULTIPLY
+	JZ	IMUL
+	
+	CPI	K_DIVIDE
+	JZ	IDIV
+	
+IADD:	
+	CALL	INT_ADD
+	JMP	IRET
+	
+ISUB:
+	CALL	INT_SUB
+	JMP	IRET
 
+IMUL:
+	CALL	INT_MUL
+	JMP	IRET
+
+IDIV:	
+	CALL	INT_DIV
+	JMP	IRET
+	
+IRET:	
+	LHLD	INT_ACC0			; READ OP RESULT
+	SHLD	VAR_TEMP3+1			; PUT IN VAR_TEMP3
+	
+	MVI	A,SID_CINT			; FLAG AS AN INT
+	STA	VAR_TEMP3			; PUT AT BEGINNING OF VAR_TEMP3
+	
+	LXI	H,VAR_TEMP3			; ADDRESS OF VAR_TEMP3 IN HL	
+	CALL	EXP_PUSH			; PUSH RESULT ON STACK
+	
+	RET	
+	
+STR:	
+	
 	RET
 
 ;*********************************************************
