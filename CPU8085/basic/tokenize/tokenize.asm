@@ -4,6 +4,7 @@
 .include	'..\common\common.def'
 .include	'..\integer\integer.def'
 .include	'..\error\error.def'
+.include	'..\io\io.def'
 
 .area	_CODE
 
@@ -467,9 +468,91 @@ TOK_TOKENIZE2::
 ;*		   OUTPUT TEXT VERSION TO CONSOLE
 TOK_UNTOKENIZE::
 	
-;LOOP:
+LOOP:
+	MOV	A,M				; CURRENT CHAR IN ACC
+	
+	CPI	0				; CHECK FOR END OF STRING
+	JZ	END
+	
+	CPI	SID_CINT			; INT?
+	JZ	INT
+	
+	CPI	SID_CSTR
+	JZ	STR
+	
+	CPI	SID_VAR
+	JZ	VAR
+	
+	CPI	0x80
+	JAE	TOKEN
+	
+	CALL	IO_PUTC				; MISC CHAR 
+	
+	INX	H				; NEXT CHAR
+	JMP	LOOP				; LOOP
+	
+INT:
+	INX	H				; HL++
+	
+	MOV	E,M				; READ INT IN DE (LO)
+	INX	H				; HL++
+	MOV	D,M				; (HI)
+	INX	H				; HL++
+	
+	XCHG					; SWAP HL<->DE
+	
+	SHLD	INT_ACC0			; PUT IN INT_ACC0
+	CALL	INT_ITOA			; CONVERT TO STRING
+	CALL	IO_PUTS				; PRINT IT
 
+	XCHG					; GET BACK PTR
+	JMP	LOOP				; LOOP
 
+STR:
+
+	INX	H				; NEXT CHAR
+	
+	MOV	B,M				; LENGTH OF STRING IN B
+	INX	H
+	
+	MVI	A,'"				; PUT QUOTES AROUND STRING
+	CALL	IO_PUTC
+	
+	CALL	IO_PUTSN			; PRINT STRING
+
+	MVI	A,'"
+	CALL	IO_PUTC
+	
+	JMP	LOOP				; LOOP
+
+VAR:
+	INX	H
+	
+	MOV	B,M				; READ TAG
+	INX	H				; IN BC
+	MOV	C,M
+	INX	H
+	
+	XCHG					; KEEP CURRPOS IN DE
+	
+	LXI	H,TOK_TEMPSTR			; DEST FOR STRING NAME
+	CALL	C_TAG2NAME			; CONVERT TAG TO STRING
+	CALL	IO_PUTS				; PRINT IT
+	
+	XCHG
+	JMP	LOOP				; LOOP
+
+TOKEN:
+	XCHG					; SWAP HL<->DE
+	CALL 	TOK_FINDTOKENSTR		; FIND TEXT EQUIVALENT
+	CALL	IO_PUTS				; PRINT STRING
+
+	XCHG					; SWAP HL<->DE
+
+	INX	H				; NEXT CHAR
+	JMP	LOOP				; LOOP
+
+END:
 	RET
 
 ;*********************************************************
@@ -482,3 +565,5 @@ TOK_CURRTOKEN::		.ds	1		; CURRENT TOKEN ID
 TOK_CURRTOKENLEN::	.ds	1		; CURRENT TOKEN LENGTH
 
 TOK_LASTTOKEN:		.ds	1		; USED BY TOKENIZE1&2
+
+TOK_TEMPSTR:		.ds	4		; USED BY UNTOKENIZE
