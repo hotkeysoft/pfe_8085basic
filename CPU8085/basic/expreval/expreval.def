@@ -10,6 +10,7 @@
 	.globl	EXP_POP
 	
 	.globl	EXP_CLRSTACK
+	.globl	EXP_ISSTACKEMPTY	
 
 	.globl	EXP_SKIPWHITESPACE
 
