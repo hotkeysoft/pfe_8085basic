@@ -42,6 +42,10 @@ PRG_NEW::
 ;*********************************************************
 ;* PRG_LIST:	LISTS PROGRAM
 PRG_LIST::
+	PUSH	B
+	PUSH	D
+	PUSH	H
+	
 	LHLD	PRG_LOPTR			; BEGIN OF PROGRAM
 	
 1$:
@@ -54,6 +58,9 @@ PRG_LIST::
 	CMP	H
 	JNZ	2$
 
+	POP	H
+	POP	D
+	POP	B
 	RET
 	
 2$:
