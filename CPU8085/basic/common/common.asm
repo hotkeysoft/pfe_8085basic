@@ -1,6 +1,7 @@
 .module 	common
 .title 		Common functions
 
+.include	'..\error\error.def'
 
 .area	_CODE
 
