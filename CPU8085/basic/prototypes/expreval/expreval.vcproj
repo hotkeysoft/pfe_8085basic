@@ -139,6 +139,9 @@
 				RelativePath="main.cpp">
 			</File>
 			<File
+				RelativePath="..\program\program.cpp">
+			</File>
+			<File
 				RelativePath=".\StdAfx.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -183,6 +186,9 @@
 			</File>
 			<File
 				RelativePath="ExprStack.h">
+			</File>
+			<File
+				RelativePath="..\program\program.h">
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">
