@@ -13,53 +13,9 @@ CExprStack::~CExprStack(void)
 
 void CExprStack::push(BYTE *elem)
 {
-	switch(*elem)
-	{
-	case SID_CFLOAT:	pushCFLOAT(elem);		break;
-	case SID_CINT:		pushCINT(elem);			break;
-	case SID_CSTR:		pushCSTR(elem);			break;
-	case SID_VAR:		pushVAR(elem);			break;
-	}
-}
-
-void CExprStack::pushCINT(BYTE *elem)
-{
 	if (CurrExpStack >= HiExpStack) throw CError(E_EXP_STACKOVERFLOW);
 
-	memcpy(CurrExpStack, elem, 1+sizeof(int));
-
-	CurrExpStack+=5;
-}
-
-void CExprStack::pushCFLOAT(BYTE *elem)
-{
-	if (CurrExpStack >= HiExpStack) throw CError(E_EXP_STACKOVERFLOW);
-
-	memcpy(CurrExpStack, elem, 1+sizeof(float));
-
-	CurrExpStack+=5;
-}
-
-void CExprStack::pushCSTR(BYTE *elem)
-{
-	if (CurrExpStack >= HiExpStack) throw CError(E_EXP_STACKOVERFLOW);
-
-	// store offset from Memory[], since ptr doesn't fit.  
-	// On micro, ptr takes only two bytes
-	
-	*(CurrExpStack) = *(elem);			// Type=STR
-	*(CurrExpStack+1) = *(elem+1);			// str length
-	WORD offset = (elem+2)-Memory;			// 'address'
-    memcpy(CurrExpStack+2, &offset, sizeof(WORD));
-
-	CurrExpStack+=5;	
-}
-
-void CExprStack::pushVAR(BYTE *elem)
-{
-	if (CurrExpStack >= HiExpStack) throw CError(E_EXP_STACKOVERFLOW);
-
-	memcpy(CurrExpStack, elem, 3);
+	memcpy(CurrExpStack, elem, 5);
 
 	CurrExpStack+=5;
 }
