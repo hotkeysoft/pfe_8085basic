@@ -554,6 +554,7 @@ TOK_UNTOKENIZE::
 	JMP	1$				; LOOP
 
 6$:
+	INX	H
 	POP	D
 	POP	B
 	RET
