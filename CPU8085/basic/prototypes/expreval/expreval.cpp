@@ -515,7 +515,10 @@ void DoRun(bool execute)
 {	
 	++currIn;
 	BYTE *temp = currIn;
-	CProgram::Run();
+	if (execute)
+	{
+		CProgram::Run();
+	}
 	currIn = temp;
 }
 
