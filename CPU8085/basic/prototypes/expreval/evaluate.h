@@ -13,6 +13,8 @@ public:
 protected:
 	static void BinaryOp(KEYWORDS);
 	static void BinaryCalc(KEYWORDS);
+	static void BinaryRel(KEYWORDS);
+	static void BinaryLog(KEYWORDS);
 
 	static void ConvertToSameType();
 	static void ConvertToFloat();

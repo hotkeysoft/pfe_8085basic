@@ -23,13 +23,14 @@ void L0()
 
 	while (1)
 	{
-		BYTE currToken = *currIn;
-		if (currToken == K_AND || currToken == K_OR || currToken == K_XOR)
+		KEYWORDS currToken = (KEYWORDS)*currIn;
+		if (currToken == K_AND || 
+			currToken == K_OR || 
+			currToken == K_XOR)
 		{
 			++currIn;
 			L1();
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		else
 		{
@@ -59,7 +60,7 @@ void L2()
 
 	while (1)
 	{
-		BYTE currToken = *currIn;
+		KEYWORDS currToken = (KEYWORDS)*currIn;
 		if (currToken == K_NOTEQUAL || 
 			currToken == K_LESSEQUAL || 
 			currToken == K_GREATEREQUAL || 
@@ -69,8 +70,7 @@ void L2()
 		{
 			++currIn;
 			L3();
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		else
 		{
