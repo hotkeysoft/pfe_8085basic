@@ -121,10 +121,10 @@ bool tokenize1(const char *in, char *out)
 			}
 			else
 			{
-				*currOut = (char)K_SUBSTRACT;
+				*currOut = (char)K_ADD;
 				++currIn;
 				++currOut;
-				lastToken = (char)K_SUBSTRACT;	
+				lastToken = (char)K_ADD;
 			}
 			break;
 		case '-':	// special case not handled by findToken function
@@ -219,6 +219,28 @@ bool tokenize2(const char *in, char *out)
 		else if (*currIn == '\"')		// const string
 		{
 			++currIn;
+
+			*currOut = SID_CSTR;
+			++currOut;
+
+			unsigned char length = 0;
+
+			*currOut = length; // will go back later
+			++currOut;
+
+			while (*currIn != '\"')
+			{
+				*currOut = *currIn;
+				++currIn;
+				++currOut;
+
+				++length;
+			}
+
+			++currIn; // skip trailing "
+
+			*(currOut-(length+1)) = length;
+
 		}
 		else if (*currIn == '-' || *currIn == '.' || isdigit(*currIn)) // const int/float
 		{
@@ -249,9 +271,42 @@ bool tokenize2(const char *in, char *out)
 				currOut += sizeof(float);
 			}
 		}
-		else // variable name
+		else if (isalpha(*currIn))	// variable name
 		{
+			*currOut = SID_VAR;
+			++currOut;
+
+			std::string name;
+
+			while (isalpha(*currIn) || isdigit(*currIn) || *currIn == '$' || *currIn == '%')
+			{
+				if (*currIn == '$' || *currIn == '%') // this is the end!
+				{
+					name += *currIn;
+					++currIn;
+					break;
+				}
+				else
+				{
+					name += *currIn;
+					++currIn;
+				}
+			}
+
+			BYTE tag[2];
+			Name2Tag(name, tag);
+
+			*currOut = tag[0];
+			++currOut;
+
+			*currOut = tag[1];
+			++currOut;
+		}
+		else // ???
+		{
+			*currOut = *currIn;
 			++currIn;
+			++currOut;
 		}
 	}
 

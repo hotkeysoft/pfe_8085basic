@@ -37,6 +37,8 @@ std::ostream operator<< (std::ostream &os, const untokenize &u)
 					os << "[UNKNOWN]";
 				}
 			}
+
+			++currChar;
 		}
 		else if (*currChar == SID_CINT)
 		{
@@ -45,7 +47,7 @@ std::ostream operator<< (std::ostream &os, const untokenize &u)
 
 			memcpy(&number, currChar, sizeof(short));
 
-			os << "[I " << number << "]";
+			os << "[CI " << number << "]";
 
 			currChar += sizeof(short);
 		}
@@ -56,17 +58,46 @@ std::ostream operator<< (std::ostream &os, const untokenize &u)
 
 			memcpy(&number, currChar, sizeof(float));
 
-			os << "[F " << number << "]";
+			os << "[CF " << number << "]";
 
 			currChar += sizeof(float);
+		}
+		else if (*currChar == SID_CSTR)
+		{
+			++currChar;
+			unsigned char length = *currChar;
+
+			++currChar;
+
+			std::string str;
+
+			str.assign(currChar, length);
+
+			os << "[CS \"" << str << "\"]";
+
+			currChar += length;
+		}
+		else if (*currChar == SID_VAR)
+		{
+			++currChar;
+			BYTE tag[2];
+
+			tag[0] = *currChar;
+			++currChar;
+			tag[1] = *currChar;
+			++currChar;
+
+			std::string name;
+			Tag2Name(tag, name);
+
+			os << "[V " << name << "]";
 		}
 		else
 		{
 			os << *currChar;
+			++currChar;
 		}
 
-
-		++currChar;
 	}
 
 	return os;
