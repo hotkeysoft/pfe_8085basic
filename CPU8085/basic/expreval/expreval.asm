@@ -166,7 +166,6 @@ EXP_EXPREVAL::
 
 16$:	; FOR
 	CALL	EXP_DO_FOR
-;	JC	101$				; EXIT
 	JMP	100$
 	
 17$:	; NEXT
@@ -654,7 +653,7 @@ EXP_DO_FOR::
 
 2$:
 	PUSH	H
-	
+HERE::
 	MOV	A,C			; CHECK EXECUTE FLAG
 	CPI	FALSE
 	JZ	100$
@@ -711,7 +710,7 @@ EXP_DO_FOR::
 	RET
 	
 100$:
-	ORA	A
+	POP	H
 	POP	D
 	POP	B
 	ORA	A
