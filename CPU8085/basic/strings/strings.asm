@@ -4,7 +4,7 @@
 ;* DESCRIPTION:	IMPLEMENTATION OF STRING HANDLING FUNCTIONS
 ;*		SUCH AS ALLOCATE, FREE, COMPARE, ETC
 ;*
-;* $Id: strings.asm,v 1.21 2001-12-03 03:41:49 Dominic Thibodeau Exp $
+;* $Id: strings.asm,v 1.22 2001-12-03 03:52:43 Dominic Thibodeau Exp $
 ;*
 
 .module 	strings
@@ -575,6 +575,10 @@ CONT3:
 	JB	LOOP3	
 	
 OKK:
+	MOV	A,B			; CHECK IF ADDR = 0
+	ORA	B
+	JZ	LOOP3			; SKIP IN THIS CASE
+	
 	PUSH	H
 	LHLD	STR_GCBLOCKSIZE		; LOAD BLOCK SIZE
 	DAD	B			; HL = PTR+OFFSET
