@@ -30,6 +30,7 @@ enum bool {false, true};
 
 bool echo = true;
 bool immediateMode = true;
+char *immediatePos = NULL;
 
 int getX(char *pos)
 {
@@ -57,6 +58,19 @@ bool isEmpty(int line)
 	return true;
 }
 
+void io_putChar(char ch)
+{
+	char in;
+
+	do
+	{
+		in = inportb(PORT1+5);
+	}
+	while ((in & 0x20) == 0);
+
+	outportb(PORT1, ch);
+}
+
 bool io_getChar(char &ch)
 {
 	ch = inportb(PORT1 + 5);     /* Check to see if char has been */
@@ -64,17 +78,6 @@ bool io_getChar(char &ch)
 	if (ch & 1)
 	{
 		ch = inportb(PORT1); 	/* If so, then get Char          */
-		return true;
-	}
-
-	if (kbhit())
-	{
-		ch = getch();         	/* If key pressed, get Char */
-
-		if (immediateMode == false)
-		{
-			outportb(PORT1, ch);
-		}
 		return true;
 	}
 
@@ -338,6 +341,12 @@ void fb_delete()
 
 void fb_backspace()
 {
+	if (immediateMode == false)
+	{
+		if (fb_currpos <= immediatePos)
+			return;
+	}
+
 	fb_moveleft();
 	fb_delete();
 }
@@ -367,8 +376,8 @@ void processChar()
 		case 33:	fb_backspace();	break;
 		case 34:	fb_delete();	break;
 
-		case 64:	immediateMode = true;	break;
-		case 65:	immediateMode = false;	break;
+		case 64:	immediateMode = true;	immediatePos = NULL; break;
+		case 65:	immediateMode = false;	immediatePos = fb_currpos; break;
 	}
 }
 
@@ -378,33 +387,65 @@ void sendLine()
 	char *end;
 
 	// Beginning of current line
-	char *curr = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer;
+	char *curr = getY(fb_currpos)*160 + fb_buffer;
 
-	// Find beginning of statement, if multiple lines
-	for (begin=curr; (begin>fb_buffer) && (*(begin-2) != 0); begin-=160);
+	if (immediateMode == true)
+	{
+		// Find beginning of statement, if multiple lines
+		for (begin=curr; (begin>fb_buffer) && (*(begin-2) == 27); begin-=160);
+	}
+	else
+	{
+		begin = immediatePos;
+	}
 
 	// Find end of statement, if multiple lines
-	for (end = begin+160-2; *end != 0; end+=160);
+	for (end = curr+160-2; *end == 27; end+=160);
 
-	char *tempStr = new char[end-begin+1];
+	char *tempStr = new char[(end-begin)/2 + 1];
 
 	int i;
-    char *temp;
-	for (i=0,temp = begin; temp<end; ++i,temp+=2)
+	char *temp;
+	for (i=0,temp = begin; temp<end; temp+=2)
 	{
 		char ch = *temp;
 		if (ch == 0)
 		{
-			ch = 32;
+			tempStr[i++] = 32;
+		}
+		else if (ch == 27)
+		{
+		}
+		else
+		{
+			tempStr[i++] = ch;
 		}
 
-		tempStr[i] = ch;
+	}
+	tempStr[i] = 32;
+
+	int j;
+	for (j=i; j>=0; --j)
+	{
+		if (tempStr[j] != 32)
+		{
+			tempStr[j+1] = 13;
+			tempStr[j+2] = 0;
+			break;
+		}
 	}
 
-	tempStr[i] = 0;
+	if (j<0)
+	{
+		tempStr[0] = 0;
+	}
+
+	for (i=0; i<80 && tempStr[i]; ++i)
+	{
+		io_putChar(tempStr[i]);
+	}
 
 	delete []tempStr;
-
 }
 
 void main(void)
@@ -431,12 +472,35 @@ void main(void)
 
 	fb_cls();
 
-	bool ok;
+	bool exit = false;
 	do
 	{
-		ok = io_getChar(ch);
-		if (ok == true)
+		// Check for data coming from remote computer
+		if (io_getChar(ch) == true)
 		{
+			if (ch == 255 || ch == 1)
+			{
+				processChar();
+			}
+			else
+			{
+				if (ch == 13)
+				{
+					fb_homeX();
+					fb_movedown();
+				}
+				else
+				{
+					putChar(ch);
+				}
+			}
+		}
+
+		// Check for data coming from local keyboard
+		if (kbhit()!=0)
+		{
+			ch = getch();
+
 			if (ch == 8)
 			{
 				fb_backspace();
@@ -444,6 +508,11 @@ void main(void)
 			else if (ch == 0)
 			{
 				ch = getch();
+				if (ch == 0x2D)
+				{
+					exit = true;
+				}
+
 				if (immediateMode == true)
 				{
 					switch (ch)
@@ -463,30 +532,20 @@ void main(void)
 					}
 				}
 			}
-			else if (ch == 255 || ch == 1)
-			{
-				processChar();
-			}
 			else
 			{
-				if (ch == 13 && immediateMode == true)
+				if (ch == 13)
 				{
 					sendLine();
+					fb_homeX();
+					fb_movedown();
 				}
 				else
 				{
 					putChar(ch);
 				}
-
 			}
-
 		}
-
-//		if (kbhit())
-//		{
-//			ch = getch();         	/* If key pressed, get Char */
-//			outportb(PORT1, ch);	/* Send Char to Serial Port */
-//		}
-
-	} while (ch !=27); /* Quit when ESC (ASC 27) is pressed */
+	}
+	while (exit == false);
 }
