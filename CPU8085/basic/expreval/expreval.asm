@@ -531,8 +531,32 @@ SINT:	; PRINT CONST INT
 	JMP	CONT
 	
 SSTR:	; PRINT CONST STR
+	PUSH	H
 	LXI	H,SSTRSTR
 	CALL	IO_PUTS
+	POP	H
+	
+	INX	H			; HL++
+	MOV	B,M			; LENGTH OF STR IN B
+	
+	PUSH	D
+	PUSH	H
+	
+	INX	H			; HL++
+	MOV	E,M			; LO BYTE OF STR PTR IN E
+	
+	INX	H			; HL++
+	MOV	D,M			; HI BYTE OF STR PTR IN D
+	
+	XCHG
+	
+	CALL	IO_PUTSN
+	
+	POP	H
+	POP	D
+	
+	MVI	A,'"
+	CALL	IO_PUTC
 	
 	MVI	A,']
 	CALL	IO_PUTC
@@ -546,7 +570,13 @@ SVAR:	; PRINT VAR
 SINTSTR:	.asciz	'[CI '
 SSTRSTR: 	.asciz	'[CS "'
 SVARSTR:	.asciz	'[VAR]'
-	
+
+EXP_CLEARSTACK::
+	PUSH	H
+	LXI	H,EXP_STACKLO		; BOTTOM OF STACK IN HL
+	SHLD	EXP_STACKCURR		; CLEAR STACK
+	POP	H
+	RET
 .endif
 
 ;*********************************************************
