@@ -63,7 +63,7 @@ IO_INIT::
 
 ;*********************************************************
 ;* IO_INITKBBUF:  INITIALIZES KEYBOARD BUFFER
-IO_INITKBBUF:
+IO_INITKBBUF::
 	LXI	H,0			;HL = 0
 	SHLD	IO_KBUFPTR		;WORD AT IOKBUFPTR = 0
 	RET
