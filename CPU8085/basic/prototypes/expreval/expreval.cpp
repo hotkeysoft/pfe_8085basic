@@ -5,7 +5,7 @@
 
 BYTE *currIn;
 
-bool Execute(bool inIf = false, bool execute = true);
+void Execute(bool inIf = false, bool execute = true);
 
 void L1();
 void L2();
@@ -462,8 +462,13 @@ void DoGosub(bool execute, bool inIf)
 }
 
 
-bool DoIf(bool execute)
+void DoIf(bool inIf, bool execute)
 {
+	if (inIf == true)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
 	++currIn;
 
 	// Get Expression
@@ -486,26 +491,24 @@ bool DoIf(bool execute)
 	{
 		++currIn;
 
-		return Execute(true, result);
+		Execute(true, result);
+
+		SkipWhitespace();
+
+		if (*currIn == K_ELSE)
+		{
+			++currIn;
+			Execute(true, !result);  
+		}
 	}
 	else if (*currIn == K_GOTO)
 	{
-		return Execute(true, result);
+		Execute(true, result);
 	}
-
-	throw CError(E_EXP_SYNTAX);
-}
-
-bool DoElse(bool inIf, bool execute)
-{
-	++currIn;
-
-	if (inIf == false)
+	else
 	{
-		throw CError(E_EXP_ELSEWITHOUTIF);
+		throw CError(E_EXP_SYNTAX);
 	}
-
-	return Execute(false, !execute);
 }
 
 void DoRun(bool execute)
@@ -791,7 +794,7 @@ void DoInput(bool execute)
 	while (0);
 }
 
-bool Execute(bool inIf, bool execute)
+void Execute(bool inIf, bool execute)
 {
 	while (*currIn)
 	{
@@ -811,8 +814,8 @@ bool Execute(bool inIf, bool execute)
 		case K_NEW:			DoNew(execute);			break;
 		case K_LET:			DoLet(execute, true);	break;
 		case SID_VAR:		DoLet(execute, false);	break;
-		case K_IF:			exitLoop = DoIf(execute);	break;
-		case K_ELSE:		exitLoop = DoElse(inIf, execute);	break;
+		case K_IF:			DoIf(inIf, execute); exitLoop = true; break;
+		case K_ELSE:		if (inIf == false) throw CError(E_EXP_ELSEWITHOUTIF); exitLoop = true; break;
 		case K_GOTO:		DoGoto(execute);	exitLoop = execute;		break;
 		case K_GOSUB:		DoGosub(execute, inIf);	exitLoop = execute;		break;
 		case K_RETURN:		DoReturn(execute);	exitLoop = execute;		break;
@@ -830,7 +833,7 @@ bool Execute(bool inIf, bool execute)
 
 		if (exitLoop == true)
 		{
-			return true;
+			return ;
 		}
 
 		SkipWhitespace();
@@ -840,13 +843,11 @@ bool Execute(bool inIf, bool execute)
 			throw CError();
 		}
 	}
-
-	return false;
 }
 
-bool expreval(char *in, bool inIf, bool execute)
+void expreval(char *in, bool inIf, bool execute)
 {
 	currIn = (BYTE *)in;
 
-	return Execute(inIf, execute);
+	Execute(inIf, execute);
 }
