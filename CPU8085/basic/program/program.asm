@@ -81,6 +81,14 @@ NOEND:
 	
 	JMP	LOOP
 
+;*********************************************************
+;* PRG_FIND:	FINDS LINE SPECIFIED IN BC
+;*		RETURNS PTR IN HL
+;*		IF FOUND, CF = 1
+;*		IF NOT, CF = 0 AND HL IS INSERTION POINT
+PRG_FIND::
+	RET
+
 
 ;*********************************************************
 ;* PRG_INSERT:	INSERTS LINE IN CURRENT PROGRAM

@@ -18,3 +18,4 @@
 	.globl	PRG_FOR
 	.globl	PRG_NEXT
 	
+	.globl	PRG_FIND	; TEST ONLY?
