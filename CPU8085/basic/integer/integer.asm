@@ -13,14 +13,6 @@ IACC2	EQU	IACC1+2			(2)
 IACC3	EQU	IACC2+2			(2)
 IACCSTR	EQU	IACC3+2			(7)
 
-FACCB	EQU	IACCSTR+7		(0)
-FACC0	EQU	FACCB+0			(8)
-FACC1	EQU	FACC0+8			(8)
-FACC2	EQU	FACC1+8			(8)
-FACC3	EQU	FACC2+8			(8)
-
-
-
 *********************************************************
 * MAIN PROGRAM
 *********************************************************

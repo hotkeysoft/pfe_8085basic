@@ -121,7 +121,6 @@ RST6
 RST65
 	DI
 	JMP	INTUART
-	DI
 	
 *********************************************************
 	ORG $38
@@ -1246,7 +1245,7 @@ DLOOP	LHLD	TICNT		LOAD CURRENT COUNT IN H-L
 	POP	D
 	POP	H
 	POP 	PSW
-RET
+	RET
 
 *********************************************************
 * SDELAY, WAITS A FINITE TIME INTERVAL (approx 2ms)
