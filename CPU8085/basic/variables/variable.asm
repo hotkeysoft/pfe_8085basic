@@ -1,3 +1,11 @@
+;*********************************************************
+;* MODULE:	VARIABLES
+;* 
+;* DESCRIPTION:	HANDLING OF VARIABLES: CREATION, SET AND GET
+;*		
+;* $Id: variable.asm,v 1.15 2001-12-03 00:18:15 Dominic Thibodeau Exp $
+;*
+
 .module 	variable
 .title 		Variable module
 

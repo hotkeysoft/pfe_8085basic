@@ -1,3 +1,11 @@
+;*********************************************************
+;* MODULE:	ERROR
+;* 
+;* DESCRIPTION:	ERROR HANDLING FUNCTIONS
+;*
+;* $Id: error.asm,v 1.17 2001-12-03 00:21:19 Dominic Thibodeau Exp $
+;*
+
 .module 	error
 .title 		Error handling
 

@@ -1,3 +1,11 @@
+;*********************************************************
+;* MODULE:	STRINGS
+;* 
+;* DESCRIPTION:	IMPLEMENTATION OF STRING HANDLING FUNCTIONS
+;*		SUCH AS ALLOCATE, FREE, COMPARE, ETC
+;*
+;* RCSID:	$Id: strings.asm,v 1.18 2001-12-03 00:14:16 Dominic Thibodeau Exp $
+
 .module 	strings
 .title 		Strings module
 

@@ -1,3 +1,11 @@
+;*********************************************************
+;* MODULE:	MAIN
+;* 
+;* DESCRIPTION:	SETUP OF MODULES, MAIN LOOP
+;*
+;* $Id: main.asm,v 1.10 2001-12-03 00:29:58 Dominic Thibodeau Exp $
+;*
+
 .module 	main
 .title 		Main Module
 

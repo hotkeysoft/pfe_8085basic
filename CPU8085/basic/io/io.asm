@@ -1,3 +1,13 @@
+;*********************************************************
+;* MODULE:	IO
+;* 
+;* DESCRIPTION:	INPUT/OUTPUT-RELATED FUNCTIONS
+;*		UART CONTROL, TIMER CONTROL, SOUND FUNCTIONS,
+;*		KEYBOARD FUNCTIONS, TERMINAL OUTPUT FUNCTIONS
+;*
+;* $Id: io.asm,v 1.21 2001-12-03 00:25:10 Dominic Thibodeau Exp $
+;*
+
 .module 	io
 .title 		Input/Output module (term+sound)
 

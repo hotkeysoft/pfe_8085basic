@@ -1,3 +1,13 @@
+;*********************************************************
+;* MODULE:	COMMON
+;* 
+;* DESCRIPTION:	COMMON DEFINITIONS (KEYWORDS AND CONSTANTS)
+;*		PLUS COMMON FUNCTIONS (NAME2TAG, TAG2NAME, 
+;*		ISDIGIT, ISALPHA, MEMSET, MEMCPY...)
+;*		
+;* $Id: common.asm,v 1.22 2001-12-03 00:20:20 Dominic Thibodeau Exp $
+;*
+
 .module 	common
 .title 		Common functions
 

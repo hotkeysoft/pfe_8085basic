@@ -1,3 +1,13 @@
+;*********************************************************
+;* MODULE:	EVALUATE
+;* 
+;* DESCRIPTION:	EVALUATION OF EXPRESSIONS:
+;*		ARITHMETIC, BINARY, RELATIONS, LOGICAL, 
+;*		FUNCTIONS
+;*
+;* $Id: evaluate.asm,v 1.38 2001-12-03 00:16:36 Dominic Thibodeau Exp $
+;*
+
 .module 	evaluate
 .title 		Expression evaluation
 

@@ -1,3 +1,11 @@
+;*********************************************************
+;* MODULE:	EXPREVAL
+;* 
+;* DESCRIPTION:	EVALUATES EXPRESSIONS, EXECUTES FUNCTIONS
+;*
+;* $Id: expreval.asm,v 1.55 2001-12-03 00:22:44 Dominic Thibodeau Exp $
+;*
+
 .module 	expreval
 .title 		Expression evaluation
 

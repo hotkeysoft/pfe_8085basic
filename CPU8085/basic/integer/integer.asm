@@ -1,3 +1,12 @@
+;*********************************************************
+;* MODULE:	INTEGER
+;* 
+;* DESCRIPTION:	FUNCTIONS RELATED TO NUMBERS: ADD, SUBSTRACT,
+;*		MULTIPLY, DIVIDE, SQR, COMPARE, ITOA, ATOI, ETC
+;*
+;* $Id: integer.asm,v 1.20 2001-12-03 00:23:58 Dominic Thibodeau Exp $
+;*
+
 .module 	integer
 .title 		Integer module
 

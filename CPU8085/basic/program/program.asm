@@ -1,3 +1,14 @@
+;*********************************************************
+;* MODULE:	PROGRAM
+;* 
+;* DESCRIPTION:	IMPLEMENTATION OF FUNCTIONS RELATED TO A
+;*		BASIC PROGRAM, SUCH AS ADDING, REMOVING A LINE
+;*		RUNNING A PROGRAM, AND FUNCTIONS LIKE GOTO, GOSUB
+;*		END, FOR, ETC..
+;*
+;* $Id: program.asm,v 1.24 2001-12-03 00:26:51 Dominic Thibodeau Exp $
+;*
+
 .module 	program
 .title 		Program module
 
