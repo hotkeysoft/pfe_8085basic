@@ -286,11 +286,6 @@ void fb_insert()
 
 }
 
-void fb_backspace()
-{
-	fb_moveleft();
-	fb_delete();
-}
 void fb_delete()
 {
 	// end of current line
@@ -338,6 +333,13 @@ void fb_delete()
 			*(currLine+160-3) = fb_defattr;
 		}
 	}
+}
+
+
+void fb_backspace()
+{
+	fb_moveleft();
+	fb_delete();
 }
 
 void processChar()
