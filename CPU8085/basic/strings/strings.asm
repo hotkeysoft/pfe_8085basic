@@ -3,6 +3,8 @@
 
 .include	'..\common\common.def'
 .include	'..\program\program.def'
+.include	'..\variables\variable.def'
+.include	'..\error\error.def'
 .include	'..\io\io.def'
 
 .area	_CODE
@@ -39,6 +41,22 @@ CONT:	; NOT NULL
 	MOV	E,A				; -LEN IN DE
 	
 	DAD	D				; LO STR PTR -= LEN
+	
+	; CHECK IF ENOUGH SPACE FOR ALLOCATION
+	; (LO STRPTR) > (HI VARPTR)	
+	LDA	VAR_HIPTR+1			; HI BYTE OF HIVARPTR
+	CMP	H				; COMPARE WITH STR PTR
+	JB	OK				; OK IF BELOW
+	JNZ	ERR_OUTOFMEMORY			; NOT OK IF ABOVE
+	
+	; HI PTRS ARE EQUAL, CHECK LOW
+	LDA	VAR_HIPTR			; LO BYTE OF HIVARPTR
+	CMP	L				; COMPARE WITH STR PTR
+	JB	OK				; OK IF BELOW
+	
+	JMP	ERR_OUTOFMEMORY
+	
+OK:
 	
 	SHLD	STR_LOPTR			; SAVE LO STR PTR
 	
