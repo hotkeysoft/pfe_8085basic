@@ -5,12 +5,6 @@
 .include	'..\program\program.def'
 .include	'..\io\io.def'
 
-.area	BOOT	(ABS)
-
-.org	0x0038
-RST7:	
-	HLT
-
 .area	_CODE
 
 ;*********************************************************
