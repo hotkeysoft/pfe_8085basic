@@ -18,6 +18,12 @@ void L7();
 
 void L0()
 {
+	// ship whitespace
+	while(*currIn == ' ')
+	{
+		++currIn;
+	}
+
 	L1();
 
 	while (1)
@@ -175,7 +181,8 @@ void L7()
 	case SID_CSTR:
 		{
 			BYTE length = *(currIn+1);
-			CExprStack::push(currIn);
+			SetStr(tempVar1, currIn+2, length);
+			CExprStack::push(tempVar1);
 			currIn += length+2;
 		}
 		break;
@@ -183,11 +190,12 @@ void L7()
 		if (*currIn == '(')
 		{
 			++currIn;
+
 			L0();
 
 			if (*currIn != ')')
 			{
-				throw CError();
+				throw CError(E_EXP_SYNTAX);
 			}
 			++currIn; // Trailing ')'
 		}
@@ -204,15 +212,38 @@ void L7()
 
 			if (*currIn != '(')
 			{
-				throw CError();
+				throw CError(E_EXP_SYNTAX);
 			}
 			++currIn; // skips '('
 
 			L0();	// expression
 
+			// read second parameter if needed
+			if (currToken == K_LEFT || currToken == K_RIGHT || currToken == K_MID)
+			{
+				if (*currIn != ',')
+				{
+					throw CError(E_EXP_SYNTAX);
+				}
+
+				++currIn;
+				L0();	// expression
+
+				if (currToken == K_MID)	// third parameter
+				{
+					if (*currIn != ',')
+					{
+						throw CError(E_EXP_SYNTAX);
+					}
+
+					++currIn;
+					L0();	// expression
+				}
+			}
+
 			if (*currIn != ')')
 			{
-				throw CError();
+				throw CError(E_EXP_SYNTAX);
 			}
 			++currIn; // Trailing ')'
 
