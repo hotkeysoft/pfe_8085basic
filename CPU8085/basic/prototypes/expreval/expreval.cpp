@@ -10,7 +10,7 @@
 
 BYTE *currIn;
 
-void Execute(bool inIf = false, bool execute = true);
+bool Execute(bool inIf = false, bool execute = true);
 
 void L1();
 void L2();
@@ -407,7 +407,7 @@ void DoGoto(bool execute)
 	}
 }
 
-void DoGosub(bool execute)
+void DoGosub(bool execute, bool inIf)
 {
 	++currIn;
 	short lineNo;
@@ -438,12 +438,12 @@ void DoGosub(bool execute)
 
 	if (execute)
 	{
-		CProgram::Gosub(lineNo, currIn);
+		CProgram::Gosub(lineNo, currIn, inIf);
 	}
 }
 
 
-void DoIf(bool execute)
+bool DoIf(bool execute)
 {
 	++currIn;
 
@@ -467,16 +467,17 @@ void DoIf(bool execute)
 	{
 		++currIn;
 
-		Execute(true, result);
+		return Execute(true, result);
 	}
 	else if (*currIn == K_GOTO)
 	{
-		Execute(true, result);
+		return Execute(true, result);
 	}
-	else throw CError(E_EXP_SYNTAX);
+
+	throw CError(E_EXP_SYNTAX);
 }
 
-void DoElse(bool inIf, bool execute)
+bool DoElse(bool inIf, bool execute)
 {
 	++currIn;
 
@@ -485,7 +486,7 @@ void DoElse(bool inIf, bool execute)
 		throw CError(E_EXP_ELSEWITHOUTIF);
 	}
 
-	Execute(false, !execute);
+	return Execute(false, !execute);
 }
 
 void DoRun(bool execute)
@@ -521,7 +522,7 @@ void DoStop(bool execute)
 }
 
 
-void Execute(bool inIf, bool execute)
+bool Execute(bool inIf, bool execute)
 {
 	while (*currIn)
 	{
@@ -541,12 +542,12 @@ void Execute(bool inIf, bool execute)
 		case K_NEW:			DoNew(execute);			break;
 		case K_LET:			DoLet(execute, true);	break;
 		case SID_VAR:		DoLet(execute, false);	break;
-		case K_IF:			DoIf(execute);			break;
-		case K_ELSE:		DoElse(inIf, execute);	break;
+		case K_IF:			exitLoop = DoIf(execute);	break;
+		case K_ELSE:		exitLoop = DoElse(inIf, execute);	break;
 		case K_GOTO:		DoGoto(execute);	exitLoop = execute;		break;
-		case K_GOSUB:		DoGosub(execute);	exitLoop = execute;		break;
+		case K_GOSUB:		DoGosub(execute, inIf);	exitLoop = execute;		break;
 		case K_RETURN:		DoReturn(execute);	exitLoop = execute;		break;
-		case K_REM:			while (*currIn) ++currIn;	return;
+		case K_REM:			exitLoop = true/*while (*currIn) ++currIn;	return true;*/ ; break;
 		case K_RUN:			DoRun(execute);	break;
 		case K_END:			DoEnd(execute);		exitLoop = execute;		break;
 //		case K_STOP:		DoStop(execute);	exitLoop = execute;		break;
@@ -555,7 +556,9 @@ void Execute(bool inIf, bool execute)
 		}
 
 		if (exitLoop == true)
-			break;
+		{
+			return true;
+		}
 
 		SkipWhitespace();
 
@@ -564,11 +567,13 @@ void Execute(bool inIf, bool execute)
 			throw CError();
 		}
 	}
+
+	return false;
 }
 
-void expreval(char *in)
+void expreval(char *in, bool inIf, bool execute)
 {
 	currIn = (BYTE *)in;
 
-	Execute();
+	Execute(inIf, execute);
 }

@@ -3,10 +3,9 @@
 #include "program.h"
 #include "..\tokenize\untokenize.h"
 #include "..\expreval\exprstack.h"
+#include "..\expreval\expreval.h"
 
 #include <iostream>
-
-extern void expreval(char *in);
 
 // Basic line:  [Size][Line]Data.......[Size][Line]Data....etc...
 //				[  8 ][ 16 ]...........[  8 ][ 16 ]..............
@@ -16,6 +15,7 @@ BYTE *CProgram::NewLine = NULL;
 BYTE *CProgram::CurrLine = NULL;
 BYTE *CProgram::CurrPos = NULL;
 bool CProgram::IsEnd = false;
+bool CProgram::InIf = false;
 
 void CProgram::New()
 {
@@ -145,6 +145,7 @@ void CProgram::Run(short lineNo)
 	}
 
 	IsEnd = false;
+	InIf = false;
 
 	while (IsEnd == false && CurrLine < HiProgram)
 	{
@@ -156,7 +157,7 @@ void CProgram::Run(short lineNo)
 		{
 			BYTE *temp = CurrPos;
 			CurrPos = 0;
-			expreval((char *)(temp+3));
+			expreval((char *)(temp), InIf);
 		}
 		else
 		{
@@ -171,11 +172,13 @@ void CProgram::Run(short lineNo)
 		{
 			CurrLine = NewLine;
 			CurrPos = 0;
+			InIf = false;
 		}
 		else
 		{
 			CurrLine+=*CurrLine;
 			CurrPos = 0;
+			InIf = false;
 		}
 	}  	
 }
@@ -190,7 +193,7 @@ void CProgram::Goto(short lineNo)
 	}
 }
 
-void CProgram::Gosub(short lineNo, BYTE *returnPoint)
+void CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 {
 	NewLine = Find(lineNo);
 
@@ -203,7 +206,8 @@ void CProgram::Gosub(short lineNo, BYTE *returnPoint)
 
 	*temp = SID_GOSUB;
 	*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
-	*((WORD *)(temp+3)) = (WORD)(returnPoint-Memory);
+	*(temp+3) = (BYTE)(returnPoint-CurrLine);
+	*(temp+4) = (inIf==true)?1:0;
 
 	CExprStack::push(temp);
 }
@@ -218,7 +222,8 @@ void CProgram::Return()
 	}
 
 	NewLine = Memory+*((WORD *)(temp+1));
-	CurrPos = Memory+*((WORD *)(temp+3));
+	CurrPos = NewLine + *(temp+3);
+	InIf = (*(temp+4)==0)?false:true;
 }
 
 void CProgram::End()

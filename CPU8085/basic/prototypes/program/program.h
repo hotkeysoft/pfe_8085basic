@@ -14,7 +14,7 @@ public:
 
 	static void Run(short lineNo = 0);
 	static void Goto(short lineNo);
-	static void Gosub(short lineNo, BYTE *returnPoint);
+	static void Gosub(short lineNo, BYTE *returnPoint, bool inIf);
 	static void Return();
 
 	static void End();
@@ -27,6 +27,7 @@ protected:
 	static BYTE *CurrPos;
 
 	static bool IsEnd;
+	static bool InIf;
 
 	static BYTE *Find(short lineNo, BYTE **insertionPoint = NULL);
 	static void Remove(BYTE *addr);
