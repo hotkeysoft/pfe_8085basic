@@ -104,7 +104,7 @@ ERR_HANDLER:
 	PCHL				; GO TO RESTART POS
 
 	
-ERR_STR_ATLINE:			.asciz	" at line"
+ERR_STR_ATLINE:			.asciz	" at line "
 ERR_STR_ERROR:			.asciz	" error"
 	
 ERR_STR_NOENDSTR:		.asciz	"Unterminated string constant"
