@@ -139,6 +139,24 @@ INTUART:
 
 3$:	EI
 	RST	6
+
+;********************************************************
+; IO_XON:  FLOW CONTROL - INDICATES TO REMOTE
+;	   THAT WE ARE READY TO ACCEPT CHARS
+IO_XON::
+	IN	U_MCR			;READ MCR REGISTER
+	ORI	1			;SET BIT ZERO (SET DTR)
+	OUT	U_MCR			;PUT BACK
+	RET
+
+;********************************************************
+; IO_XOFF: FLOW CONTROL - INDICATES TO REMOTE
+;	   TO STOP SENDING CHARS
+IO_XOFF::
+	IN	U_MCR			;READ MCR REGISTER
+	ANI	254			;CLEAR BIT ZERO (RESET DTR)
+	OUT	U_MCR
+	RET
 	
 ;********************************************************
 ; IO_GETCHAR:  GETS A CHAR FROM KEYBOARD BUFFER (RETURNED IN ACC - 0 IF EMPTY)

@@ -1,6 +1,9 @@
 
 	.globl	IO_INIT
 	.globl	IO_INITKBBUF
+
+	.globl	IO_XON
+	.globl	IO_XOFF
 	
 	.globl	IO_GETCHAR
 
