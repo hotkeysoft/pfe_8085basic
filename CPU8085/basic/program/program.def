@@ -6,6 +6,8 @@
 
 	.globl	PRG_INIT
 
+	.globl	PRG_RESET
+	.globl	PRG_CLR
 	.globl	PRG_NEW
 	.globl	PRG_LIST
 	.globl	PRG_INSERT	
