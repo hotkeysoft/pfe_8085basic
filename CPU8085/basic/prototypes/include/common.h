@@ -92,6 +92,6 @@ extern Keyword keywords[];
 void Tag2Name(const BYTE tag[2], std::string &name);
 void Name2Tag(std::string name, BYTE tag[2]);
 
-void stringToFloat(const char *currIn, float &number, int &length);
+void stringToFloat(const BYTE *currIn, float &number, int &length);
 
 #endif
