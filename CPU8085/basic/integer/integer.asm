@@ -6,85 +6,6 @@
 .area	_CODE
 
 ;*********************************************************
-;* INT_INC:  INCREMENTS INTEGER AT [H-L]
-INT_INC::
-	PUSH	B
-
-	MVI	A,0
-	
-	MOV	C,M					;LOAD LOW BYTE IN C
-	INX	H					;HL++
-	MOV	B,M					;LOAD HI BYTE IN B
-	ORA	B					;UPDATES SIGN FLAG
-
-	JM	1$					;IF POSITIVE, MUST CHECK FOR WRAP 32767->-32768
-		
-	INX	B					;BC++
-	ORA	B					;UPDATES SIGN FLAG1
-	
-	JM	3$					;STILL POSITIVE, CONTINUE AS NORMAL
-
-2$:
-	MOV	M,B					;SAVE HI BYTE IN B
-	DCX	H					;HL--
-	MOV	M,C					;SAVE LOW BYTE IN C	
-	
-	JMP	4$		
-
-1$:
-	INX	B					;BC++
-	JMP	2$
-
-3$:
-;******* SET OVERFLOW HERE *****************************
-	DCX	H
-	RST	7
-	
-4$:
-	POP 	B
-	RET
-
-
-;*********************************************************
-;* INT_DEC:  DECREMENTS INTEGER AT [H-L]
-INT_DEC::
-	PUSH	B
-
-	MVI	A,0
-	
-	MOV	C,M					;LOAD LOW BYTE IN C
-	INX	H					;HL++
-	MOV	B,M					;LOAD HI BYTE IN B
-	ORA	B					;UPDATES SIGN FLAG
-
-	JP	1$					;IF NEGATIVE, MUST CHECK FOR WRAP -32768->32767
-		
-	DCX	B					;BC++
-	ANA	B					;UPDATES SIGN FLAG1
-	
-	JP	2$					;STILL NEGATIVE, CONTINUE AS NORMAL
-
-3$:
-	MOV	M,B					;SAVE HI BYTE IN B
-	DCX	H					;HL--
-	MOV	M,C					;SAVE LOW BYTE IN C	
-	
-	JMP	4$		
-
-1$:
-	DCX	B					;BC++
-	JMP	3$
-
-2$:
-;******* SET OVERFLOW HERE *****************************
-	DCX	H
-	RST	7
-	
-4$:
-	POP 	B
-	RET
-
-;*********************************************************
 ;* INT_NEG:  NEGATES INTEGER AT [H-L]
 INT_NEG::
 	PUSH	B
@@ -101,6 +22,20 @@ INT_NEG::
 ;	WE NOW HAVE ~[HL] IN BC
 	
 	INX	B					;BC = ~[HL] + 1			
+	
+;	CHECK FOR OVERFLOW (0x7FFF->0x8000)
+	MVI	A,0x80
+	CMP	B			
+	JNZ	1$
+
+	MVI	A,0x00
+	CMP	C
+	JNZ	1$
+	
+	MVI	A,0xFF
+	STA	INT_OVERFLOW				;SET OVERFLOW FLAG
+	
+1$:	
 	
 ; 	PUT BACK IN [HL]
 
@@ -170,8 +105,8 @@ INT_ADD::
 	
 	JP	3$					;SIGN BYTE 0 -> SAME (NO OVERFLOW)
 
-;****** SET OVERFLOW HERE *****************************
-	RST 	7
+	MVI	A,0xFF
+	STA	INT_OVERFLOW				;SET OVERFLOW FLAG
 
 3$:
 	POP	H
@@ -184,9 +119,55 @@ INT_ADD::
 ;* INT_SUB:  SUBSTRACTS INTEGER AT [H-L] FROM INTEGER IN INT_ACC0 
 ;* (RESULT IN INT_ACC0)		INT_ACC0 = INT_ACC0 - [H-L]
 INT_SUB::
-	CALL INT_NEG
-	CALL INT_ADD
-	CALL INT_NEG
+	CALL 	INT_NEG					;NEGATES 2ND OPERAND
+	CALL 	INT_ADD					;PRERFORM SUBSTRACTION
+	CALL 	INT_NEG					;GET BACK 2ND OPERAND
+	RET
+
+;*********************************************************
+;* INT_CMP:  COMPARES INTEGER AT [H-L] WITH INTEGER IN INT_ACC0 
+;* RESULTS:  ACC = 0x00 -> SAME
+;*	     ACC = 0x01 -> INT_ACC0 > [H-L]
+;*	     ACC = 0xFF -> INT_ACC0 < [H-L]
+;* **INT_ACC0 IS MODIFIED**
+INT_CMP::
+	MVI	A,0
+	STA	INT_OVERFLOW				; RESET OVERFLOW FLAG
+
+	CALL 	INT_SUB					; PERFORM SUBSTRACTION
+	
+	; CHECK FOR EQUALITY
+	LHLD	INT_ACC0				; INT_ACC0 IN H-L
+	
+	MOV	A,H					; A = HI BYTE
+	ORA	A					; UPDATE FLAGS
+	JNZ	NOTEQUAL
+
+	MOV	A,L					; A = LO BYTE
+	ORA	A					; UPDATE FLAGS	
+	JNZ	NOTEQUAL
+	
+	MVI	A,0					; WE HAVE EQUALITY
+	RET
+	
+NOTEQUAL:
+	
+	; COMPARE SIGN FLAG WITH OVERFLOW
+	
+	STA	INT_OVERFLOW				; OVERFLOW == 0 OR 0xFF
+		
+	XRA	H					; XOR WITH HI BYTE
+	
+	; NOW CHECK SIGN BYTE (0 IF SF == OF)
+	
+	JP	GREATER
+	
+	MVI	A,0xFF					; INT_ACC0 < [H-L]
+	RET
+	
+
+GREATER:
+	MVI	A,0x01					; INT_ACC0 > [H-L]
 	RET
 
 
@@ -316,8 +297,8 @@ INT_SHLP:
 	JMP	3$
 
 2$:
-;****** SET OVERFLOW HERE *****************************
-	RST	7
+	MVI	A,0xFF
+	STA	INT_OVERFLOW				;SET OVERFLOW FLAG
 
 3$:
 	POP	D
@@ -935,4 +916,4 @@ INT_ACC3::	.ds 	2
 
 INT_ACCSTR::	.ds	7
 
-
+INT_OVERFLOW::	.ds	1
