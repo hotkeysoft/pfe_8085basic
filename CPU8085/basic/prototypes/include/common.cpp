@@ -59,6 +59,7 @@ Keyword keywords[] = {
 	K_GOSUB,		"GOSUB",
 	K_GOTO,			"GOTO",
 	K_IF,			"IF",
+	K_ELSE,			"ELSE",
 	K_INPUT,		"INPUT",
 	K_LET,			"LET",
 	K_LIST,			"LIST",

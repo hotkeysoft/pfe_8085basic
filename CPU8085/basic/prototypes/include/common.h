@@ -65,6 +65,7 @@ enum KEYWORDS {
 	K_GOSUB,
 	K_GOTO,
 	K_IF,
+	K_ELSE,
 	K_INPUT,
 	K_LET,
 	K_LIST,
