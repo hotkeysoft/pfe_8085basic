@@ -15,8 +15,11 @@
 BYTE *CProgram::NewLine = NULL;
 BYTE *CProgram::CurrLine = NULL;
 BYTE *CProgram::CurrPos = NULL;
+BYTE *CProgram::NextReturnPoint = NULL;
+BYTE *CProgram::NextCurrLine = NULL;
 bool CProgram::IsEnd = false;
 bool CProgram::InIf = false;
+bool CProgram::IsNext = false;
 
 void CProgram::New()
 {
@@ -169,11 +172,15 @@ void CProgram::DoIt()
 		{
 			BYTE *temp = CurrPos;
 			CurrPos = 0;
-			expreval((char *)(temp), InIf);
+			if (expreval((char *)(temp), InIf) == true);
+			if (IsNext)
+				break;
 		}
 		else if (CurrLine)
 		{
-			expreval((char *)(CurrLine+3));
+			if (expreval((char *)(CurrLine+3)) == true);
+			if (IsNext)
+				break;
 		}
 
 		if (CurrPos)
@@ -309,96 +316,39 @@ void CProgram::Continue()
 
 void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float step)
 {
-	BYTE temp[5];
+	InIf = inIf;
 
-	*temp = SID_FOR;
-	*(temp+1) = var[0];
-	*(temp+2) = var[1];
-	CExprStack::push(temp);
+	BYTE *oldPos;
+	oldPos = CurrLine;
 
-	*temp = SID_FOR;
-	memcpy(temp+1, &end, sizeof(float));
-	CExprStack::push(temp);
-
-	*temp = SID_FOR;
-	memcpy(temp+1, &step, sizeof(float));
-	CExprStack::push(temp);
-
-	*temp = SID_FOR;
-	*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
-	*(temp+3) = (BYTE)(returnPoint-CurrLine);
-	*(temp+4) = (inIf==true)?1:0;
-
-	CExprStack::push(temp);
-
-	if (CurrLine == NULL)
+	do
 	{
-//		IsEnd = false;
-//		DoIt();
-		throw CError();
-	}
+		CurrLine = oldPos;
+		CurrPos = returnPoint;
+		IsNext = false;
+		DoIt();
+
+		if (IsNext)
+		{
+			CVariables::Get(var, tempVar1);
+			float curr = GetFloat(tempVar1);
+			curr += step;
+			SetFloat(tempVar1, curr);
+			CVariables::Set(var, tempVar1);
+			if (curr > end)
+			{
+				IsNext = false;
+				CurrPos = NextReturnPoint;
+				NewLine = NextCurrLine;
+			}
+		}
+	} 
+	while (IsNext);
 }
 
-void CProgram::Next()
+void CProgram::Next(BYTE *returnPoint)
 {
-	BYTE *temp = CExprStack::pop();
-
-	if (*temp != SID_FOR)
-	{
-		throw CError();
-	}
-
-	NewLine = Memory+*((WORD *)(temp+1));
-	CurrPos = NewLine + *(temp+3);
-	InIf = (*(temp+4)==0)?false:true;
-
-	float end;
-	float step;
-
-	temp = CExprStack::pop();
-
-	if (*temp != SID_FOR)
-	{
-		throw CError();
-	}
-
-	memcpy(&step, temp+1, sizeof(float));
-
-	temp = CExprStack::pop();
-
-	if (*temp != SID_FOR)
-	{
-		throw CError();
-	}
-
-	memcpy(&end, temp+1, sizeof(float));
-
-
-	temp = CExprStack::pop();
-
-	if (*temp != SID_FOR)
-	{
-		throw CError();
-	}
-
-	BYTE var[2];
-	var[0] = *(temp+1);
-	var[1] = *(temp+2);
-
-	CVariables::Get(var, tempVar1);
-
-	float curr = GetFloat(tempVar1);
-	curr += step;
-	SetFloat(tempVar1, curr);
-	CVariables::Set(var, tempVar1);
-
-	if (curr <= end)
-	{
-		CurrExpStack+=20;
-	}
-	else
-	{
-		NewLine = NULL;
-		CurrPos = NULL;
-	}
+	IsNext = true;
+	NextReturnPoint = returnPoint;
+	NextCurrLine = CurrLine;
 }

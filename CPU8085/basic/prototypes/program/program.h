@@ -26,15 +26,19 @@ public:
 	static void Continue();
 
 	static void For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float step);
-	static void Next();
+	static void Next(BYTE *returnPoint);
 
 protected:
 	static BYTE *NewLine;
 	static BYTE *CurrLine;
 	static BYTE *CurrPos;
+	static BYTE *NextReturnPoint;
+	static BYTE *NextCurrLine;
 
 	static bool IsEnd;
 	static bool InIf;
+	static bool IsNext;
+
 
 	static void DoIt();
 
