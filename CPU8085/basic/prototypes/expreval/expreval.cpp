@@ -6,8 +6,11 @@
 #include "evaluate.h"
 #include "exprstack.h"
 #include "..\program\program.h"
+#include "..\variables\variables.h"
 
 BYTE *currIn;
+
+void Execute(bool inIf = false, bool execute = true);
 
 void L1();
 void L2();
@@ -17,13 +20,17 @@ void L5();
 void L6();
 void L7();
 
-void L0()
+void SkipWhitespace()
 {
-	// ship whitespace
 	while(*currIn == ' ')
 	{
 		++currIn;
 	}
+}
+
+void L0()
+{
+	SkipWhitespace();
 
 	L1();
 
@@ -159,11 +166,7 @@ void L6()
 
 void L7()
 {
-	// ship whitespace
-	while(*currIn == ' ')
-	{
-		++currIn;
-	}
+	SkipWhitespace();
 
 	switch(*currIn)
 	{
@@ -206,10 +209,7 @@ void L7()
 
 			++currIn; // skips keyword
 
-			while(*currIn == ' ')
-			{
-				++currIn;
-			}
+			SkipWhitespace();
 
 			if (*currIn != '(')
 			{
@@ -253,73 +253,218 @@ void L7()
 		break;
 	}
 
-	// ship whitespace
-	while(*currIn == ' ')
-	{
-		++currIn;
-	}
-	
+	SkipWhitespace();	
 }
 
-void DoList()
+void DoList(bool execute)
 {
 	++currIn;
-	CProgram::List();
+	if (execute)
+	{
+		CProgram::List();
+	}
 }
 
-void DoPrint()
+void DoPrint(bool execute)
 {
 	++currIn;
 
 	bool insertNewLine = true;
 
-	while(*currIn && *currIn!=':')
+	while(*currIn && !(*currIn==':' || *currIn==K_ELSE))
 	{
 		insertNewLine = true;
 
 		L0();
 
 		CEvaluate::UnaryOp();	// value in tempVar1
-		switch(*tempVar1)
+		if (execute)
 		{
-		case SID_CINT: std::cout << GetInt(tempVar1); break;
-		case SID_CFLOAT: std::cout << GetFloat(tempVar1); break;
-		case SID_CSTR: 
+			switch(*tempVar1)
 			{
-				std::string tempStr;
-				BYTE size;
-				char *addr = (char *)GetStr(tempVar1, size);
-				tempStr.assign(addr, size);
+			case SID_CINT: std::cout << GetInt(tempVar1); break;
+			case SID_CFLOAT: std::cout << GetFloat(tempVar1); break;
+			case SID_CSTR: 
+				{
+					std::string tempStr;
+					BYTE size;
+					char *addr = (char *)GetStr(tempVar1, size);
+					tempStr.assign(addr, size);
 
-				std::cout << tempStr;
+					std::cout << tempStr;
+				}
+				break;
 			}
-			break;
 		}
 
 		switch(*currIn)
 		{
-		case ',':	std::cout << '\t';	++currIn;	break;
+		case ',':	
+			if (execute) {std::cout << '\t';} ++currIn; break;
 		case ';':	++currIn;	insertNewLine = false; break;
 		case ':':	break;
 		case 0:		break;
-		default:	throw CError();
+		case K_ELSE:break;
+		default:	throw CError(E_EXP_SYNTAX);
 		}
 	}
 
-	if (insertNewLine)
+	if (insertNewLine && execute)
 	{
 		std::cout << std::endl;
 	}
 }
 
-void expreval(char *in)
+void DoLet(bool execute, bool keyword)
 {
-	currIn = (BYTE *)in;
+	if (keyword == true)
+	{
+		++currIn;
 
+		SkipWhitespace();
+	}
+
+	if (*currIn != SID_VAR)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	++currIn;
+	BYTE variableName[2];
+	variableName[0] = *currIn++;
+	variableName[1] = *currIn++;
+
+	SkipWhitespace();
+
+	if (*currIn != K_ASSIGN)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	++currIn;
+
+	// Get Expression
+	L0();
+
+	CEvaluate::UnaryOp();	// value in tempVar1
+
+	if (execute)
+	{
+		CVariables::Set(variableName, tempVar1);
+	}
+}
+
+void DoClr(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		HiAutoVars = LoAutoVars;
+	}
+}
+
+void DoNew(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::New();
+	}
+}
+
+void DoGoto(bool execute)
+{
+	++currIn;
+	short lineNo;
+
+	L0();
+
+	CEvaluate::UnaryOp();	// value in tempVar1
+
+	if (*tempVar1 == SID_CINT)
+	{
+		lineNo = GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT) 
+	{
+		float fLineNo = GetFloat(tempVar1);
+        if (fLineNo<1.0f || fLineNo>32767.0f)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+        lineNo = (short)fLineNo;
+	}
+	else 
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+
+	if (execute)
+	{
+		std::cout << "GOTO " << lineNo << std::endl;
+	}
+	else
+	{
+		std::cout << "SKIP_GOTO " << lineNo << std::endl;
+	}
+}
+
+void DoIf(bool execute)
+{
+	++currIn;
+
+	// Get Expression
+	L0();
+
+	CEvaluate::UnaryOp();	// value in tempVar1
+
+	bool result;
+
+	switch(*tempVar1)
+	{
+	case SID_CINT:		result = GetInt(tempVar1)==0?false:true; break;
+	case SID_CFLOAT:	result = GetFloat(tempVar1)==0.0?false:true; break;
+	default: throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	SkipWhitespace();
+
+	if (*currIn == K_THEN)
+	{
+		++currIn;
+
+		Execute(true, result);
+	}
+	else if (*currIn == K_GOTO)
+	{
+//		++currIn;
+
+		//DoGoto(result);
+		Execute(true, result);
+	}
+	else throw CError(E_EXP_SYNTAX);
+}
+
+void DoElse(bool inIf, bool execute)
+{
+	++currIn;
+
+	if (inIf == false)
+	{
+		throw CError(E_EXP_ELSEWITHOUTIF);
+	}
+
+	Execute(false, !execute);
+}
+
+void Execute(bool inIf, bool execute)
+{
 	while (*currIn)
 	{
 
-		// ship whitespace
+		// skip whitespace
 		while(*currIn == ' ' || *currIn == ':')
 		{
 			++currIn;
@@ -327,23 +472,31 @@ void expreval(char *in)
 
 		switch(*currIn)
 		{
-		case K_LIST:		DoList();		break;
-		case K_PRINT:		DoPrint();		break;
+		case K_LIST:		DoList(execute);		break;
+		case K_PRINT:		DoPrint(execute);		break;
+		case K_CLR:			DoClr(execute);			break;
+		case K_NEW:			DoNew(execute);			break;
+		case K_LET:			DoLet(execute, true);	break;
+		case SID_VAR:		DoLet(execute, false);	break;
+		case K_IF:			DoIf(execute);			break;
+		case K_ELSE:		DoElse(inIf, execute);	break;
+		case K_GOTO:		DoGoto(execute);		break;
 
 		default: throw CError();
 		}
 
-		// ship whitespace
-		while(*currIn == ' ')
-		{
-			++currIn;
-		}
+		SkipWhitespace();
 
-		if (*currIn && *currIn != ':')
+		if (*currIn && !(*currIn == ':' || *currIn == K_ELSE))
 		{
 			throw CError();
 		}
 	}
+}
 
-//	L0();
+void expreval(char *in)
+{
+	currIn = (BYTE *)in;
+
+	Execute();
 }
