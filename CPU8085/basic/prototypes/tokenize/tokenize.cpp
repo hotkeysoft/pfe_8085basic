@@ -125,6 +125,7 @@ void tokenize1(const char *in, char *out)
 			case K_LESS:
 			case K_GREATER:
 			case K_EQUAL:
+			case K_NOTEQUAL:
 			case K_NOT:
 			case K_AND:
 			case K_OR:
