@@ -3,6 +3,8 @@
 
 .include	'..\common\common.def'
 .include	'..\variables\variable.def'
+.include	'evaluate.def'
+
 
 .area	_CODE
 
@@ -25,8 +27,6 @@ EXP_EXPREVAL::
 
 	RET
 
-EXP_EVALUATE:
-	RET
 
 ;*********************************************************
 ;* EXP_L0:  LEVEL 0 (AND/OR/XOR)
@@ -57,7 +57,7 @@ EXP_L0:
 	CALL	EXP_L1				; READ L1 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	JMP	1$				; LOOP
 
 
@@ -80,7 +80,7 @@ EXP_L1:
 	CALL	EXP_L2				; READ L2 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	RET
 
 ;*********************************************************
@@ -119,7 +119,7 @@ EXP_L2:
 	CALL	EXP_L3				; READ L3 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	JMP	1$				; LOOP
 
 ;*********************************************************
@@ -146,7 +146,7 @@ EXP_L3:
 	CALL	EXP_L4				; READ L4 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	JMP	1$				; LOOP
 
 ;*********************************************************
@@ -173,7 +173,7 @@ EXP_L4:
 	CALL	EXP_L5				; READ L5 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	JMP	1$				; LOOP
 
 ;*********************************************************
@@ -195,7 +195,7 @@ EXP_L5:
 	CALL	EXP_L6				; READ L6 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	RET
 
 
@@ -220,7 +220,7 @@ EXP_L6:
 	CALL	EXP_L7				; READ L7 EXP
 	POP	PSW
 	
-	CALL	EXP_EVALUATE			; EVALUATE EXPRESSION
+	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
 	JMP	1$				; LOOP
 
 ;*********************************************************
@@ -340,7 +340,7 @@ FRET:
 	INX	H				; SKIP ')'
 	
 	POP	PSW				; GET BACK TOKEN
-	CALL	EXP_EVALUATE
+	CALL	EVAL_EVALUATE
 	
 	JMP	END
 
