@@ -88,8 +88,8 @@ struct Keyword
 
 extern Keyword keywords[];
  
-bool Tag2Name(const WORD tag[2], std::string &name);
-bool Name2Tag(std::string name, WORD tag[2]);
+bool Tag2Name(const BYTE tag[2], std::string &name);
+bool Name2Tag(std::string name, BYTE tag[2]);
 
 bool stringToFloat(const char *currIn, float &number, int &length);
 
