@@ -6,6 +6,7 @@ test
 ..\error\error
 ..\integer\integer
 ..\variables\variable
+..\tokenize\tokenize
 -b DATA   = 0x8000
 -b _CODE  = 0x0040
 -e
