@@ -1,4 +1,7 @@
 
-;	.globl	STR_XXX
+	.globl	STR_ALLOCATE
+	.globl	STR_FREE
+	.globl	STR_COPY
+	.globl	STR_GARBAGECOLLECTION
 	
 	; TESTS ONLY
