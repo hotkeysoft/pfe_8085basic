@@ -71,11 +71,8 @@ BYTE *CExprStack::pop()
 		CurrExpStack-=5;
 		return CurrExpStack;
 	}
-	else
-	{
-		throw CError(E_EXP_STACKUNDERFLOW);
-	}
-	return 0;
+
+	throw CError(E_EXP_STACKUNDERFLOW);
 }
 
 void CExprStack::Dump()
