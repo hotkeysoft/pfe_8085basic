@@ -79,9 +79,9 @@ void tokenize1(const char *in, char *out)
 		case ';':
 		case ',':
 			*currOut = *currIn;
+			lastToken = *currIn;
 			++currIn;
 			++currOut;
-			lastToken = *currIn;
 			break;
 
 		case ' ':	// whitespace.. should be ignored
