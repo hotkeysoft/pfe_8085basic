@@ -760,6 +760,23 @@ void CEvaluate::Str()
 {
 	if (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT)
 	{
+		char tempStr[16];
+
+		if (*tempVar1 == SID_CINT)
+		{
+			sprintf(tempStr, "%hd", GetInt(tempVar1));
+		}
+		else
+		{
+			sprintf(tempStr, "%g", GetFloat(tempVar1));
+		}
+
+		int len = strlen(tempStr);
+
+		BYTE *addr = CStrings::Allocate(0, len);
+		memcpy(addr, tempStr, len);
+		SetStr(tempVar3, addr, len);
+		CExprStack::push(tempVar3);
 	}
 	else
 	{
