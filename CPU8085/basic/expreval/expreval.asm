@@ -6,6 +6,7 @@
 .include	'..\integer\integer.def'
 .include	'..\io\io.def'
 .include	'..\error\error.def'
+.include	'..\program\program.def'
 .include	'evaluate.def'
 
 
@@ -24,16 +25,59 @@ EXP_INIT::
 
 
 ;*********************************************************
-;* EXP_EXPREVAL:  EVALUATES TOKENIZED EXPRESSION AT [H-L]
+;* EXP_EXPREVAL:  EXECUTES TOKENIZED EXPRESSION AT [H-L]
+;*		  IN: B = INIF, C = EXECUTE
 EXP_EXPREVAL::
-	CALL	EXP_L0
 
+LOOP:
+	CALL	EXP_SKIPWHITESPACE2		; SKIP SPACES AND ':'
+
+	MOV	A,M				; READ CURR CHAR
+	ORA	A
+	JZ	EXIT
+	
+	CPI	K_LIST				; CHECK FOR LIST
+	JZ	LIST
+	
+	JMP	ERR_UNKNOWN
+	
+CONT:	
+	CALL	EXP_SKIPWHITESPACE
+	
+	MOV	A,M				; READ CURR CHAR
+	CPI	':				; LOOP IF ':' OR 'ELSE'
+	JZ	LOOP
+	CPI	K_ELSE
+	JZ	LOOP
+	CPI	0
+	JZ	EXIT
+	
+	JMP	ERR_UNKNOWN
+
+LIST:	; LIST
+	CALL	EXP_DO_LIST
+	JMP	CONT
+
+
+EXIT:
 	RET
+
+;*********************************************************
+;* EXP_DO_LIST:  EXECUTE LIST
+;*		 IN: C = EXECUTE
+EXP_DO_LIST:
+	INX	H			; SKIP KEYWORD
+
+	MOV	A,C
+	CPI	FALSE			; CHECK EXECUTE FLAG
+	RZ
+
+	CALL	PRG_LIST		
 
 
 ;*********************************************************
 ;* EXP_L0:  LEVEL 0 (AND/OR/XOR)
-EXP_L0:
+EXP_L0::
 	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
 	
 	CALL 	EXP_L1				; READ L1 EXP
@@ -395,6 +439,41 @@ EXP_SKIPWHITESPACE:
 	JMP	1$
 
 ;*********************************************************
+;* EXP_SKIPWHITESPACE2:  SKIPS SPACES AND ':' IN INPUT STR (H-L)
+EXP_SKIPWHITESPACE2:
+1$:
+	MOV	A,M				; READ CURRENT CHAR
+	CPI	' 				; CHECK FOR WHITESPACE
+	JZ	2$
+	CPI	':				; CHECK FOR ':'
+	JZ	2$
+	
+	RET
+	
+2$:
+	INX	H
+	JMP	1$
+
+;*********************************************************
+;* EXP_SKIPWHITESPACE3:  SKIPS SPACES,':'And K_ELSE IN INPUT STR (H-L)
+EXP_SKIPWHITESPACE3:
+1$:
+	MOV	A,M				; READ CURRENT CHAR
+	CPI	' 				; CHECK FOR WHITESPACE
+	JZ	2$
+	CPI	':				; CHECK FOR ':'
+	JZ	2$
+	CPI	K_ELSE
+	JZ	2$
+	
+	RET
+	
+2$:
+	INX	H
+	JMP	1$
+
+
+;*********************************************************
 ;* EXP_PUSH:  PUSHES DATA AT (H-L) ON EXP STACK
 ;*	      *MODIFIES D-E*
 ;*	TODO: ADD VALIDATION
@@ -464,14 +543,14 @@ EXP_DUMPSTACK::
 	
 	LHLD	EXP_STACKCURR		; CURRENT STACK POS IN HL
 	
-LOOP:
+1$:
 	MOV	A,L			; CHECK IF BOTTOM OF STACK
 	CMP	E			; COMPARE LOW BYTE
-	JNZ	NOTSAME
+	JNZ	2$
 	
 	MOV	A,H
 	CMP	D			; COMPARE HI BYTE
-	JNZ	NOTSAME
+	JNZ	2$
 	
 	; END OF STACK
 	CALL	IO_PUTCR	
@@ -480,7 +559,7 @@ LOOP:
 	POP	B
 	RET
 	
-NOTSAME:
+2$:
 	LXI	B,-4			; GO BACK 4 BYTES
 	DAD	B			; CURRPOS -= 4
 	
@@ -488,22 +567,21 @@ NOTSAME:
 	
 	MOV	A,M
 	CPI	SID_CINT
-	JZ	SINT
+	JZ	4$
 	
 	CPI	SID_CSTR
-	JZ	SSTR
+	JZ	5$
 	
 	CPI	SID_VAR
-	JZ	SVAR
-	
-	
-CONT:
+	JZ	6$
+
+3$:
 	POP	H			; RESTORE PLACE IN STACK
-	JMP	LOOP
+	JMP	1$
 		
 	RET
 	
-SINT:	; PRINT CONST INT
+4$:	; PRINT CONST INT
 	PUSH	H
 	LXI	H,SINTSTR
 	CALL	IO_PUTS
@@ -522,9 +600,9 @@ SINT:	; PRINT CONST INT
 		
 	MVI	A,']
 	CALL	IO_PUTC
-	JMP	CONT
+	JMP	3$
 	
-SSTR:	; PRINT CONST STR
+5$:	; PRINT CONST STR
 	PUSH	H
 	LXI	H,SSTRSTR
 	CALL	IO_PUTS
@@ -554,12 +632,12 @@ SSTR:	; PRINT CONST STR
 	
 	MVI	A,']
 	CALL	IO_PUTC
-	JMP	CONT
+	JMP	3$
 	
-SVAR:	; PRINT VAR
+6$:	; PRINT VAR
 	LXI	H,SVARSTR
 	CALL	IO_PUTS
-	JMP	CONT
+	JMP	3$
 
 SINTSTR:	.asciz	'[CI '
 SSTRSTR: 	.asciz	'[CS "'
