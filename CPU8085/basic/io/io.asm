@@ -36,25 +36,37 @@ RST65:
 	DI
 	JMP	INTUART
 
-;*********************************************************
-.org	0x003C
-RST75:
-	DI
-	JMP	INTTI0
-
-
 .area	_CODE
 
 ;*********************************************************
+;* IO_INIT:  INITIALIZES MODULE
+IO_INIT::
+	CALL	IO_INITMISC		;INITIALIZE MISC OUTPUTS
+	CALL	IO_INITTIMER		;INITIALIZE TIMER
+	CALL	IO_INITUART		;INITIALIZE UART	
+	CALL	IO_INITKBBUF		;INITIALIZE KEYBOARD BUFFER
+	CALL	IO_INITCONSOLE		;INITIALIZE CONSOLE
+	RET
+
+;*********************************************************
+;* UART ROUTINES
+;*********************************************************
+
+;*********************************************************
+;* IO_INITKBBUF:  INITIALIZES KEYBOARD BUFFER
+IO_INITKBBUF:
+	LXI	H,0			;HL = 0
+	SHLD	IOKBUFPTR		;WORD AT IOKBUFPTR = 0
+	RET
+
+;*********************************************************
 ;* IO_INITUART:  INITIALIZES UART
-IO_INITUART::
-	PUSH	PSW
-	
+IO_INITUART:
 	MVI	A,0xA0			;SET DLA MODE
 	OUT	U_LCR		
 	
-	MVI	A,0x30			;BAUD RATE SETUP
-	OUT	U_DLL			;2400 BAUDS
+	MVI	A,0x0C			;BAUD RATE SETUP
+	OUT	U_DLL			;9600 BAUDS
 	MVI	A,0x00		
 	OUT	U_DLM
 	
@@ -63,8 +75,51 @@ IO_INITUART::
 	
 	MVI	A,0x01			;INTERRUPT ENABLE REGISTER
 	OUT	U_IER			;ENABLE RECEIVED DATA AVAILABLE INTERRUPT
+	RET
+
+;********************************************************
+; INTUART:  INTERRUPT HANDLER FOR UART (STUFF A CHAR IN THE KB BUFFER)
+INTUART:
+	PUSH	PSW
+	PUSH	D
+	PUSH	H
 	
+	LHLD	IOKBUFPTR		;LOAD HL WITH WORD AT IOKBUFPTR
+
+	MOV	A,H			;HI PTR IN A
+	INR	A			;HI PTR + 1
+	ANI	0x0F			;HI PTR MOD 16
+	MOV	H,A			;BACK IN H
+	
+	CMP	L			;COMPARE NEW HI PTR WITH LO PTR	
+
+	JZ	1$			;IF PTRS ARE EQUAL, BUFFER IS FULL
+	
+	SHLD	IOKBUFPTR		;PUT BACK UPDATED PTR AT IOKBUFPTR
+
+	DCR	A			;HI PTR -1
+	ANI	0x0F			;HI PTR MOD 16
+	
+	MOV	E,A			;0-H IN D-E (OFFSET TO ADD TO BUF ADDRESS)
+	MVI	D,0
+		
+	LXI	H,IOKBUF		;ADDRESS OF KB BUF IN H-L
+	
+	DAD	D			;NEW ADDRESS IN H-L
+
+	IN	U_RBR			;GET THE BYTE
+	
+	MOV	M,A			;NEW CHAR READ -> KB BUFFER
+	
+	JMP 	2$
+1$:
+	IN	U_RBR			;GET THE BYTE, DO NOTHING WITH IT
+
+2$:
+	POP	H
+	POP 	D
 	POP	PSW
+	EI
 	RET
 
 ;********************************************************
@@ -116,15 +171,28 @@ IO_GETCHAR::
 	POP	B
 	RET
 
+;*********************************************************
+;* OUTPUT ROUTINES
+;*********************************************************
+
 ;********************************************************
 ; IO_PUTC: SENDS A CHAR (FROM ACC) TO THE TERMINAL
 IO_PUTC::
-	OUT	U_THR			;SEND IT BACK (TODO: REMOVE)	
+	PUSH	PSW
+	
+1$:	
+	IN	U_LSR			;LINE STATUS REGISTER
+	ANI	0x20			;CHECK IF UART IS READY
+	JZ	1$			;IF NOT, WAIT FOR IT
+	
+	POP	PSW			;GET BACK CHAR
+	OUT	U_THR	
+	
 	RET
 
 ;********************************************************
 ; IO_PUTS: PUTS STRING - NULL-TERMINATED STRING IN HL
-IO_PUTS:
+IO_PUTS::
 	PUSH	PSW
 	PUSH	H
 	
@@ -133,7 +201,7 @@ IO_PUTS:
 	ORA	A		;END OF STRING?
 	JZ	2$
 
-	CALL 	IO_PUTS		;PRINT CHAR
+	CALL 	IO_PUTC		;PRINT CHAR
 	
 	INX	H		;INCREMENT ADDRESS	
 	
@@ -143,7 +211,6 @@ IO_PUTS:
 	POP	H
 	POP	PSW
 	RET
-	
 	
 ;********************************************************
 ; IO_PUTCB: PRINTS A BYTE (ACC) IN BINARY (I.E. 10011010)
@@ -213,60 +280,128 @@ IO_PUTHLHEX::
 	POP	PSW
 	RET
 
-;********************************************************
-; INTUART:  INTERRUPT HANDLER FOR UART (STUFF A CHAR IN THE KB BUFFER)
-INTUART:
-	PUSH	PSW
-	PUSH	D
-	PUSH	H
-	
-	LHLD	IOKBUFPTR		;LOAD HL WITH WORD AT IOKBUFPTR
+;*********************************************************
+;* OUTPUT CONSOLE ROUTINES (SENDS AVATAR CODES TO TERMINAL
+;*********************************************************
 
-	MOV	A,H			;HI PTR IN A
-	INR	A			;HI PTR + 1
-	ANI	0x0F			;HI PTR MOD 16
-	MOV	H,A			;BACK IN H
-	
-	CMP	L			;COMPARE NEW HI PTR WITH LO PTR	
-
-	JZ	1$			;IF PTRS ARE EQUAL, BUFFER IS FULL
-	
-	SHLD	IOKBUFPTR		;PUT BACK UPDATED PTR AT IOKBUFPTR
-
-	DCR	A			;HI PTR -1
-	ANI	0x0F			;HI PTR MOD 16
-	
-	MOV	E,A			;0-H IN D-E (OFFSET TO ADD TO BUF ADDRESS)
-	MVI	D,0
-		
-	LXI	H,IOKBUF		;ADDRESS OF KB BUF IN H-L
-	
-	DAD	D			;NEW ADDRESS IN H-L
-
-	IN	U_RBR			;GET THE BYTE
-	
-	MOV	M,A			;NEW CHAR READ -> KB BUFFER
-	
-	JMP 	2$
-1$:
-	IN	U_RBR			;GET THE BYTE, DO NOTHING WITH IT
-
-2$:
-	POP	H
-	POP 	D
-	POP	PSW
-	EI
+;*********************************************************
+;* IO_INITCONSOLE:  INITIALIZES CONSOLE
+IO_INITCONSOLE:
+	CALL	IO_CLS
 	RET
 
 ;*********************************************************
-;* KEYBOARD ROUTINES
+;* IO_CLS:  CLEARS TERMINAL SCREEN
+IO_CLS::
+	PUSH	PSW
+	
+	MVI	A,12		;^L: CLEARS SCREEN
+	CALL	IO_PUTC
+	
+	MVI	A,3
+	STA	IOCURRATTR	;RESETS ATTRIBUTE
+	
+	POP	PSW
+	RET
+	
 ;*********************************************************
+;* IO_GOTOXY:  SET CURSOR POSITION;  X-Y IN H-L
+IO_GOTOXY::
+	PUSH	PSW
+	
+	MVI	A,22		;^V
+	CALL	IO_PUTC
+	MVI	A,8		;^H
+	CALL	IO_PUTC
+	MOV	A,L
+	CALL	IO_PUTC
+	MOV	A,H
+	CALL	IO_PUTC	
+	
+	POP	PSW
+	RET
 
 ;*********************************************************
-;* IO_INITKBBUF:  INITIALIZES KEYBOARD BUFFER
-IO_INITKBBUF::
-	LXI	H,0			;HL = 0
-	SHLD	IOKBUFPTR		;WORD AT IOKBUFPTR = 0
+;* IO_SETCOLOR:  SET COLOR; COMBINED COLOR IN ACC
+IO_SETCOLOR::
+	PUSH	PSW
+	
+	MVI	A,22		;^V
+	CALL	IO_PUTC
+	MVI	A,1		;^A
+	CALL	IO_PUTC
+	
+	POP	PSW
+
+	ANI	0x7F
+	CALL	IO_PUTC		; ATTRIBUTE
+	
+	STA	IOCURRATTR	; REPLACE CURR ATTRIBUTE VAR
+	
+	RET
+
+;*********************************************************
+;* IO_SETBG:  SET BACKGROUND COLOR (IN ACC) (0-7)
+IO_SETBG::
+	PUSH	PSW
+	PUSH	B
+	
+	ANI	0x07		;CLEAR USELESS BITS
+	RLC
+	RLC
+	RLC			;SHIFT 4 BITS TO THE LEFT
+	RLC				
+	MOV 	B,A		;BG COLOR IN B
+	
+	LDA	IOCURRATTR	;CURRENT COLOR IN ACC
+	ANI	0x0F		;CLEAR UPPER BITS
+	
+	ORA	B		;MERGE WITH BG COLOR
+	
+	MOV	B,A		;ATTR IN B
+	
+	STA	IOCURRATTR	;STORE NEW ATTR VALUE
+	
+	MVI	A,22		;^V
+	CALL	IO_PUTC
+	MVI	A,1		;^A
+	CALL	IO_PUTC
+
+	MOV	A,B		;ATTRIBUTE
+	CALL	IO_PUTC	
+
+	POP	B	
+	POP	PSW
+	RET
+
+;*********************************************************
+;* IO_SETFG:  SET FOREGROUND COLOR (IN ACC) (0-15)
+IO_SETFG::
+	PUSH	PSW
+	PUSH	B
+	
+	ANI	0x0F		;CLEAR USELESS BITS
+	MOV 	B,A		;FG COLOR IN B
+	
+	LDA	IOCURRATTR	;CURRENT COLOR IN ACC
+	ANI	0xF0		;CLEAR UPPER BITS
+	
+	ORA	B		;MERGE WITH BG COLOR
+	
+	MOV	B,A		;ATTR IN B
+	
+	STA	IOCURRATTR	;STORE NEW ATTR VALUE
+	
+	MVI	A,22		;^V
+	CALL	IO_PUTC
+	MVI	A,1		;^A
+	CALL	IO_PUTC
+
+	MOV	A,B		;ATTRIBUTE
+	CALL	IO_PUTC	
+	
+	POP	B
+	POP	PSW
 	RET
 
 ;*********************************************************
@@ -275,7 +410,7 @@ IO_INITKBBUF::
 
 ;*********************************************************
 ;* IO_INITTIMER:  INITIALIZES TIMERS
-IO_INITTIMER::
+IO_INITTIMER:
 	LXI	H,0x0000		;CLEAR H-L
 	SHLD	TICNT			;H-L IN WORD AT 'TICNT'
 
@@ -303,7 +438,6 @@ IO_INITTIMER::
 
 	MVI	A,0xB6			;COUNTER 2, LSB+MSB, MODE 3, NOBCD
 	OUT	T_CWR
-	
 
 	RET
 
@@ -385,10 +519,8 @@ IO_SOUNDOFF::
 ;* MISC ROUTINES
 ;*********************************************************
 IO_INITMISC::
-	PUSH	PSW
 	MVI	A,0			;ALL OUTPUTS LOW
 	OUT	MISC
-	POP	PSW
 	RET
 
 ;*********************************************************
@@ -444,5 +576,6 @@ TICNT:		.ds	2			;TIMER - COUNTER
 IOKBUF:		.ds	16			;KEYBOARD BUFFER
 IOKBUFPTR:	.ds	2			;KEYBOARD BUFFER - BEGIN/END PTR
 
+IOCURRATTR:	.ds	1			;CONSOLE - CURRENT ATTRIBUTE
 
 
