@@ -13,10 +13,11 @@ enum ErrorType
 	// expression evaluator errors
 	E_EXP_STACKOVERFLOW,	// 'formula too complex'
 	E_EXP_STACKUNDERFLOW,	// syntax error?
-	E_EXP_TYPEMISMATCH,		// type mismatch (i.e. int+str, str*str, etc...)
+	E_EXP_TYPEMISMATCH,		// type mismatch (i.e. int+str, str*str)
 	E_EXP_OVERFLOW,			// Overflow
-	E_EXP_ILLEGAL,			// Illegal argument (out or range, etc...)
+	E_EXP_ILLEGAL,			// Illegal argument (out or range)
 	E_EXP_DIVZERO,			// Division by zero
+	E_EXP_SYNTAX,			// Syntax error (missing parameter)
 
 	// variables module errors
 	E_VAR_NOTINIT,			// variables used before being initialized
