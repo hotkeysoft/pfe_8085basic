@@ -6,6 +6,7 @@
 .include	'..\variables\variable.def'
 .include	'..\integer\integer.def'
 .include	'..\io\io.def'
+.include	'..\tokenize\tokenize.def'
 
 .area	_CODE
 
@@ -70,7 +71,7 @@ NOEND:
 	
 	XCHG					; SWAP DE<->HL
 	
-;	CALL	PRG_PUTLINE
+	CALL	TOK_UNTOKENIZE			; PRINT LINE CONTENTS
 
 	CALL	IO_PUTCR			; NEW LINE
 	

@@ -467,6 +467,8 @@ TOK_TOKENIZE2::
 ;* TOK_UNTOKENIZE: FROM A TOKENIZED LINE (PTR IN HL), 
 ;*		   OUTPUT TEXT VERSION TO CONSOLE
 TOK_UNTOKENIZE::
+	PUSH	B
+	PUSH	D
 	
 LOOP:
 	MOV	A,M				; CURRENT CHAR IN ACC
@@ -553,6 +555,8 @@ TOKEN:
 	JMP	LOOP				; LOOP
 
 END:
+	POP	D
+	POP	H
 	RET
 
 ;*********************************************************
