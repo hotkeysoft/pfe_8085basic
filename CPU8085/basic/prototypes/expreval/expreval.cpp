@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
 	std::string varName;
 
-	WORD test[2] = {128 + 11, 0};
+	BYTE test[2] = {128 + 11, 0};
 
 	while(1)
 	{
@@ -24,21 +24,10 @@ int main(int argc, char* argv[])
 		if (varName == "")
 			break;
 
-		bool ret1 = Name2Tag(varName, test);
-		bool ret2 = Tag2Name(test, varName);
+		Name2Tag(varName, test);
+		Tag2Name(test, varName);
 
-		if (ret1 == false)
-		{
-			std::cout << "Name2Tag failed..." << std::endl;
-		}
-		else if (ret2 == false)
-		{
-			std::cout << "Tag2Name failed..." << std::endl;
-		}
-		else
-		{
-			std::cout << "Got back " << varName << std::endl;
-		}
+		std::cout << "Got back " << varName << std::endl;
 	}
 
 
