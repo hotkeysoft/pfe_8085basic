@@ -3,6 +3,7 @@
 
 .include	'..\common\common.def'
 .include	'..\integer\integer.def'
+.include	'..\error\error.def'
 
 .area	_CODE
 
@@ -40,6 +41,7 @@ TOK_CMP:
 	MOV	A,M				; CHECK IF DIFFERENT CHAR IS 
 	ORA	A				; END OF TOKEN
 	JM	5$				; BY CHECKING UPPER BIT FOR '1'
+	JZ	5$				; OR END OF TABLE
 
 4$:						; ADVANCE TO NEXT TOKEN
 	INX	H
@@ -223,7 +225,7 @@ TOK_TOKENIZE1::
 	JNZ	5$				; LOOP
 6$:
 	ORA	A				; CHECK IF EXIT BECAUSE OF NULL
-	JZ	10$
+	JZ	ERR_TOK_NOENDSTR		; UNTERMINATED STRING CONST
 	
 	JMP	9$
 
@@ -256,9 +258,6 @@ TOK_TOKENIZE1::
 	INX	H				; HL++
 	JMP	1$				; LOOP
 
-10$:						; UNTERMINATED STRING
-	HLT
-	
 11$:
 	POP	H
 	POP	B
@@ -324,7 +323,7 @@ LOOP:
 	JZ	DEFAULT
 
 ; INVALID CHAR
-	HLT	
+	JMP	ERR_TOK_INVALIDCHAR	
 
 SKIPIT:
 	INX	D				; INSTR++	
