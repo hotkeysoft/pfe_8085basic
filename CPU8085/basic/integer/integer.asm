@@ -129,7 +129,7 @@ INT_SUB::
 ;* RESULTS:  ACC = 0x00 -> SAME
 ;*	     ACC = 0x01 -> INT_ACC0 > [H-L]
 ;*	     ACC = 0xFF -> INT_ACC0 < [H-L]
-;* **INT_ACC0 IS MODIFIED**
+;* **HL, INT_ACC0 IS MODIFIED**
 INT_CMP::
 	MVI	A,0
 	STA	INT_OVERFLOW				; RESET OVERFLOW FLAG
@@ -901,6 +901,56 @@ END:
 END2:	
 	RET
 	
+;*********************************************************
+;* INT_ABS: INT AT (H-L) IS REPLACED WITH ITS ABSOLUTE VALUE
+;*	    IF (H-L) >= 0 -> NO CHANGE
+;*	    IF (H-L) < 0 -> (H-L) = -(H-L)
+INT_ABS::
+	INX	H
+	MOV	A,M			; GET HI BYTE IN ACC
+	DCX	H
+	
+	ORA	A			; UPDATE FLAGS
+	RP				; RETURN IF POSITIVE
+	
+	CALL	INT_NEG			; NEGATES NUMBER
+	
+	RET
+
+;*********************************************************
+;* INT_SGN: INT AT (H-L) IS REPLACED WITH ITS 'SIGN':
+;*	    IF (H-L) = 0 -> NO CHANGE
+;*	    IF (H-L) < 0 -> (H-L) = -1
+;*	    IF (H-L) > 0 -> (H-L) = +1
+INT_SGN::
+	INX	H
+	MOV	A,M			; GET HI BYTE IN ACC
+	ORA	A			; UPDATE FLAGS
+	JM	2$			; CHECK IF NEGATIVE
+	
+	MVI	M,0x00			; HI BYTE = 0 ANYWAY
+	DCX	H			; HL--
+	
+	JNZ	1$			; CHECK IF POSITIVE
+	
+	MOV	A,M			; GET LO BYTE IN ACC
+	ORA	A			; CHECK LO BYTE
+	JNZ	1$			; CHECK IF POSITIVE
+	
+	; ZERO
+	MVI	M,0x00			; REPLACE WITH 0x0000
+	RET
+	
+1$:	; POSITIVE
+	MVI	M,0x01			; REPLACE WITH 0x0001
+	RET
+	
+2$:	; NEGATIVE
+	MVI	M,0xFF			; REPLACE WITH 0xFFFF
+	DCX	H
+	MVI	M,0xFF
+	RET
+
 
 ;*********************************************************
 ;* RAM VARIABLES

@@ -28,6 +28,10 @@
 	.globl	INT_ITOA
 	.globl	INT_ATOI
 	
+	.globl	INT_ABS
+	.globl	INT_SGN
+	
+	
 	
 	
 	
