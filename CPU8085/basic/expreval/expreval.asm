@@ -64,6 +64,8 @@ EXP_L0:
 ;*********************************************************
 ;* EXP_L1:  LEVEL 1 (NOT)
 EXP_L1:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	MOV	A,M				; READ CURR TOKEN
 
 	; CHECK FOR NOT
@@ -77,7 +79,7 @@ EXP_L1:
 	INX	H				; CURRIN++
 	
 	PUSH	PSW
-	CALL	EXP_L2				; READ L2 EXP
+	CALL	EXP_L1				; READ L1 EXP
 	POP	PSW
 	
 	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
@@ -86,6 +88,8 @@ EXP_L1:
 ;*********************************************************
 ;* EXP_L2:  LEVEL 2 (= <> < > <= >=)
 EXP_L2:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	CALL 	EXP_L3				; READ L3 EXP
 	
 1$:
@@ -125,6 +129,8 @@ EXP_L2:
 ;*********************************************************
 ;* EXP_L3:  LEVEL 3 (+ -)
 EXP_L3:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	CALL 	EXP_L4				; READ L4 EXP
 	
 1$:
@@ -152,6 +158,8 @@ EXP_L3:
 ;*********************************************************
 ;* EXP_L4:  LEVEL 4 (* /)
 EXP_L4:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	CALL 	EXP_L5				; READ L5 EXP
 	
 1$:
@@ -179,6 +187,8 @@ EXP_L4:
 ;*********************************************************
 ;* EXP_L5:  LEVEL 5 (UNARY -)
 EXP_L5:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	MOV	A,M				; READ CURR TOKEN
 
 	; CHECK FOR UNARY -
@@ -192,7 +202,7 @@ EXP_L5:
 	INX	H				; CURRIN++
 	
 	PUSH	PSW
-	CALL	EXP_L6				; READ L6 EXP
+	CALL	EXP_L5				; READ L5 EXP
 	POP	PSW
 	
 	CALL	EVAL_EVALUATE			; EVALUATE EXPRESSION
@@ -202,6 +212,8 @@ EXP_L5:
 ;*********************************************************
 ;* EXP_L6:  LEVEL 6 (POWER ^)
 EXP_L6:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+	
 	CALL 	EXP_L7				; READ L7 EXP
 	
 1$:
