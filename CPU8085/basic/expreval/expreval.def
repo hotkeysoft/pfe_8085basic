@@ -1,7 +1,13 @@
 
+.include	'..\common\common.def'
+
 	.globl	EXP_INIT
 	
 	.globl	EXP_EXPREVAL
 	
 	.globl	EXP_PUSH
 	.globl	EXP_POP
+
+.if DEBUG
+	.globl	EXP_DUMPSTACK
+.endif

@@ -3,6 +3,7 @@
 
 .include	'..\common\common.def'
 .include	'..\variables\variable.def'
+.include	'..\error\error.def'
 .include	'evaluate.def'
 
 
@@ -456,6 +457,13 @@ EXP_POP::
 
 	RET
 
+.if DEBUG
+EXP_DUMPSTACK::
+
+
+
+	RET
+.endif
 
 ;*********************************************************
 ;* RAM VARIABLES

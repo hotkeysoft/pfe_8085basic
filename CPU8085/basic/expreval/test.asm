@@ -5,6 +5,8 @@
 .include	'..\integer\integer.def'
 .include	'..\tokenize\tokenize.def'
 .include	'..\strings\strings.def'
+.include	'..\io\io.def'
+.include	'..\error\error.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
@@ -29,6 +31,10 @@ START:
 	SIM
 	EI				;ENABLE INTERRUPTS
 
+	CALL	IO_INIT
+	LXI	H,0
+	SHLD	ERR_CURRLINE
+
 	; SET STR PTRS
 	LXI	H,0xA000
 	SHLD	STR_LOPTR
@@ -37,7 +43,7 @@ START:
 	CALL	INT_INIT
 	CALL	EXP_INIT
 
-;	JMP	TEST_BINCALC
+	JMP	TEST_BINCALC
 ;	JMP	TEST_BINREL
 ;	JMP	TEST_BINLOG
 ;	JMP	TEST_NEG
@@ -61,6 +67,10 @@ START:
 TEST_BINCALC:	; TEST OF ARITHMETIC OPERATORS
 	LXI	H,TESTSTR001	; 4+4
 	CALL 	EVAL		; RESULT: 8
+	CALL	EXP_DUMPSTACK
+
+	HLT
+
 	LXI	H,TESTSTR002	; 4-4
 	CALL 	EVAL		; RESULT: 0
 	LXI	H,TESTSTR003	; 4*4

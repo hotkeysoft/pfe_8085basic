@@ -6,6 +6,7 @@
 .include	'..\variables\variable.def'
 .include	'..\integer\integer.def'
 .include	'..\strings\strings.def'
+.include	'..\error\error.def'
 
 .area	_CODE
 
