@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include "..\include\common.h"
-#include "..\include\error.h"
 #include "tokenize.h"
 
 // Returns token ID from string token
@@ -303,11 +301,25 @@ void tokenize2(const char *in, char *out)
 			*currOut = tag[1];
 			++currOut;
 		}
-		else // ???
+		else // misc characters (space, '(', ')', ';', ':', etc...)
 		{
-			*currOut = *currIn;
-			++currIn;
-			++currOut;
+			switch (*currIn)
+			{
+			case ' ':
+			case '(':
+			case ')':
+			case ';':
+			case ',':
+			case ':':
+				*currOut = *currIn;
+				++currIn;
+				++currOut;
+				break;
+
+			default:	// unknown
+				throw CError(E_TOK_INVALIDCHAR, *currIn);
+			}
+
 		}
 	}
 
