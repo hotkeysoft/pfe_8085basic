@@ -23,7 +23,7 @@
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="5"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="4"/>
@@ -117,6 +117,12 @@
 			<File
 				RelativePath="stdafx.cpp">
 			</File>
+			<File
+				RelativePath="..\tokenize\tokenize.cpp">
+			</File>
+			<File
+				RelativePath="..\tokenize\untokenize.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -132,6 +138,12 @@
 			</File>
 			<File
 				RelativePath="stdafx.h">
+			</File>
+			<File
+				RelativePath="..\tokenize\tokenize.h">
+			</File>
+			<File
+				RelativePath="..\tokenize\untokenize.h">
 			</File>
 		</Filter>
 		<Filter
