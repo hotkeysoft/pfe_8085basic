@@ -177,17 +177,17 @@ IO_GETCHAR::
 ;********************************************************
 ; IO_PUTC: SENDS A CHAR (FROM ACC) TO THE TERMINAL
 IO_PUTC::
-	PUSH	PSW
-
 .if ~DEBUG
+	PUSH	PSW
 	
 1$:	
 	IN	U_LSR			;LINE STATUS REGISTER
 	ANI	0x20			;CHECK IF UART IS READY
 	JZ	1$			;IF NOT, WAIT FOR IT
-.endif
-	
+
 	POP	PSW			;GET BACK CHAR
+
+.endif
 	OUT	U_THR	
 	
 	RET
