@@ -14,13 +14,19 @@ public:
 	static void Remove(short lineNo);
 
 	static void Run(short lineNo = 0);
+
 	static void Goto(short lineNo);
+
 	static void Gosub(short lineNo, BYTE *returnPoint, bool inIf);
 	static void Return();
 
 	static void End();
+
 	static void Stop(BYTE *returnPoint, bool inIf);
 	static void Continue();
+
+	static void For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float step);
+	static void Next();
 
 protected:
 	static BYTE *NewLine;

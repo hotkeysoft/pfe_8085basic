@@ -534,6 +534,116 @@ void DoCont(bool execute)
 	}
 }
 
+void DoFor(bool execute, bool inIf)
+{
+	float beginValue;
+	float endValue;
+	float stepValue = 1.0f;
+
+	++currIn;
+
+	SkipWhitespace();
+
+	if (*currIn != SID_VAR)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	// copy variable name
+	BYTE tag[2];
+	memcpy(tag, currIn+1, 2);
+	
+	currIn += 3;
+
+	SkipWhitespace();
+
+	if (*currIn != K_EQUAL)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	++currIn;
+
+	L0();
+
+	CEvaluate::UnaryOp();
+
+	if (*tempVar1 == SID_CINT)
+	{
+		beginValue = (float)GetInt(tempVar2);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		beginValue = GetFloat(tempVar1);
+	}
+	else
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	if (*currIn != K_TO)
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	++currIn;
+
+	L0();
+	
+	CEvaluate::UnaryOp();
+
+	if (*tempVar1 == SID_CINT)
+	{
+		endValue = (float)GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		endValue = GetFloat(tempVar1);
+	}
+	else
+	{
+		throw CError(E_EXP_SYNTAX);
+	}
+
+	if (*currIn == K_STEP)
+	{
+		++currIn;
+
+		L0();
+		
+		CEvaluate::UnaryOp();
+
+		if (*tempVar1 == SID_CINT)
+		{
+			stepValue = (float)GetInt(tempVar1);
+		}
+		else if (*tempVar1 == SID_CFLOAT)
+		{
+			stepValue = GetFloat(tempVar1);
+		}
+		else
+		{
+			throw CError(E_EXP_SYNTAX);
+		}
+	}
+
+	SetFloat(tempVar1, beginValue);
+	CVariables::Set(tag, tempVar1);
+
+	if (execute)
+	{
+		CProgram::For(currIn, inIf, tag, endValue, stepValue);
+	}
+}
+
+void DoNext(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::Next();
+	}
+}
 
 bool Execute(bool inIf, bool execute)
 {
@@ -565,6 +675,8 @@ bool Execute(bool inIf, bool execute)
 		case K_END:			DoEnd(execute);		exitLoop = execute;		break;
 		case K_STOP:		DoStop(execute, inIf);	exitLoop = execute;		break;
 		case K_CONT:		DoCont(execute); exitLoop = execute;	break;
+		case K_FOR:			DoFor(execute, inIf); /*exitLoop = execute*/; break;
+		case K_NEXT:		DoNext(execute); exitLoop = execute; break;
 
 		default: throw CError();
 		}

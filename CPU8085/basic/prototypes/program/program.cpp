@@ -4,6 +4,7 @@
 #include "..\tokenize\untokenize.h"
 #include "..\expreval\exprstack.h"
 #include "..\expreval\expreval.h"
+#include "..\variables\variables.h"
 
 #include <iostream>
 
@@ -187,12 +188,13 @@ void CProgram::DoIt()
 			CurrPos = 0;
 			InIf = false;
 		}
-		else
+		else if (CurrLine)
 		{
 			CurrLine+=*CurrLine;
 			CurrPos = 0;
 			InIf = false;
 		}
+		else break;
 	}  	
 
 	CurrLine = 0;
@@ -303,4 +305,100 @@ void CProgram::Continue()
 	IsEnd = false;
 
 	DoIt();
+}
+
+void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float step)
+{
+	BYTE temp[5];
+
+	*temp = SID_FOR;
+	*(temp+1) = var[0];
+	*(temp+2) = var[1];
+	CExprStack::push(temp);
+
+	*temp = SID_FOR;
+	memcpy(temp+1, &end, sizeof(float));
+	CExprStack::push(temp);
+
+	*temp = SID_FOR;
+	memcpy(temp+1, &step, sizeof(float));
+	CExprStack::push(temp);
+
+	*temp = SID_FOR;
+	*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
+	*(temp+3) = (BYTE)(returnPoint-CurrLine);
+	*(temp+4) = (inIf==true)?1:0;
+
+	CExprStack::push(temp);
+
+	if (CurrLine == NULL)
+	{
+//		IsEnd = false;
+//		DoIt();
+		throw CError();
+	}
+}
+
+void CProgram::Next()
+{
+	BYTE *temp = CExprStack::pop();
+
+	if (*temp != SID_FOR)
+	{
+		throw CError();
+	}
+
+	NewLine = Memory+*((WORD *)(temp+1));
+	CurrPos = NewLine + *(temp+3);
+	InIf = (*(temp+4)==0)?false:true;
+
+	float end;
+	float step;
+
+	temp = CExprStack::pop();
+
+	if (*temp != SID_FOR)
+	{
+		throw CError();
+	}
+
+	memcpy(&step, temp+1, sizeof(float));
+
+	temp = CExprStack::pop();
+
+	if (*temp != SID_FOR)
+	{
+		throw CError();
+	}
+
+	memcpy(&end, temp+1, sizeof(float));
+
+
+	temp = CExprStack::pop();
+
+	if (*temp != SID_FOR)
+	{
+		throw CError();
+	}
+
+	BYTE var[2];
+	var[0] = *(temp+1);
+	var[1] = *(temp+2);
+
+	CVariables::Get(var, tempVar1);
+
+	float curr = GetFloat(tempVar1);
+	curr += step;
+	SetFloat(tempVar1, curr);
+	CVariables::Set(var, tempVar1);
+
+	if (curr <= end)
+	{
+		CurrExpStack+=20;
+	}
+	else
+	{
+		NewLine = NULL;
+		CurrPos = NULL;
+	}
 }
