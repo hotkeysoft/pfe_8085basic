@@ -5,7 +5,7 @@
 #include "tokenize.h"
 
 // Returns token ID from string token
-bool findToken(const char *in, char &token, int &length)
+bool findToken(const char *in, KEYWORDS &token, int &length)
 {
 	Keyword *currKeyword = keywords;
 
@@ -48,7 +48,7 @@ void tokenize1(char *inout)
 {
 	char *curr = inout;
 
-	char token;
+	KEYWORDS token;
 	int tokenLength;
 
 	unsigned char lastToken = 0;
@@ -136,6 +136,11 @@ void tokenize1(char *inout)
 				*curr = token;
 				curr += tokenLength;
 				lastToken = token;
+
+				if (token == K_REM)
+				{
+					return;
+				}
 			}
 			else
 			{
@@ -154,7 +159,7 @@ BYTE tokenize2(const char *in, char *out)
 {
 	const BYTE *currIn = (const BYTE *)in;
 	char *currOut = out;
-	char lastToken = 0;
+	unsigned char lastToken = 0;
 
 	while(1)
 	{
@@ -173,6 +178,18 @@ BYTE tokenize2(const char *in, char *out)
 			lastToken = *currIn;
 			++currIn;
 			++currOut;
+
+			if ((KEYWORDS)lastToken == K_REM)
+			{
+				currIn+=2;
+
+				while (*currIn)
+				{
+					*currOut = *currIn;
+					++currIn;
+					++currOut;
+				}
+			}
 		}
 		else if (*currIn == '\"')		// const string
 		{
