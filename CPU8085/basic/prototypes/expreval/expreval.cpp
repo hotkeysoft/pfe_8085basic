@@ -2,11 +2,6 @@
 //
 
 #include "stdafx.h"
-#include "expreval.h"
-#include "evaluate.h"
-#include "exprstack.h"
-#include "..\program\program.h"
-#include "..\variables\variables.h"
 
 BYTE *currIn;
 
@@ -646,6 +641,134 @@ void DoNext(bool execute)
 	}
 }
 
+void DoInput(bool execute)
+{
+	char buffer[256];
+	bool showQuestionmark=true;
+
+	++currIn;
+
+	SkipWhitespace();
+
+	if (*currIn == SID_CSTR)
+	{
+		std::string str;
+		BYTE length = *(currIn+1);
+		str.assign((char *)(currIn+2), length);
+
+		std::cout << str;
+
+		currIn+=length+2;		
+
+		SkipWhitespace();
+
+		if (*currIn == ';')
+		{
+		}
+		else if (*currIn == ',')
+		{
+			showQuestionmark = false;
+		}
+		else throw CError(E_EXP_SYNTAX);
+
+		++currIn;
+	}
+
+	BYTE *beginPos = currIn;
+
+	do 
+	{
+		char *currPos = buffer;
+		currIn = beginPos;
+
+		if (showQuestionmark)
+		{
+			std::cout << '?';
+		}
+
+		std::cin.getline(buffer, 255);
+
+		do
+		{
+			SkipWhitespace();
+
+			BYTE *var = currIn+1;
+
+			if (*currIn != SID_VAR)
+			{
+				throw CError(E_EXP_SYNTAX);
+			}
+
+			currIn += 3;
+
+			int length;
+			switch (CVariables::GetType(var))
+			{
+			case SID_CINT:
+				{
+					short number;
+					while (*currPos == ' ')
+					{
+						++currPos;
+					}
+					stringToShort((BYTE *)currPos, number, length);
+					currPos+=length;
+					SetInt(tempVar1, number);
+					CVariables::Set(var, tempVar1);
+					break;
+				}
+			case SID_CFLOAT:
+				{
+					float number;
+					while (*currPos == ' ')
+					{
+						++currPos;
+					}
+					stringToFloat((BYTE *)currPos, number, length);
+					currPos+=length;
+					SetFloat(tempVar1, number);
+					CVariables::Set(var, tempVar1);
+					break;
+				}
+			case SID_CSTR:	
+				{
+					char *begin = currPos;
+					while (*currPos && *currPos != ',')
+					{
+						++currPos;
+					}
+					BYTE *str = CStrings::Allocate(0, currPos-begin);
+					memcpy(str, begin, currPos-begin);
+					SetStr(tempVar1, str, currPos-begin);
+					CVariables::Set(var, tempVar1);
+					break;
+				}
+			}
+
+			SkipWhitespace();
+			if (*currIn != ',')
+			{
+				break;
+			}
+
+			while (*currPos && *currPos != ',')
+			{
+				++currPos;
+			}
+
+			if (*currPos != ',')
+			{
+				throw CError();
+			}
+            
+            ++currIn;
+			++currPos;
+		}
+		while (1);
+	} 
+	while (0);
+}
+
 bool Execute(bool inIf, bool execute)
 {
 	while (*currIn)
@@ -678,6 +801,7 @@ bool Execute(bool inIf, bool execute)
 		case K_CONT:		DoCont(execute); exitLoop = execute;	break;
 		case K_FOR:			DoFor(execute, inIf); /*exitLoop = execute*/; break;
 		case K_NEXT:		DoNext(execute); exitLoop = execute; break;
+		case K_INPUT:		DoInput(execute);		break;
 
 		default: throw CError();
 		}
