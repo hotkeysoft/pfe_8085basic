@@ -999,6 +999,80 @@ INT_RANDOMIZE::
 
 
 ;*********************************************************
+;* INT_SQR: CALCULATES SQUARE ROOT OF INT AT [H-L]
+;*	    RESULT IN INT_ACC0
+;*	    QUICK AND DIRTY, BUT **SLOW**
+INT_SQR::
+	PUSH	H
+	
+	MVI	A,0
+	
+	;SOURCE IN BC
+	MOV	C,M			; LO BYTE OF SOURCE
+	INX	H
+	MOV	B,M			; HI BYTE OF SOURCE
+
+	ORA	B			; UPDATE FLAGS
+	JM	NEG			; NO NEGATIVE NUMBER
+
+	LXI	H,1			; SQUARE = 1
+	LXI	D,3			; DELTA = 3
+
+LOOP:
+	MOV	A,B			; LOOP WHILE BC >= HL
+	CMP	H			; HI BYTE
+	JB	EXIT			;
+	JNZ	SKIP			; IF EQUAL, CHECK LOW
+	
+	MOV	A,C			; LO BYTE
+	CMP	L			;
+	JB	EXIT
+
+SKIP:
+	DAD	D			; SQUARE += DELTA
+	INX	D			; DELTA += 2
+	INX	D
+	JMP	LOOP
+
+EXIT:
+	; DELTA = DELTA / 2 - 1
+	ORA	A			; RESET FLAGS
+		
+	MOV	A,E			; LO BYTE IN A
+	RAR				; ROTATE RIGHT
+	MOV	E,A			; BACK IN E
+	
+	ORA	A			; RESET FLAGS
+
+	MOV	A,D			; HI BYTE IN A
+	RAR				; ROTATE RIGHT THRU CARRY
+	MOV	D,A			; BACK IN D
+	
+	JNC	SKIP2
+	
+	MVI	A,0x80			; SET HI BIT OF E
+	ORA	E
+	MOV	E,A			; BACK IN E
+	
+SKIP2:
+
+	DCX	D			; DELTA--
+	
+	; PUT RESULT IN INT_ACC0
+	MOV	A,D
+	STA	INT_ACC0+1		; SET HI BYTE
+	MOV	A,E
+	STA	INT_ACC0		; SET LO BYTE
+
+
+	POP	H
+
+	RET
+
+NEG:
+	HLT
+
+;*********************************************************
 ;* RAM VARIABLES
 ;*********************************************************
 
