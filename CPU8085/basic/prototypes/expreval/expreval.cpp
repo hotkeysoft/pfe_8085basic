@@ -259,6 +259,7 @@ void L7()
 void DoList(bool execute)
 {
 	++currIn;
+
 	if (execute)
 	{
 		CProgram::List();
@@ -515,12 +516,21 @@ void DoEnd(bool execute)
 	}
 }
 
-void DoStop(bool execute)
+void DoStop(bool execute, bool inIf)
 {
 	++currIn;
 	if (execute)
 	{
-		CProgram::Stop();
+		CProgram::Stop(currIn, inIf);
+	}
+}
+
+void DoCont(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::Continue();
 	}
 }
 
@@ -550,10 +560,11 @@ bool Execute(bool inIf, bool execute)
 		case K_GOTO:		DoGoto(execute);	exitLoop = execute;		break;
 		case K_GOSUB:		DoGosub(execute, inIf);	exitLoop = execute;		break;
 		case K_RETURN:		DoReturn(execute);	exitLoop = execute;		break;
-		case K_REM:			exitLoop = true/*while (*currIn) ++currIn;	return true;*/ ; break;
+		case K_REM:			exitLoop = true; break;
 		case K_RUN:			DoRun(execute);	break;
 		case K_END:			DoEnd(execute);		exitLoop = execute;		break;
-//		case K_STOP:		DoStop(execute);	exitLoop = execute;		break;
+		case K_STOP:		DoStop(execute, inIf);	exitLoop = execute;		break;
+		case K_CONT:		DoCont(execute); exitLoop = execute;	break;
 
 		default: throw CError();
 		}
