@@ -6,6 +6,7 @@
 .include	'..\program\program.def'
 .include	'..\integer\integer.def'
 .include	'..\strings\strings.def'
+.include	'..\io\io.def'
 
 .area	BOOT	(ABS)
 
@@ -288,6 +289,123 @@ PLUS3:
 	INX	H
 	JMP	LOOP
 
+.if DEBUG
+VAR_DUMPVARS::
+	PUSH	B
+	PUSH	D
+	PUSH	H
+	
+	LHLD	VAR_HIPTR
+	XCHG
+	LHLD	VAR_LOPTR
+	
+1$:
+	MOV	A,E
+	CMP	L
+	JNZ	2$
+	
+	MOV	A,D
+	CMP	H
+	JNZ	2$
+	
+	CALL	IO_PUTCR	
+	POP	H
+	POP	D
+	POP	B
+	RET		
+	
+2$:
+	MVI	A,'[
+	CALL	IO_PUTC
+	
+	CALL	IO_PUTHLHEX
+	
+	MVI	A,']
+	CALL	IO_PUTC
+
+	MVI	A,' 
+	CALL	IO_PUTC
+
+	; PRINT VARIABLE NAME
+	MOV	B,M				; READ TAG
+	INX	H				; IN BC
+	MOV	C,M
+	INX	H
+	
+	PUSH	H
+	LXI	H,VAR_TEMPSTR			; DEST FOR STRING NAME
+	CALL	C_TAG2NAME			; CONVERT TAG TO STRING
+	CALL	IO_PUTS				; PRINT IT
+	
+	MVI	A,' 
+	CALL	IO_PUTC
+	
+	POP	H
+
+	MOV	A,B				; CHECK VARIABLE TYPE
+	ORA	A
+	JP	3$
+
+	; STRING
+	PUSH	D
+	
+	MOV	B,M				; READ SIZE IN B
+	INX	H
+	
+	MOV	E,M				; READ STR PTR
+	INX	H
+	
+	MOV	D,M
+	INX	H
+
+	PUSH	H
+	
+	XCHG
+	MVI	A,'(
+	CALL	IO_PUTC
+	
+	CALL	IO_PUTHLHEX
+	
+	MVI	A,')
+	CALL	IO_PUTC
+	
+	MVI	A,' 
+	CALL	IO_PUTC
+	
+	CALL	IO_PUTSN
+	XCHG
+	
+	CALL	IO_PUTCR
+	
+	POP	H
+	POP	D
+	
+	JMP	1$
+	
+3$:	; INTEGER
+	
+	MVI	A,' 
+	CALL	IO_PUTC
+	
+	MOV	A,M				; READ LO BYTE (VALUE)
+	STA	INT_ACC0
+	INX	H
+	MOV	A,M				; READ HI BYTE (VALUE)
+	STA	INT_ACC0+1
+	INX	H
+	INX	H
+		
+	PUSH	H
+	
+	CALL	INT_ITOA
+	CALL	IO_PUTS
+	POP	H
+
+	CALL	IO_PUTCR
+	
+	JMP	1$
+
+.endif
 
 ;*********************************************************
 ;* RAM VARIABLES
@@ -303,3 +421,7 @@ VAR_LOPTR::		.ds	2		; BOTTOM OF VAR MEMORY
 VAR_HIPTR::		.ds	2		; TOP OF VAR MEMORY
 
 VAR_TEMPSIZE:		.ds	1		; USED BY SET
+
+.if DEBUG
+VAR_TEMPSTR:		.ds	4		; USED BY DUMPVARS
+.endif

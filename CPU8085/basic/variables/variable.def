@@ -10,5 +10,10 @@
 	.globl	VAR_SET
 	
 	; TESTS ONLY
+	
+.if DEBUG
 	.globl	VAR_INTERNALNEW
 	.globl	VAR_INTERNALGET
+
+	.globl	VAR_DUMPVARS
+.endif
