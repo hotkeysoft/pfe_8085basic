@@ -76,7 +76,7 @@ Keyword keywords[] = {
 };
 
 
-bool Tag2Name(const WORD tag[2], std::string &name)
+bool Tag2Name(const BYTE tag[2], std::string &name)
 {
 	BYTE char1;
 	BYTE char2;
@@ -127,7 +127,7 @@ bool Tag2Name(const WORD tag[2], std::string &name)
 	return true;
 }
 
-bool Name2Tag(std::string name, WORD tag[2])
+bool Name2Tag(std::string name, BYTE tag[2])
 {
 	// first character
 	if (name.length() < 1 || !isalpha(name[0]))
@@ -161,6 +161,10 @@ bool Name2Tag(std::string name, WORD tag[2])
 		{
 			return false;
 		}
+	}
+	else
+	{
+		tag[1] = 0x00;
 	}
 
 	return true;
