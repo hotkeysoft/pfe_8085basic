@@ -274,9 +274,8 @@ TOK_TOKENIZE1::
 ;*		   INPUT STRING IN (D-E)
 ;*		   OUTPUT STRING IN (H-L)
 TOK_TOKENIZE2::
-
+	PUSH	B
 	PUSH	D
-	PUSH	H
 
 	MVI	A,0
 	STA	TOK_LASTTOKEN			; LAST TOKEN = 0
@@ -459,11 +458,11 @@ TOK_TOKENIZE2::
 	JMP	1$				; LOOP
 	
 14$:
-	MOV	M,A				; WRITE NULL CHAR IN OUTSTR	
+	MOV	M,A				; WRITE NULL CHAR IN OUTSTR
+	INX	H
 
-	POP	H
 	POP	D
-	
+	POP	B
 	RET
 
 ;*********************************************************
