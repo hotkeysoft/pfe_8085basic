@@ -2,6 +2,7 @@
 	.globl	STR_ALLOCATE
 	.globl	STR_FREE
 	.globl	STR_COPY
+	.globl	STR_CMP
 	.globl	STR_GARBAGECOLLECTION
 	
 	; TESTS ONLY
