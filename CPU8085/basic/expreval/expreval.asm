@@ -8,7 +8,7 @@
 
 .area	_CODE
 
-EXP_STACKSIZE 	= 64
+EXP_STACKSIZE 	= 128
 EXP_STACKHI	= EXP_STACKLO + EXP_STACKSIZE
 
 ;*********************************************************
