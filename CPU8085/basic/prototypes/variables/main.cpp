@@ -60,12 +60,10 @@ int main(int argc, char* argv[])
 
 		CVariables::Dump();
 
-		BYTE *addr;
-
-		addr = CVariables::Get(tag1);
-		addr = CVariables::Get(tag2);
-		addr = CVariables::Get(tag3);
-	//	addr = CVariables::Get(tag4);
+		CVariables::Get(tag1, tempVar1);
+		CVariables::Get(tag2, tempVar1);
+		CVariables::Get(tag3, tempVar1);
+	//	CVariables::Get(tag4);
 	}
 	catch (CError e)
 	{

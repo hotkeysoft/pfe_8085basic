@@ -9,7 +9,7 @@ public:
 	~CVariables(void);
 
 	static void Set(BYTE tag[2], BYTE *);
-	static BYTE *Get(BYTE tag[2]);
+	static void Get(BYTE tag[2], BYTE *);
 
 	static void Dump();
 

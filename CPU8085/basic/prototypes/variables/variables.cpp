@@ -40,15 +40,34 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 
 }
 
-BYTE *CVariables::Get(BYTE tag[2])
+void CVariables::Get(BYTE tag[2], BYTE *var)
 {
-	BYTE *ret = internalGet(tag);
-	if (ret == NULL)
+	BYTE *addr = internalGet(tag);
+	if (addr == NULL)
 	{
 		throw CError(E_VAR_NOTINIT, tag);
 	}
 
-	return ret;
+	BYTE hi2 = *addr & 192;
+
+	if (hi2 == 0)			// 00xxxxxx = float
+	{
+		SetFloat(var, *((float *)(addr+2)));
+	}
+	else if (hi2 == 64)		// 01xxxxxx = int
+	{
+		SetInt(var, *((short *)(addr+2)));
+	}
+//	else if (hi2 == 128)	// 10xxxxxx = string
+//	{
+//	}
+	else
+	{
+		throw CError();
+	}
+
+
+//	return ret;
 }
 
 
