@@ -288,6 +288,39 @@ void stringToFloat(const BYTE *currIn, float &number, int &length)
 
 }
 
+void stringToShort(const BYTE *currIn, short &number, int &length)
+{
+	length = 0;
+	number = 0;
+
+	bool positive = true;
+
+	// sign
+	if (*currIn == '-')
+	{
+		positive = false;
+		++currIn;
+		++length;
+	}
+	else if (*currIn == '+')
+	{
+		positive = true;
+		++currIn;
+		++length;
+	}
+
+	// integer part
+	while(isdigit(*currIn))
+	{
+		number *= 10;
+		number += (*currIn - '0');
+
+		++currIn;
+		++length;
+	}
+}
+
+
 short GetInt(BYTE *var)
 {
 	if (*var == SID_CINT)
