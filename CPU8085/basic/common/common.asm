@@ -1,6 +1,7 @@
 .module 	common
 .title 		Common functions
 
+.include	'common.def'
 .include	'..\error\error.def'
 
 .area	_CODE
@@ -83,6 +84,12 @@ K_SYS		== K_STEP+1
 K_THEN		== K_SYS+1
 K_TO		== K_THEN+1
 
+.if DEBUG
+K_DUMPVAR	== 0xE0
+K_DUMPSTK	== K_DUMPVAR+1
+K_DUMPSTR	== K_DUMPSTK+1
+.endif
+
 ; KEYWORDS TABLE
 
 K_TABLE::
@@ -152,6 +159,12 @@ K_TABLE::
 	.db K_SYS		.ascii "SYS"
 	.db K_THEN		.ascii "THEN"
 	.db K_TO		.ascii "TO"
+	
+.if DEBUG
+	.db K_DUMPVAR		.ascii "DUMPVAR"
+	.db K_DUMPSTK		.ascii "DUMPSTK"
+	.db K_DUMPSTR		.ascii "DUMPSTR"
+.endif	
 	.db K_NONE
 			
 ;*********************************************************

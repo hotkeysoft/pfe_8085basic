@@ -81,6 +81,12 @@
 	.globl	K_SYS
 	.globl	K_THEN
 	.globl	K_TO
+	
+.if DEBUG
+	.globl	K_DUMPVAR
+	.globl	K_DUMPSTK
+	.globl	K_DUMPSTR
+.endif	
 
 	; KEYWORD TABLE
 	.globl	K_TABLE
