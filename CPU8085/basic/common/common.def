@@ -54,6 +54,7 @@
 	.globl	K_RIGHT
 	.globl	K_STR
 
+	.globl	K_BEEP
 	.globl	K_CLR
 	.globl	K_CLS
 	.globl	K_ELSE

@@ -56,7 +56,8 @@ K_MID		== K_LEFT+1
 K_RIGHT		== K_MID+1
 K_STR		== K_RIGHT+1
 
-K_CLR		== 0xC0
+K_BEEP		== 0xC0
+K_CLR		== K_BEEP+1
 K_CLS		== K_CLR+1
 K_ELSE		== K_CLS+1
 K_END		== K_ELSE+1
@@ -133,6 +134,7 @@ K_TABLE::
 	.db K_STR		.ascii "STR$"
 
 	; methods (doesn't return value)
+	.db K_BEEP		.ascii "BEEP"	
 	.db K_CLR		.ascii "CLR"
 	.db K_CLS		.ascii "CLS"
 	.db K_ELSE		.ascii "ELSE"
