@@ -4,10 +4,6 @@
 	.globl	IO_GETCHAR
 
 	.globl	IO_PUTC
-;	.globl	IO_PUTS
-;	.globl	IO_PUTCB
-;	.globl	IO_PUTCH
-;	.globl	IO_PUTHLHEX
 
 	.globl	IO_BEEP
 

@@ -170,10 +170,6 @@ IO_GETCHAR::
 	POP	B
 	RET
 
-;*********************************************************
-;* OUTPUT ROUTINES
-;*********************************************************
-
 ;********************************************************
 ; IO_PUTC: SENDS A CHAR (FROM ACC) TO THE TERMINAL
 IO_PUTC::
@@ -187,96 +183,6 @@ IO_PUTC::
 	POP	PSW			;GET BACK CHAR
 	OUT	U_THR	
 	
-	RET
-
-;********************************************************
-; IO_PUTS: PUTS STRING - NULL-TERMINATED STRING IN HL
-IO_PUTS::
-	PUSH	PSW
-	PUSH	H
-	
-1$:
-	MOV	A,M		;LOAD CHAR FROM MEMORY
-	ORA	A		;END OF STRING?
-	JZ	2$
-
-	CALL 	IO_PUTC		;PRINT CHAR
-	
-	INX	H		;INCREMENT ADDRESS	
-	
-	JMP	1$		;LOOP
-	
-2$:
-	POP	H
-	POP	PSW
-	RET
-	
-;********************************************************
-; IO_PUTCB: PRINTS A BYTE (ACC) IN BINARY (I.E. 10011010)
-IO_PUTCB::
-	PUSH	PSW
-	PUSH	B
-	
-	MOV	C,A		;KEEP IN NUMBER IN C
-	
-	MVI	B,8		;8 BINARY DIGITS
-1$:
-	MOV	A,C		;GET NUMBER
-	RAL			;SHIFT LEFT
-	MOV	C,A		;PUT BACK IN C
-	JC	2$		;0 OR 1?
-	
-	MVI	A,#'0		;WE HAVE A ZERO
-	JMP 	3$	
-2$:
-	MVI	A,#'1		;WE HAVE A ONE
-	
-3$:
-	CALL	IO_PUTC		;PRINT THE BIT
-
-	DCR	B		;LOOP FOR 8 BITS
-	JNZ	1$
-	
-	POP	B
-	POP	PSW
-	RET
-
-;********************************************************
-; IO_PUTCH: PRINTS A BYTE (ACC) IN HEX
-IO_PUTCH::
-	PUSH	PSW		;SAVE LOW DIGIT
-	RRC			;MAKE HIGH.
-	RRC			;DIGIT.
-	RRC			;INTO.
-	RRC			;LOW DIGIT.
-	CALL	IO_PUTN		;PRINT HIGH DIGIT
-	POP	PSW		;GET LOW DIGIT BACK
-	CALL	IO_PUTN		;PRINT LOW DIGIT
-	RET
-	
-;********************************************************	
-; IO_PUTN: DISPLAYS NIBBLE IN LOWER 4 BITS OF A ('0'..'F')
-IO_PUTN:
-	PUSH	PSW
-	ANI	0x0F		;GET RID OF EXCESS BAGGAGE
-	ADI	0x30		;CONVERT TO ASCII NUMBER
-	CPI	0x3A		;TEST FOR ALPHA CHARACTER
-	JC	1$		;IF NOT, WE ARE OK
-	ADI	7		;CONVERT TO CHARACTER
-1$:	
-	CALL	IO_PUTC
-	POP	PSW
-	RET
-
-;********************************************************
-; IO_PUTHLHEX: SHOW 16 BIT VALUE OF HL IN HEX
-IO_PUTHLHEX::
-	PUSH 	PSW
-	MOV	A,H		;GET H
-	CALL	IO_PUTCH	;DISPLAY H IN HEX
-	MOV	A,L		;GET L
-	CALL	IO_PUTCH	;DISPLAY L IN HEX
-	POP	PSW
 	RET
 
 ;*********************************************************
