@@ -2,6 +2,7 @@
 .title 		Tests expreval Module
 
 .include	'expreval.def'
+.include	'..\tokenize\tokenize.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
@@ -26,6 +27,15 @@ START:
 	SIM
 	EI				;ENABLE INTERRUPTS
 
+	LXI	H,TESTSTR1
+	CALL	TOK_TOKENIZE1
+	
+	LXI	D,TESTSTR1
+	LXI	H,OUTSTR
+	CALL	TOK_TOKENIZE2
+	
+	LXI	H,OUTSTR
+	CALL	EXP_EXPREVAL
 
 LOOP:
 	JMP	LOOP

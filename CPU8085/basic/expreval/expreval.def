@@ -1,4 +1,2 @@
 
-;	.globl	EXP_XXX
-
-
+	.globl	EXP_EXPREVAL
