@@ -76,7 +76,7 @@ Keyword keywords[] = {
 };
 
 
-bool Tag2Name(const BYTE tag[2], std::string &name)
+void Tag2Name(const BYTE tag[2], std::string &name)
 {
 	BYTE char1;
 	BYTE char2;
@@ -99,7 +99,7 @@ bool Tag2Name(const BYTE tag[2], std::string &name)
 	}
 	else
 	{
-		return false;
+		throw CError();
 	}
 
 	char1 = tag[0] & 63;	// 00xxxxxx
@@ -109,7 +109,7 @@ bool Tag2Name(const BYTE tag[2], std::string &name)
 		char1 >= variableNameStr.length() || 
 		char2 >= variableNameStr.length())
 	{
-		return false;
+		throw CError();
 	}
 
 	name = variableNameStr[char1];
@@ -123,22 +123,20 @@ bool Tag2Name(const BYTE tag[2], std::string &name)
 	{
 		name += suffix;
 	}
-
-	return true;
 }
 
-bool Name2Tag(std::string name, BYTE tag[2])
+void Name2Tag(std::string name, BYTE tag[2])
 {
 	// first character
 	if (name.length() < 1 || !isalpha(name[0]))
 	{
-		return false;		
+		throw CError();		
 	}
 
 	tag[0] = variableNameStr.find(toupper(name[0]));
 	if (tag[0] == std::string::npos)
 	{
-		return false;
+		throw CError();
 	}
 
 	// modifier (last char of string)
@@ -153,24 +151,22 @@ bool Name2Tag(std::string name, BYTE tag[2])
 	{
 		if (!isalpha(name[1]) && !isdigit(name[1]))
 		{
-			return false;
+			throw CError();
 		}
 
 		tag[1] = variableNameStr.find(toupper(name[1]));
 		if (tag[1] == std::string::npos)
 		{
-			return false;
+			throw CError();
 		}
 	}
 	else
 	{
 		tag[1] = 0x00;
 	}
-
-	return true;
 }
 
-bool stringToFloat(const char *currIn, float &number, int &length)
+void stringToFloat(const char *currIn, float &number, int &length)
 {
 	length = 0;
 	number = 0;
@@ -267,5 +263,4 @@ bool stringToFloat(const char *currIn, float &number, int &length)
 
 	number *= pow(10, Exp+ExpInt);
 
-	return true;
 }
