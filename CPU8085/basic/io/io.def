@@ -4,6 +4,26 @@
 	.globl	IO_GETCHAR
 
 	.globl	IO_PUTC
+	.globl	IO_PUTS
+	.globl	IO_PUTCB
+	.globl	IO_PUTCH
+	.globl	IO_PUTHLHEX
+
+	.globl	IO_CLS
+	.globl	IO_HOME	
+
+	.globl	IO_GOTOXY
+
+	.globl	IO_SCROLLUP
+
+	.globl	IO_MOVEUP
+	.globl	IO_MOVEDOWN
+	.globl	IO_MOVELEFT	
+	.globl	IO_MOVERIGHT	
+	
+	.globl	IO_SETFG
+	.globl	IO_SETBG
+	.globl	IO_SETCOLOR
 
 	.globl	IO_BEEP
 
@@ -12,3 +32,5 @@
 
 	.globl	IO_DELAY
 
+
+	
