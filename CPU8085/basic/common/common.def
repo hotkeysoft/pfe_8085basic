@@ -1,5 +1,8 @@
 
-	DEBUG == ~0
+	DEBUG 	== ~0
+	
+	FALSE 	== 0
+	TRUE	== ~0
 
 	; STACK ID
 	.globl	SID_CINT
