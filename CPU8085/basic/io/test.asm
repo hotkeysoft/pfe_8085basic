@@ -2,6 +2,7 @@
 .title 		Tests IO Module
 
 .include	'io.def'
+.include	'..\common\common.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
