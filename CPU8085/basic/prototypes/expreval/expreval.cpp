@@ -426,7 +426,7 @@ void DoGoto(bool execute)
 	}
 }
 
-void DoGosub(bool execute, bool inIf)
+bool DoGosub(bool execute, bool inIf)
 {
 	++currIn;
 	short lineNo;
@@ -457,8 +457,10 @@ void DoGosub(bool execute, bool inIf)
 
 	if (execute)
 	{
-		CProgram::Gosub(lineNo, currIn, inIf);
+		return CProgram::Gosub(lineNo, currIn, inIf);
 	}
+
+	return false;
 }
 
 
@@ -820,14 +822,14 @@ void Execute(bool inIf, bool execute)
 		case K_IF:			DoIf(inIf, execute); exitLoop = true; break;
 		case K_ELSE:		if (inIf == false) throw CError(E_EXP_ELSEWITHOUTIF); exitLoop = true; break;
 		case K_GOTO:		DoGoto(execute);	exitLoop = execute;		break;
-		case K_GOSUB:		DoGosub(execute, inIf);	exitLoop = execute;		break;
+		case K_GOSUB:		exitLoop = DoGosub(execute, inIf); break;
 		case K_RETURN:		DoReturn(execute);	exitLoop = execute;		break;
 		case K_REM:			exitLoop = true; break;
 		case K_RUN:			DoRun(execute);	break;
 		case K_END:			DoEnd(execute);		exitLoop = execute;		break;
 		case K_STOP:		DoStop(execute, inIf);	exitLoop = execute;		break;
 		case K_CONT:		DoCont(execute); exitLoop = execute;	break;
-		case K_FOR:			DoFor(execute, inIf); /*exitLoop = execute*/; break;
+		case K_FOR:			DoFor(execute, inIf); break;
 		case K_NEXT:		DoNext(execute); exitLoop = execute; break;
 		case K_INPUT:		DoInput(execute);		break;
 
