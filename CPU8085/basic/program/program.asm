@@ -46,9 +46,8 @@ PRG_RESET::
 	STA	PRG_ISEND
 	STA	PRG_INIF
 	STA	PRG_ISNEXT
-	
-	RET
 
+	RET
 
 ;*********************************************************
 ;* PRG_CLR:	CLEARS VARIABLES, STRINGS
@@ -579,19 +578,8 @@ PRG_RETURN::
 ;*********************************************************
 ;* PRG_END:	ENDS CURRENT PROGRAM
 PRG_END::
-	MVI	A,255
+	MVI	A,TRUE
 	STA	PRG_ISEND
-	RET
-
-;*********************************************************
-;* PRG_STOP:	STOPS CURRENT PROGRAM, SAVES POSITION
-;*		TO CONTINUE LATER
-PRG_STOP::
-	RET
-
-;*********************************************************
-;* PRG_CONTINUE:	CONTINUE RUNNING PROGRAM
-PRG_CONTINUE::
 	RET
 
 ;*********************************************************
@@ -754,7 +742,6 @@ PRG_DOIT:
 	SHLD	PRG_CURRPOSPTR
 	
 	RET
-
 
 ;*********************************************************
 ;* RAM VARIABLES

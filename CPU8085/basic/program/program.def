@@ -17,8 +17,6 @@
 	.globl	PRG_GOSUB
 	.globl	PRG_RETURN
 	.globl	PRG_END
-	.globl	PRG_STOP
-	.globl	PRG_CONTINUE
 	.globl	PRG_FOR
 	.globl	PRG_NEXT
 	
