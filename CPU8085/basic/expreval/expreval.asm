@@ -374,7 +374,7 @@ EXP_DO_PRINT:
 ;*********************************************************
 ;* EXP_DO_LET:	EXECUTE VARIABLE ASSIGNATION
 ;*		IN: C = EXECUTE
-EXP_DO_LET:
+EXP_DO_LET::
 	PUSH	B
 	PUSH	D
 	
@@ -393,6 +393,7 @@ NOLET:
 	
 	
 	MOV	D,C			; COPY 'EXECUTE' VAR TO D
+
 	
 	MOV	B,M			; READ VARIABLE NAME
 	INX	H			; IN BC
@@ -1088,9 +1089,9 @@ EXP_PUSH::
 
 ;*********************************************************
 ;* EXP_POP:  SETS H-L TO TOP ITEM OF THE EXP STACK
-;*	      *MODIFIES D-E*
-;*	TODO: ADD VALIDATION
 EXP_POP::
+	PUSH	D
+	
 	LHLD	EXP_STACKCURR
 
 	; CHECK IF STACK IS EMPTY
@@ -1104,10 +1105,11 @@ EXP_POP::
 	
 1$:
 	LXI	D,-4
-	DAD	D			; EXP_STACKCURR -= 5
+	DAD	D			; EXP_STACKCURR -= 4
 	
 	SHLD	EXP_STACKCURR		; UPDATE VARIABLE
 
+	POP	D
 	RET
 
 .if DEBUG
