@@ -115,6 +115,7 @@ K_TABLE::
 	.db K_LEN		.ascii "LEN"
 	.db K_PEEK		.ascii "PEEK"
 	.db K_RND		.ascii "RND"
+	.db K_SQR		.ascii "SQR"
 	.db K_SGN		.ascii "SGN"
 	.db K_VAL		.ascii "VAL"
 
