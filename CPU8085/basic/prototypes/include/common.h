@@ -39,8 +39,6 @@ enum KEYWORDS {
 	K_OR,
 	K_XOR,
 
-	K_ASSIGN,
-
 	K_ABS		= 0xA0,
 	K_ASC,
 	K_INT,

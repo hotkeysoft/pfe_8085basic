@@ -22,14 +22,12 @@ Keyword keywords[] = {
 	K_GREATEREQUAL, ">=",
 	K_LESS,			"<",
 	K_GREATER,		">",
-	K_EQUAL,		"==",
+	K_EQUAL,		"=",
 
 	K_NOT,			"NOT",	// logical & bitwise negation
 	K_AND,			"AND",	// logical & bitwise AND
 	K_OR,			"OR",	// logical & bitwise OR
 	K_XOR,			"XOR",	// logical & bitwise exclusive-OR
-
-	K_ASSIGN,		"=",	// assignation operator
 
 	// numeric functions (return int or float)
 	K_ABS,			"ABS",

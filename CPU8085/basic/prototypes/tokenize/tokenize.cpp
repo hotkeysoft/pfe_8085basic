@@ -112,7 +112,6 @@ void tokenize1(char *inout)
 			case K_AND:
 			case K_OR:
 			case K_XOR:
-			case K_ASSIGN:
 
 			case '(':
 			case ':':

@@ -336,7 +336,7 @@ void DoLet(bool execute, bool keyword)
 
 	SkipWhitespace();
 
-	if (*currIn != K_ASSIGN)
+	if (*currIn != K_EQUAL)
 	{
 		throw CError(E_EXP_SYNTAX);
 	}
