@@ -1,3 +1,4 @@
 
 	.globl	EVAL_EVALUATE
 	.globl	EVAL_UNARYOP
+	.globl	EVAL_BINARYOP
