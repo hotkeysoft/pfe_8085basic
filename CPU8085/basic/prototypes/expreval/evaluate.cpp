@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "evaluate.h"
 #include "exprstack.h"
+#include "..\variables\variables.h"
 
 #include <math.h>
 
@@ -60,7 +61,7 @@ void CEvaluate::BinaryOp()
 
 	if (*op1 == SID_VAR)
 	{
-		throw CError();
+		CVariables::Get(op1+1, tempVar1);
 	}
 	else
 	{
@@ -69,7 +70,7 @@ void CEvaluate::BinaryOp()
 
 	if (*op2 == SID_VAR)
 	{
-		throw CError();
+		CVariables::Get(op2+1, tempVar2);
 	}
 	else
 	{
@@ -83,7 +84,7 @@ void CEvaluate::UnaryOp()
 
 	if (*op == SID_VAR)
 	{
-		throw CError();
+		CVariables::Get(op+1, tempVar1);
 	}
 	else
 	{
