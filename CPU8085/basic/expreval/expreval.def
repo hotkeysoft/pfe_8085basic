@@ -8,6 +8,8 @@
 	
 	.globl	EXP_PUSH
 	.globl	EXP_POP
+	
+	.globl	EXP_CLRSTACK
 
 .if DEBUG
 	.globl	EXP_DUMPSTACK
