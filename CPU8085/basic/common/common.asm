@@ -298,22 +298,37 @@ C_ISDIGIT::
 ;*********************************************************
 ;* C_MEMSET: 	FILLS AREA OF MEMORY BYTE IN 'ACC'
 ;*		ADDRESS OF AREA TO FILL IN 'HL'
-;*		SIZE OF AREA TO FILL IN 'DE'
+;*		SIZE OF AREA TO FILL IN 'BC'
 C_MEMSET::
-1$:	
-	MOV	M,A		; STORE ATTR
+	MVI	A,0		; RESET A
+	
+	CMP	C		; LOOP IF LO BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+	
+	CMP	B		; LOOP IF HI BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+
+	RET
+	
+1$:
+	PUSH	D
+	MOV	D,A
+	
+2$:	
+	MOV	M,D		; STORE FILL CHAR
 	INX	H		; ADDR++
 	
-	DCX	D		; DECREMENT COUNTER
+	DCX	B		; DECREMENT COUNTER
 	
 	MVI	A,0		; RESET A
 	
-	CMP	E		; LOOP IF LO BYTE OF COUNTER IS NON NULL
-	JNZ	1$
+	CMP	C		; LOOP IF LO BYTE OF COUNTER IS NON NULL
+	JNZ	2$
 	
-	CMP	D		; LOOP IF HI BYTE OF COUNTER IS NON NULL
-	JNZ	1$
+	CMP	B		; LOOP IF HI BYTE OF COUNTER IS NON NULL
+	JNZ	2$
 	
+	POP	D
 	RET
 
 ;*********************************************************
@@ -325,6 +340,17 @@ C_MEMSET::
 ;*		SOURCE IN DE
 ;*		NB OF BYTES TO COPY IN BC
 C_MEMCPYF::
+	MVI	A,0		; RESET A
+	
+	CMP	C		; CHECK IF COUNTER > 0
+	JNZ	1$
+	
+	CMP	B
+	JNZ	1$
+
+	RET
+
+1$:
 	DAD	B		; GO TO END OF DEST
 	XCHG
 	DAD	B		; GO TO END OF SOURCE
@@ -333,21 +359,24 @@ C_MEMCPYF::
 	DCX	D
 	DCX	H
 	
-1$:	
+2$:	
 	LDAX	D		; CHAR AT (DE) IN ACC
 	MOV	M,A		; BACK AT (HL)
 	
-	DCX	D		; BC--
+	DCX	D		; DE--
 	DCX	H		; HL--
 	DCX	B		; BC-- (COUNT)
 
 	MVI	A,0		; RESET A
 	
 	CMP	C		; LOOP IF COUNTER IS NON NULL
-	JNZ	1$
+	JNZ	2$
 	
 	CMP	B
-	JNZ	1$
+	JNZ	2$
+	
+	INX	D
+	INX	H	
 	
 	RET
 
@@ -360,7 +389,21 @@ C_MEMCPYF::
 ;*		SOURCE IN DE
 ;*		NB OF BYTES TO COPY IN BC
 C_MEMCPY::
-1$:	
+	MVI	A,0		; RESET A
+	
+	CMP	C		; CHECK IF COUNTER > 0
+	JNZ	1$
+	
+	CMP	B
+	JNZ	1$
+
+	RET
+
+1$:
+	PUSH	B
+	PUSH	H
+
+2$:	
 	LDAX	D		; CHAR AT (DE) IN ACC
 	MOV	M,A		; BACK AT (HL)
 	
@@ -371,12 +414,13 @@ C_MEMCPY::
 	MVI	A,0		; RESET A
 	
 	CMP	C		; LOOP IF COUNTER IS NON NULL
-	JNZ	1$
+	JNZ	2$
 
 	CMP	B		; LOOP IF COUNTER IS NON NULL
-	JNZ	1$
+	JNZ	2$
 
-	
+	POP	H
+	POP	B	
 	RET
 
 ;*********************************************************
