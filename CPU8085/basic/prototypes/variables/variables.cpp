@@ -10,14 +10,7 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 
 	if (addr == NULL)	// add variable to the list
 	{
-		memset(HiAutoVars, 0, 6);
-
-		addr = HiAutoVars;
-
-		*HiAutoVars = tag[0];
-		*(HiAutoVars+1) = tag[1];
-
-		HiAutoVars += 6;
+		addr = New(tag);
 	}
 
 	BYTE hi2 = *addr & 192;
@@ -41,7 +34,7 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 			memcpy(newAddr, str, size);
 			str = newAddr;
 		}
-	
+
 		*(addr+2) = size;
 		*(WORD *)(addr+3) = (WORD)(str-Memory);
 	}
@@ -49,16 +42,31 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 	{
 		throw CError();
 	}
-
-
 }
+
+
+BYTE *CVariables::New(BYTE tag[2])
+{
+	memset(HiAutoVars, 0, 6);
+
+	BYTE *addr = HiAutoVars;
+
+	*HiAutoVars = tag[0];
+	*(HiAutoVars+1) = tag[1];
+
+	HiAutoVars += 6;
+
+	return addr;
+}
+
+
 
 void CVariables::Get(BYTE tag[2], BYTE *var)
 {
 	BYTE *addr = internalGet(tag);
 	if (addr == NULL)
 	{
-		throw CError(E_VAR_NOTINIT, tag);
+		addr = New(tag);
 	}
 
 	BYTE hi2 = *addr & 192;

@@ -17,4 +17,5 @@ public:
 
 protected:
 	static BYTE *internalGet(BYTE tag[2]);
+	static BYTE *New(BYTE tag[2]);
 };
