@@ -71,6 +71,8 @@ void io_putChar(unsigned char ch)
 	}
 	while ((in & 0x20) == 0);
 
+	while ((inportb(PORT1+6) & 16) == 0);
+
 	outportb(PORT1, ch);
 }
 
@@ -489,11 +491,14 @@ void upload()
 
 	io_putLine("new");
 
+	cout << "Loading...";
 	while(fs)
 	{
 		fs.getline(line,256);
 		io_putLine(line);
+		cout << ".";
 	}
+	cout << endl;
 
 	fs.close();
 
@@ -518,6 +523,7 @@ void download()
 	char *ptr = line;
 	*ptr = 0;
 
+	cout << "Saving...";
 	while(1)
 	{
 		if (io_getChar(ch) == true)
@@ -531,6 +537,7 @@ void download()
 					break;
 				}
 
+				cout << ".";
 				fs << line << endl;
 
 				ptr = line;
@@ -542,11 +549,13 @@ void download()
 			}
 		}
 	}
+	cout << endl;
 
 	fs.close();
 
 	clrscr();
 	fb_gotoxy(1,1);
+	io_putLine("");
 }
 
 void main(void)
@@ -568,7 +577,6 @@ void main(void)
 					/*         0x30 =   2,400 BPS */
 	outportb(PORT1 + 1 , 0x00);  /* Set Baud rate - Divisor Latch High Byte */
 	outportb(PORT1 + 3 , 0x03);  /* 8 Bits, No Parity, 1 Stop Bit */
-//	outportb(PORT1 + 2 , 0xC7);  /* FIFO Control Register */
 	outportb(PORT1 + 2 , 0x00);  /* FIFO Control Register */
 	outportb(PORT1 + 4 , 0x0B);  /* Turn on DTR, RTS, and OUT2 */
 
