@@ -76,6 +76,20 @@ Keyword keywords[] = {
 	K_NONE,			NULL
 };
 
+const WORD MemorySize = 32000;
+
+BYTE Memory[MemorySize];
+
+BYTE *LoExpStack = 0;
+BYTE *HiExpStack = 0;
+BYTE *CurrExpStack = 0;
+
+BYTE *LoStrStack = 0;
+BYTE *HiStrStack = 0;
+
+BYTE *LoAutoVars = 0;
+BYTE *HiAutoVars = 0;
+
 
 void Tag2Name(const BYTE tag[2], std::string &name)
 {

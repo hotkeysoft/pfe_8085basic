@@ -88,6 +88,18 @@ struct Keyword
 };
 
 extern Keyword keywords[];
+
+extern BYTE Memory[];
+
+extern BYTE *LoExpStack;
+extern BYTE *HiExpStack;
+extern BYTE *CurrExpStack;
+
+extern BYTE *LoStrStack;
+extern BYTE *HiStrStack;
+
+extern BYTE *LoAutoVars;
+extern BYTE *HiAutoVars;
  
 void Tag2Name(const BYTE tag[2], std::string &name);
 void Name2Tag(std::string name, BYTE tag[2]);
