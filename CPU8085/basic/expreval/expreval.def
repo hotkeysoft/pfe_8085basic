@@ -2,3 +2,6 @@
 	.globl	EXP_INIT
 	
 	.globl	EXP_EXPREVAL
+	
+	.globl	EXP_PUSH
+	.globl	EXP_POP
