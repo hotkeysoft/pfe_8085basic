@@ -1,2 +1,4 @@
 
+	.globl	EXP_INIT
+	
 	.globl	EXP_EXPREVAL

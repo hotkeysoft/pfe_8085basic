@@ -2,8 +2,21 @@
 .title 		Expression evaluation
 
 .include	'..\common\common.def'
+.include	'..\variables\variable.def'
 
 .area	_CODE
+
+EXP_STACKSIZE 	= 64
+EXP_STACKHI	= EXP_STACKLO + EXP_STACKSIZE
+
+;*********************************************************
+;* EXP_INIT:  INITIALIZES MODULE
+EXP_INIT::
+	LXI	H,EXP_STACKLO
+	SHLD	EXP_STACKCURR			; EMPTIES STACK		
+
+	RET
+
 
 ;*********************************************************
 ;* EXP_EXPREVAL:  EVALUATES TOKENIZED EXPRESSION AT [H-L]
@@ -213,6 +226,91 @@ EXP_L6:
 ;*********************************************************
 ;* EXP_L7:  LEVEL 7 ( (), INT, VAR, STR)
 EXP_L7:
+	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
+
+	MOV	A,M				; READ CURRENT CHAR
+	
+	CPI	SID_CINT			; CHECK FOR INTEGER
+	JZ	INT
+	
+	CPI	SID_VAR				; CHECK FOR VAR
+	JZ	VAR
+	
+	CPI	SID_CSTR			; CHECK FOR STRING
+	JZ	STR
+
+
+	CPI	'(				; EXPRESSION IN '()'
+	JZ	EXPR
+
+	ANI	0xE0				; FUNCTIONS (0xAX & 0xBX)
+	CPI	0xA0
+	JZ	FUNC
+
+	JMP	END
+
+INT:
+	CALL	EXP_PUSH
+	INX	H
+	INX	H
+	INX	H
+	JMP	END
+
+VAR:
+	CALL	EXP_PUSH
+	INX	H
+	INX	H
+	INX	H
+	JMP	END
+
+STR:
+	STA	VAR_TEMP1			; SET VAR_TEMP1
+	INX	H
+	
+	MOV	A,M				; LENGTH
+	STA	VAR_TEMP1+1
+	INX	H
+	
+	MOV	C,A				; LENGTH IN B-C
+	MVI	B,0		
+
+	MOV	A,L
+	STA	VAR_TEMP1+2			; LO BYTE OF STR ADDRESS
+	
+	MOV	A,H
+	STA	VAR_TEMP1+3			; HI BYTE OF STR ADDRESS
+
+	DAD	B				; MOVE TO END OF STRING
+
+	PUSH	H
+	
+	LXI	H,VAR_TEMP1			; ADDRESS OF VAR_TEMP1 IN HL
+	CALL	EXP_PUSH
+	
+	POP	H
+		
+	JMP	END
+
+EXPR:
+	INX	H				; SKIP '('
+	
+	CALL	EXP_L0				; READ EXPRESSION
+	
+	MOV	A,M				; CHECK FOR ')'
+	CPI	')
+	JNZ	NOCLOSE
+	
+	INX	H				; SKIP ')'
+	
+	JMP	END
+
+FUNC:
+	JMP	END
+
+NOCLOSE:
+	HLT					; ERROR: NO CLOSING ')'
+
+END:	CALL	EXP_SKIPWHITESPACE		; SKIP SPACES
 	RET
 
 
@@ -227,6 +325,65 @@ EXP_SKIPWHITESPACE:
 	
 	RET
 
+;*********************************************************
+;* EXP_PUSH:  PUSHES DATA AT (H-L) ON EXP STACK
+;*	      *MODIFIES D-E*
+;*	TODO: ADD VALIDATION
+EXP_PUSH:
+	PUSH	H
+
+	XCHG					; HL <-> DE
+	LHLD	EXP_STACKCURR			; READ CURR STACK POS IN HL
+	XCHG					; HL <-> DE
+
+	; 1	
+	MOV	A,M				; READ CHAR
+	STAX	D				; PUT ON STACK
+	INX	H
+	INX	D
+
+	; 2	
+	MOV	A,M				; READ CHAR
+	STAX	D				; PUT ON STACK
+	INX	H
+	INX	D
+
+	; 3	
+	MOV	A,M				; READ CHAR
+	STAX	D				; PUT ON STACK
+	INX	H
+	INX	D
+
+	; 4	
+	MOV	A,M				; READ CHAR
+	STAX	D				; PUT ON STACK
+	INX	H
+	INX	D
+
+	; UPDATE EXP_STACKCURR
+	MOV	A,E				; LO BYTE
+	STA	EXP_STACKCURR
+	
+	MOV	A,D				; HI BYTE
+	STA	EXP_STACKCURR+1
+
+	POP	H	
+	RET
+
+;*********************************************************
+;* EXP_POP:  SETS H-L TO TOP ITEM OF THE EXP STACK
+;*	      *MODIFIES D-E*
+;*	TODO: ADD VALIDATION
+EXP_POP:
+	LHLD	EXP_STACKCURR
+	
+	LXI	D,-5
+	DAD	D			; EXP_STACKCURR -= 5
+	
+	SHLD	EXP_STACKCURR		; UPDATE VARIABLE
+
+	RET
+
 
 ;*********************************************************
 ;* RAM VARIABLES
@@ -234,4 +391,5 @@ EXP_SKIPWHITESPACE:
 
 .area	DATA	(REL,CON)
 
-;EXP_XXX::		.ds	1		; XXX
+EXP_STACKLO:	.ds	EXP_STACKSIZE	; EXPRESSION STACK
+EXP_STACKCURR:	.ds	2		; CURRENT POS IN STACK
