@@ -214,16 +214,20 @@ END:
 ;*********************************************************
 ;* EVAL_UNARYOP: 	EXTRACT PARAMETERS FOR UNARY
 ;*			OPERATION (VAR_TEMP1)
-EVAL_UNARYOP:
+EVAL_UNARYOP::
+	PUSH	B
 	CALL	EVAL_COPY1
+	POP	B
 	RET
 
 ;*********************************************************
 ;* EVAL_BINARYOP: 	EXTRACT PARAMETERS FOR BINARY 
 ;*			OPERATION (VAR_TEMP1, VAR_TEMP2)
 EVAL_BINARYOP:
+	PUSH	B
 	CALL	EVAL_COPY1
 	CALL	EVAL_COPY2
+	POP	B
 	RET
 
 ;*********************************************************
@@ -231,9 +235,11 @@ EVAL_BINARYOP:
 ;*			OPERATION (VAR_TEMP1, VAR_TEMP2,
 ;*			VAR_TEMP3)
 EVAL_TERNARYOP:
+	PUSH	B
 	CALL	EVAL_COPY1
 	CALL	EVAL_COPY2
 	CALL	EVAL_COPY3
+	POP	B
 	RET
 
 ;*********************************************************
@@ -1002,13 +1008,14 @@ EVAL_COPY1:
 	RET
 
 GETVAR1:
+	
 	INX	H				; HL++
 	MOV	B,M				; TAG[0]
 	INX	H				; HL++
 	MOV	C,M				; TAG[1]
 	LXI	H,VAR_TEMP1
 	CALL	VAR_GET
-	RET
+	RET	
 		
 ;*********************************************************
 ;* EVAL_COPY2: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP2
@@ -1034,7 +1041,7 @@ EVAL_COPY2:
 	MOV	A,M				; BYTE 4
 	STA	VAR_TEMP2+3
 	INX	H
-	
+
 	RET
 
 GETVAR2:
@@ -1049,6 +1056,7 @@ GETVAR2:
 ;*********************************************************
 ;* EVAL_COPY3: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP3
 EVAL_COPY3:
+	
 	CALL	EXP_POP				; ADDR OF DATA IN H-L
 	
 	MOV	A,M				; DATA TYPE IN ACC
@@ -1081,7 +1089,6 @@ GETVAR3:
 	LXI	H,VAR_TEMP3
 	CALL	VAR_GET
 	RET
-
 
 ;*********************************************************
 ;* RAM VARIABLES
