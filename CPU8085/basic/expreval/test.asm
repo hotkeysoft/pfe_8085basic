@@ -328,6 +328,9 @@ TEST_MID:	;	TESTS OF MID$
 	CALL 	EVAL		; RESULT: "BC"
 	LXI	H,TESTSTRI05	; MID$("ABCD",3,66)
 	CALL 	EVAL		; RESULT: "CD"
+	LXI	H,TESTSTRI06	; MID$("ABCD",4,1)
+	CALL 	EVAL		; RESULT: "D"
+
 
 LOOP:
 	JMP	LOOP
@@ -503,6 +506,7 @@ TESTSTRI02:	.asciz	'MID$("ABCD",2,0)'	; ""
 TESTSTRI03:	.asciz	'MID$("ABCD",1,1)'	; "A"
 TESTSTRI04:	.asciz	'MID$("ABCD",2,2)'	; "BC"
 TESTSTRI05:	.asciz	'MID$("ABCD",3,66)'	; "CD"
+TESTSTRI06:	.asciz	'MID$("ABCD",4,1)'	; "D"
 
 
 OUTSTR:		.ds 128
