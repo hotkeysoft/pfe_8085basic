@@ -111,4 +111,11 @@ void Name2Tag(std::string name, BYTE tag[2]);
 
 void stringToFloat(const BYTE *currIn, float &number, int &length);
 
+short GetInt(BYTE *);
+float GetFloat(BYTE *);
+
+void SetInt(BYTE *, short);
+void SetFloat(BYTE *, float);
+
+
 #endif

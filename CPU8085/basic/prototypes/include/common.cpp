@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "common.h"
+#include <assert.h>
 #include <math.h>
 
 Keyword keywords[] = {
@@ -282,4 +283,28 @@ void stringToFloat(const BYTE *currIn, float &number, int &length)
 
 	number *= (float)pow(10, Exp+ExpInt);
 
+}
+
+short GetInt(BYTE *var)
+{
+	assert(*var == SID_CINT);
+	return *((short *)(var+1));
+}
+
+float GetFloat(BYTE *var)
+{
+	assert(*var == SID_CFLOAT);
+	return *((float *)(var+1));
+}
+
+void SetInt(BYTE *var, short value)
+{
+	*var = SID_CINT;
+	*((short *)(var+1)) = value;
+}
+
+void SetFloat(BYTE *var, float value)
+{
+	*var = SID_CFLOAT;
+	*((float  *)(var+1)) = value;
 }
