@@ -17,6 +17,7 @@ int main(int argc, char* argv[])
 	tokenize1(str, tok1);
 	tokenize2(tok1, tok2);
 
+	std::cout << str << std::endl << std::endl;
 	std::cout << untokenize(tok1) << std::endl << std::endl;
 	std::cout << untokenize(tok2) << std::endl;
 	
