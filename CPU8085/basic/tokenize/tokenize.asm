@@ -2,6 +2,7 @@
 .title 		Tokenization of basic statements
 
 .include	'..\common\common.def'
+.include	'..\integer\integer.def'
 
 .area	_CODE
 
@@ -293,6 +294,11 @@ LOOP:
 	CPI	'"	
 	JZ	STRING
 	
+	CPI	'-
+	JZ	MINUS
+	
+	CALL	C_ISDIGIT			; CHECK FOR NUMBER
+	JC	CINT
 	
 ;/////////////////////////////////////////////
 
@@ -378,10 +384,50 @@ EOS:
 	POP	H				; GO BACK TO BEGINNING OF STR
 	MOV	M,C				; SAVE LENGTH
 	
-	DAD	B				; ADD LEN OF STRING TO INPTR
+	DAD	B				; ADD LEN OF STRING TO OUTSTR
 	INX	H				; OUTSTR++
 			
 	JMP	LOOP				; LOOP
+	
+MINUS:
+	LDA	TOK_LASTTOKEN			; GET LASTTOKEN IN ACC
+	
+	; CHECK FOR PRECEDING CONST OR VARIABLE
+	CPI	SID_CINT
+	JZ	BINARY
+	CPI	SID_CSTR
+	JZ	BINARY
+	CPI	SID_VAR
+	JZ	BINARY
+
+	; OTHER CASES: UNARY
+	MVI	A,K_NEGATE			; '-' IS UNARY
+	JMP	COPY
+
+BINARY:
+	MVI	A,K_SUBSTRACT			; '-' IS BINARY
+	JMP	COPY
+
+
+CINT:	XCHG					; SWAP HL<->DE
+	CALL	INT_ATOI			; EXTRACT NUMBER
+	XCHG					; SWAP HL<->DE
+	
+	MVI	A,SID_CINT			; CONST INT
+	STA	TOK_LASTTOKEN			; STORE AS LAST TOKEN
+	MOV	M,A				; STORE IN OUT STRING
+	INX	H				; OUTSTR++
+	
+	LDA	INT_ACC0			; LO BYTE
+	MOV	M,A				; STORE IN OUTSTR
+	INX	H				; OUTSTR++
+	
+	LDA	INT_ACC0+1			; HI BYTE
+	MOV	M,A				; STORE IN OUTSTR
+	INX	H				; OUTSTR++
+	
+	JMP	LOOP
+
 
 COPY:
 	STA	TOK_LASTTOKEN			; SET LASTTOKEN
