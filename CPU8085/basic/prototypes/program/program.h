@@ -18,7 +18,7 @@ public:
 	static void Return();
 
 	static void End();
-	static void Stop();
+	static void Stop(BYTE *returnPoint, bool inIf);
 	static void Continue();
 
 protected:
@@ -28,6 +28,8 @@ protected:
 
 	static bool IsEnd;
 	static bool InIf;
+
+	static void DoIt();
 
 	static BYTE *Find(short lineNo, BYTE **insertionPoint = NULL);
 	static void Remove(BYTE *addr);

@@ -141,18 +141,26 @@ void CProgram::Run(short lineNo)
 
 	if (CurrLine == NULL)
 	{
-		throw CError();
+		throw CError(E_EXP_LINENOTFOUND);
 	}
 
 	IsEnd = false;
 	InIf = false;
+	NewLine = NULL;
 
+	DoIt();
+
+	CurrLine = 0;
+	CurrPos = 0;
+	IsEnd = false;
+	InIf = false;
+
+}
+
+void CProgram::DoIt()
+{
 	while (IsEnd == false && CurrLine < HiProgram)
 	{
-		NewLine = NULL;
-
-//		std::cout << std::endl << *((WORD *)(CurrLine+1)) << "\t";
-
 		if (CurrPos)
 		{
 			BYTE *temp = CurrPos;
@@ -167,10 +175,12 @@ void CProgram::Run(short lineNo)
 		if (CurrPos)
 		{
 			CurrLine = NewLine;
+			NewLine = 0;
 		}
 		else if (NewLine)
 		{
 			CurrLine = NewLine;
+			NewLine = 0;
 			CurrPos = 0;
 			InIf = false;
 		}
@@ -181,12 +191,6 @@ void CProgram::Run(short lineNo)
 			InIf = false;
 		}
 	}  	
-
-	CurrLine = 0;
-	CurrPos = 0;
-	IsEnd = false;
-	InIf = false;
-
 }
 
 void CProgram::Goto(short lineNo)
@@ -195,7 +199,7 @@ void CProgram::Goto(short lineNo)
 
 	if (NewLine == NULL)
 	{
-		throw CError();
+		throw CError(E_EXP_LINENOTFOUND);
 	}
 }
 
@@ -205,7 +209,7 @@ void CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 
 	if (NewLine == NULL)
 	{
-		throw CError();
+		throw CError(E_EXP_LINENOTFOUND);
 	}
 
 	BYTE temp[5];
@@ -237,12 +241,47 @@ void CProgram::End()
 	IsEnd = true;
 }
 
-void CProgram::Stop()
+void CProgram::Stop(BYTE *returnPoint, bool inIf)
 {
+	if (CurrLine == 0)
+	{
+		std::cout << "Break" << std::endl;
+		return;
+	}
+
 	IsEnd = true;
+
+	BYTE temp[5];
+
+	*temp = SID_STOP;
+	*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
+	*(temp+3) = (BYTE)(returnPoint-CurrLine);
+	*(temp+4) = (inIf==true)?1:0;
+
+	CExprStack::push(temp);
+
+	std::cout << "Break in " << *((short *)(CurrLine+1)) << std::endl;
 }
 
 void CProgram::Continue()
 {
+	IsEnd = false;
 
+	if (CExprStack::isEmpty())
+	{
+		return;
+	}
+
+	BYTE *temp = CExprStack::pop();
+
+	if (*temp != SID_STOP)
+	{
+		throw CError();
+	}
+
+	CurrLine = Memory+*((WORD *)(temp+1));
+	CurrPos = CurrLine + *(temp+3);
+	InIf = (*(temp+4)==0)?false:true;
+
+	DoIt();
 }
