@@ -660,7 +660,7 @@ EVAL_ASC::
 	
 	LDA	VAR_TEMP1+1			; READ STRING LENGTH
 	ORA	A				; CHECK IF ZERO
-	JZ	1$
+	JZ	ERR_EXP_ILLEGAL
 	
 	LHLD	VAR_TEMP1+2			; READ ADDRESS OF STRING DATA
 
@@ -677,8 +677,6 @@ EVAL_ASC::
 	CALL	EXP_PUSH			; PUSH RESULT ON STACK
 	
 	RET	
-	
-1$:	HLT
 
 ;*********************************************************
 ;* EVAL_VAL: 	EVALUATES VAL (STR)
@@ -689,7 +687,7 @@ EVAL_VAL::
 	
 	LDA	VAR_TEMP1+1			; READ STRING LENGTH
 	ORA	A				; CHECK IF ZERO
-	JZ	1$
+	JZ	ERR_EXP_ILLEGAL
 	
 	LHLD	VAR_TEMP1+2			; READ ADDRESS OF STRING DATA
 
@@ -705,8 +703,6 @@ EVAL_VAL::
 	CALL	EXP_PUSH			; PUSH RESULT ON STACK
 	
 	RET	
-	
-1$:	HLT
 
 ;*********************************************************
 ;* EVAL_CHR: 	EVALUATES CHR$ (STR)
@@ -717,7 +713,7 @@ EVAL_CHR::
 	
 	LDA	VAR_TEMP1+2			; READ HI BYTE OF INT IN ACC
 	ORA	A
-	JNZ	1$	
+	JNZ	ERR_EXP_ILLEGAL	
 
 	MVI	A,1				; LENGTH OF STRING
 	LXI	B,0x0000			; NO PARENT
@@ -738,8 +734,6 @@ EVAL_CHR::
 	CALL	EXP_PUSH			; PUSH RESULT ON STACK
 	
 	RET	
-	
-1$:	HLT
 
 ;*********************************************************
 ;* EVAL_STR: 	EVALUATES STR$ (STR)
@@ -783,7 +777,7 @@ EVAL_LEFT::
 	LHLD	VAR_TEMP1+1			; LOAD LENGTH IN HL
 	MOV	A,H				; HI BYTE IN ACC
 	ORA	A				; MUST BE ZERO
-	JNZ	1$				; (0..255)
+	JNZ	ERR_EXP_ILLEGAL			; (0..255)
 	
 	LDA	VAR_TEMP2			; TYPE OF VAR2 IN ACC
 	CPI	SID_CSTR
@@ -818,9 +812,6 @@ EVAL_LEFT::
 	CALL	EXP_PUSH			; PUSH RESULT ON STACK
 	
 	RET	
-	
-1$:	HLT
-
 
 ;*********************************************************
 ;* EVAL_RIGHT: EVALUATES RIGHT$ (STR)
@@ -832,7 +823,7 @@ EVAL_RIGHT::
 	LHLD	VAR_TEMP1+1			; LOAD LENGTH IN HL
 	MOV	A,H				; HI BYTE IN ACC
 	ORA	A				; MUST BE ZERO
-	JNZ	1$				; (0..255)
+	JNZ	ERR_EXP_ILLEGAL			; (0..255)
 	
 	XCHG					; SWAP HL<->DE
 	
@@ -884,8 +875,6 @@ EVAL_RIGHT::
 	
 	RET	
 	
-1$:	HLT
-
 ;*********************************************************
 ;* EVAL_MID:	EVALUATES MID$ (STR)
 ;* 		VAR_TEMP3: SOURCE STRING
@@ -907,11 +896,11 @@ EVAL_MID::
 	LHLD	VAR_TEMP2+1			; LOAD POS IN HL
 	MOV	A,H				; HI BYTE IN ACC
 	ORA	A				; (MUST BE ZERO)
-	JNZ	1$
+	JNZ	ERR_EXP_ILLEGAL
 	
 	MOV	A,L				; CHECK LO BYTE
 	ORA	A				; (ZERO INVALID)
-	JZ	1$
+	JZ	ERR_EXP_ILLEGAL
 	
 	LDA	VAR_TEMP3+1			; SIZE OF SOURCE STRING IN ACC
 	CMP	L				; COMPARE WITH POS
@@ -942,11 +931,11 @@ EVAL_MID::
 	LHLD	VAR_TEMP1+1			; LENGTH OF SUBSTRING IN HL
 	MOV	A,H				; HI BYTE IN ACC
 	ORA	A				; (MUST BE ZERO)
-	JNZ	1$
+	JNZ	ERR_EXP_ILLEGAL
 
 	MOV	A,E				; POS-1 IN ACC
 	ADD	L				; + LENGTH
-	JC	1$				; CHECK FOR OVERFLOW
+;	JC	1$				; CHECK FOR OVERFLOW
 	
 	CMP	B				; COMPARE WITH SIZE
 	JB	3$
@@ -977,8 +966,6 @@ EVAL_MID::
 	CALL	EXP_PUSH			; PUSH RESULT ON STACK
 	
 	RET
-	
-1$:	HLT
 
 ;*********************************************************
 ;* EVAL_COPY1: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP1
