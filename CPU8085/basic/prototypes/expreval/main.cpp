@@ -76,15 +76,13 @@ int main(int argc, char* argv[])
 	while (1)
 	{
 		std::cin.getline((char *)Memory, 255);
-		if (strcmp((char *)Memory, "") == 0)
-		{
-			break;
-		}
+//		if (strcmp((char *)Memory, "") == 0)
+//		{
+//			break;
+//		}
 
 		try
 		{
-			CExprStack::Empty();
-
 			if (isdigit(*Memory))
 			{
 				short line;
@@ -112,8 +110,6 @@ int main(int argc, char* argv[])
 				{
 					CProgram::Insert(line, Memory+256, lineLength);
 				}
-
-//				CProgram::List();
 			}
 			else	// Immediate mode
 			{
