@@ -4,6 +4,7 @@
 .include	'..\io\io.def'
 .include	'..\integer\integer.def'
 .include	'..\program\program.def'
+.include	'..\expreval\expreval.def'
 
 .area	_CODE
 
@@ -91,9 +92,13 @@ ERR_HANDLER:
 2$:	; END OF ERROR MESSAGE	
 	MVI	A,13			; CR
 	CALL	IO_PUTC			; END OF LINE
+
+	; UNWIND EXPRESSION STACK
+	CALL	EXP_CLRSTACK
 	
 	; UNWIND STACK
 	LXI	SP,0xFFFF
+	
 	
 	LHLD	ERR_RESTARTPTR		; LOAD RESTART POSITION
 	PCHL				; GO TO RESTART POS
@@ -104,8 +109,8 @@ ERR_STR_ERROR:			.asciz	" error"
 	
 ERR_STR_NOENDSTR:		.asciz	"Unterminated string constant"
 ERR_STR_INVALIDCHAR:		.asciz	"Invalid symbol"
-ERR_STR_STACKOVERFLOW:		.asciz	"Stack overflow"
-ERR_STR_STACKUNDERFLOW:		.asciz	"Stack underflow"
+ERR_STR_STACKOVERFLOW:		.asciz	"Expression too complex"
+ERR_STR_STACKUNDERFLOW:		.asciz	"Missing parameter"
 ERR_STR_TYPEMISMATCH:		.asciz	"Type mismatch"
 ERR_STR_OVERFLOW:		.asciz	"Overflow"
 ERR_STR_ILLEGAL:		.asciz	"Illegal argument"
