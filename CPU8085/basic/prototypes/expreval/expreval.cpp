@@ -49,10 +49,12 @@ void L0()
 
 void L1()
 {
+	SkipWhitespace();
+
 	if (*currIn == K_NOT)
 	{
 		++currIn;
-		L2();
+		L1();
 		CEvaluate::Evaluate(K_NOT);	
 	}
 	else
@@ -63,6 +65,8 @@ void L1()
 
 void L2()
 {
+	SkipWhitespace();
+
 	L3();
 
 	while (1)
@@ -88,6 +92,8 @@ void L2()
 
 void L3()
 {
+	SkipWhitespace();
+
 	L4();
 
 	while (1)
@@ -108,6 +114,8 @@ void L3()
 
 void L4()
 {
+	SkipWhitespace();
+
 	L5();
 
 	while (1)
@@ -128,10 +136,12 @@ void L4()
 
 void L5()
 {
+	SkipWhitespace();
+
 	if (*currIn == K_NEGATE)
 	{
 		++currIn;
-		L6();
+		L5();
 		CEvaluate::Evaluate(K_NEGATE);	
 	}
 	else
@@ -142,7 +152,10 @@ void L5()
 
 void L6()
 {
+	SkipWhitespace();
+
 	L7();
+
 	while (1)
 	{
 		KEYWORDS currToken = KEYWORDS(*currIn);
@@ -245,6 +258,7 @@ void L7()
 
 			CEvaluate::Evaluate(currToken);
 		}
+
 		break;
 	}
 
