@@ -11,7 +11,6 @@
 int main(int argc, char* argv[])
 {
 	char str[256];
-	char tok1[256];
 	char tok2[256];
 
 	std::string line;
@@ -24,8 +23,8 @@ int main(int argc, char* argv[])
 
 		try
 		{
-			tokenize1(str, tok1);
-			tokenize2(tok1, tok2);
+			tokenize1(str);
+			tokenize2(str, tok2);
 
 			std::cout << untokenize(tok2) << std::endl;
 		}

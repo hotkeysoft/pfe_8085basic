@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <cstring>
+
 #include "tokenize.h"
 
 // Returns token ID from string token
@@ -42,72 +44,51 @@ const char *findTokenStr(const unsigned char token)
 
 // Tokenize, pass 1: converts keywords to tokens,
 // ignore variables, constants & delimiters
-void tokenize1(const char *in, char *out)
+void tokenize1(char *inout)
 {
-	const char *currIn = in;
-	char *currOut = out;
+	char *curr = inout;
 
 	char token;
 	int tokenLength;
-
-	int lineNo;
-
-	if (isdigit(*in))
-	{
-		lineNo = atoi(in);
-		while (isdigit(*currIn))
-		{
-			currIn++;	
-		}
-	}
 
 	unsigned char lastToken = 0;
 
 	while(1)
 	{
-		if (*currIn == NULL)
+		if (*curr == NULL)
 		{
-			*currOut = NULL;
 			break;
 		}
 
-		switch(*currIn)
+		switch(*curr)
 		{
 		case '(':
 		case ')':
 		case ':':
 		case ';':
 		case ',':
-			*currOut = *currIn;
-			lastToken = *currIn;
-			++currIn;
-			++currOut;
+			lastToken = *curr;
+			++curr;
 			break;
 
 		case ' ':	// whitespace.. should be ignored
-			*currOut = *currIn;
-			++currIn;
-			++currOut;
+			++curr;
 			break;
 
 		case '\"':
 			do
 			{
-				*currOut = *currIn;
-				++currIn;
-				++currOut;
+				++curr;
 			}
-			while (*currIn != NULL && *currIn != '\"');
+			while (*curr != NULL && *curr != '\"');
 
-			if (*currIn == NULL)
+			if (*curr == NULL)
 			{
 				throw CError(E_TOK_NOENDSTR);	// unterminated string constant
 			}
 
-			*currOut = *currIn;
-			lastToken = *currIn;
-			++currIn;
-			++currOut;
+			lastToken = *curr;
+			++curr;
 			break;
 
 		case '-': // special case handled by tokenize2() function
@@ -136,33 +117,28 @@ void tokenize1(const char *in, char *out)
 			case ':':
 			case ';':
 			case ',':
-				*currOut = (char)K_NEGATE;
+				*curr = (char)K_NEGATE;
 				lastToken = (char)K_NEGATE;	
-				++currIn;
-				++currOut;
+				++curr;
 				break;
 			default: 
 				// Not sure yet, will have to confirm later
-				*currOut = *currIn;
-				++currIn;
-				++currOut;
+				++curr;
 				lastToken = 0;
 				break;
 			}
 			break;
 		default:
-			if (findToken(currIn, token, tokenLength) == true)
+			if (findToken(curr, token, tokenLength) == true)
 			{
-				*currOut = token;
-				++currOut;
-				currIn += tokenLength;
+				memset(curr, 255, tokenLength);
+				*curr = token;
+				curr += tokenLength;
 				lastToken = token;
 			}
 			else
 			{
-				*currOut = *currIn;
-				++currIn;
-				++currOut;
+				++curr;
 				lastToken = 0;
 			}
 			break;
@@ -175,7 +151,7 @@ void tokenize1(const char *in, char *out)
 // Tokenize, pass 2: encodes variables & constants
 void tokenize2(const char *in, char *out)
 {
-	const char *currIn = in;
+	const BYTE *currIn = (const BYTE *)in;
 	char *currOut = out;
 	char lastToken = 0;
 
@@ -185,6 +161,10 @@ void tokenize2(const char *in, char *out)
 		{
 			*currOut = NULL;
 			break;
+		}
+		else if (*currIn == 255)
+		{
+			++currIn;
 		}
 		else if ((*currIn & 0x80) == 0x80)	// token
 		{
