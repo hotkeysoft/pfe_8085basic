@@ -45,8 +45,7 @@ void L1()
 	{
 		++currIn;
 		L2();
-		*currOut = K_NOT;
-		++currOut;
+		CEvaluate::Evaluate(K_NOT);	
 	}
 	else
 	{
@@ -125,8 +124,7 @@ void L5()
 	{
 		++currIn;
 		L6();
-		*currOut = K_NEGATE;
-		++currOut;
+		CEvaluate::Evaluate(K_NEGATE);	
 	}
 	else
 	{

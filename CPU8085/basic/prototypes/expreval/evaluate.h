@@ -11,10 +11,14 @@ public:
 	static void Evaluate(KEYWORDS);
 
 protected:
-	static void BinaryOp(KEYWORDS);
+	static void BinaryOp();
+	static void UnaryOp();
+
 	static void BinaryCalc(KEYWORDS);
 	static void BinaryRel(KEYWORDS);
 	static void BinaryLog(KEYWORDS);
+	static void Not();
+	static void Negate();
 
 	static void ConvertToSameType();
 	static void ConvertToFloat();
@@ -26,3 +30,4 @@ protected:
 	static void SetInt(BYTE *, short);
 	static void SetFloat(BYTE *, float);
 };
+

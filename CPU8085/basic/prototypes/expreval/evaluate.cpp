@@ -41,30 +41,34 @@ void CEvaluate::Evaluate(KEYWORDS k)
 {
 	switch(k)
 	{
-	case K_POWER:		BinaryOp(k); ConvertToSameType();	BinaryCalc(k);	break;
-	case K_MULTIPLY:	BinaryOp(k); ConvertToSameType();	BinaryCalc(k);	break;
-	case K_FDIVIDE:		BinaryOp(k); ConvertToFloat();		BinaryCalc(k);	break;
-	case K_IDIVIDE:		BinaryOp(k); ConvertToInt();		BinaryCalc(k);	break;
-	case K_ADD:			BinaryOp(k); ConvertToSameType();	BinaryCalc(k);	break;
-	case K_SUBSTRACT:	BinaryOp(k); ConvertToSameType();	BinaryCalc(k);	break;
+	case K_POWER:		BinaryOp(); ConvertToSameType();	BinaryCalc(k);	break;
+	case K_MULTIPLY:	BinaryOp(); ConvertToSameType();	BinaryCalc(k);	break;
+	case K_FDIVIDE:		BinaryOp(); ConvertToFloat();		BinaryCalc(k);	break;
+	case K_IDIVIDE:		BinaryOp(); ConvertToInt();			BinaryCalc(k);	break;
+	case K_ADD:			BinaryOp(); ConvertToSameType();	BinaryCalc(k);	break;
+	case K_SUBSTRACT:	BinaryOp(); ConvertToSameType();	BinaryCalc(k);	break;
 
-	case K_NOTEQUAL:	BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
-	case K_LESSEQUAL:	BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
-	case K_GREATEREQUAL:BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
-	case K_LESS:		BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
-	case K_GREATER:		BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
-	case K_EQUAL:		BinaryOp(k); ConvertToSameType();	BinaryRel(k);	break;
+	case K_NOTEQUAL:	BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
+	case K_LESSEQUAL:	BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
+	case K_GREATEREQUAL:BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
+	case K_LESS:		BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
+	case K_GREATER:		BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
+	case K_EQUAL:		BinaryOp(); ConvertToSameType();	BinaryRel(k);	break;
 
-	case K_AND:			BinaryOp(k); ConvertToInt();		BinaryLog(k);	break;
-	case K_OR:			BinaryOp(k); ConvertToInt();		BinaryLog(k);	break;
-	case K_XOR:			BinaryOp(k); ConvertToInt();		BinaryLog(k);	break;
+	case K_AND:			BinaryOp(); ConvertToInt();		BinaryLog(k);	break;
+	case K_OR:			BinaryOp(); ConvertToInt();		BinaryLog(k);	break;
+	case K_XOR:			BinaryOp(); ConvertToInt();		BinaryLog(k);	break;
+
+	case K_NOT:			UnaryOp();  Not();		break;
+
+	case K_NEGATE:		UnaryOp();	Negate();	break;
 
 	default:
 		break;
 	}
 }
 
-void CEvaluate::BinaryOp(KEYWORDS k)
+void CEvaluate::BinaryOp()
 {
 	BYTE *op1 = CExprStack::pop();
 	BYTE *op2 = CExprStack::pop();
@@ -85,6 +89,20 @@ void CEvaluate::BinaryOp(KEYWORDS k)
 	else
 	{
 		memcpy(tempVar2, op2, 5);
+	}
+}
+
+void CEvaluate::UnaryOp()
+{
+	BYTE *op = CExprStack::pop();
+
+	if (*op == SID_VAR)
+	{
+		throw CError();
+	}
+	else
+	{
+		memcpy(tempVar1, op, 5);
 	}
 }
 
@@ -308,3 +326,50 @@ void CEvaluate::BinaryLog(KEYWORDS k)
 	}
 }
 
+void CEvaluate::Negate()
+{
+    if (*tempVar1 == SID_CINT)
+	{
+		short op = GetInt(tempVar1);
+
+		SetInt(tempVar3, -op);
+		CExprStack::push(tempVar3);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		float op = GetFloat(tempVar1);
+
+		SetFloat(tempVar3, -op);
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Not()
+{
+	short op;
+
+	switch (*tempVar1)
+	{
+	case SID_CINT: op = GetInt(tempVar1);	break;
+	case SID_CFLOAT: 
+		{
+			float fVal = GetFloat(tempVar1);
+			if (fVal>32767.0 || fVal<-32768.0)
+			{
+				throw CError(E_EXP_OVERFLOW);    				
+			}
+			
+			op = (short)fVal;
+		}
+		break;
+	default:
+		throw CError(E_EXP_TYPEMISMATCH);    
+	}
+
+	SetInt(tempVar3, ~op);
+	CExprStack::push(tempVar3);
+}
