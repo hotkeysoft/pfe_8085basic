@@ -403,13 +403,45 @@ void DoGoto(bool execute)
 
 	if (execute)
 	{
-		std::cout << "GOTO " << lineNo << std::endl;
-	}
-	else
-	{
-		std::cout << "SKIP_GOTO " << lineNo << std::endl;
+		CProgram::Goto(lineNo);
 	}
 }
+
+void DoGosub(bool execute)
+{
+	++currIn;
+	short lineNo;
+
+	L0();
+
+	CEvaluate::UnaryOp();	// value in tempVar1
+
+	if (*tempVar1 == SID_CINT)
+	{
+		lineNo = GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT) 
+	{
+		float fLineNo = GetFloat(tempVar1);
+        if (fLineNo<1.0f || fLineNo>32767.0f)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+        lineNo = (short)fLineNo;
+	}
+	else 
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+
+	if (execute)
+	{
+		CProgram::Gosub(lineNo, currIn);
+	}
+}
+
 
 void DoIf(bool execute)
 {
@@ -456,10 +488,44 @@ void DoElse(bool inIf, bool execute)
 	Execute(false, !execute);
 }
 
+void DoRun(bool execute)
+{
+	CProgram::Run();
+}
+
+void DoReturn(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::Return();
+	}
+}
+
+void DoEnd(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::End();
+	}
+}
+
+void DoStop(bool execute)
+{
+	++currIn;
+	if (execute)
+	{
+		CProgram::Stop();
+	}
+}
+
+
 void Execute(bool inIf, bool execute)
 {
 	while (*currIn)
 	{
+		bool exitLoop = false;
 
 		// skip whitespace
 		while(*currIn == ' ' || *currIn == ':')
@@ -477,11 +543,19 @@ void Execute(bool inIf, bool execute)
 		case SID_VAR:		DoLet(execute, false);	break;
 		case K_IF:			DoIf(execute);			break;
 		case K_ELSE:		DoElse(inIf, execute);	break;
-		case K_GOTO:		DoGoto(execute);		break;
+		case K_GOTO:		DoGoto(execute);	exitLoop = execute;		break;
+		case K_GOSUB:		DoGosub(execute);	exitLoop = execute;		break;
+		case K_RETURN:		DoReturn(execute);	exitLoop = execute;		break;
 		case K_REM:			while (*currIn) ++currIn;	return;
+		case K_RUN:			DoRun(execute);	break;
+		case K_END:			DoEnd(execute);		exitLoop = execute;		break;
+//		case K_STOP:		DoStop(execute);	exitLoop = execute;		break;
 
 		default: throw CError();
 		}
+
+		if (exitLoop == true)
+			break;
 
 		SkipWhitespace();
 
