@@ -17,7 +17,7 @@ public:
 
 	static void Goto(short lineNo);
 
-	static void Gosub(short lineNo, BYTE *returnPoint, bool inIf);
+	static bool Gosub(short lineNo, BYTE *returnPoint, bool inIf);
 	static void Return();
 
 	static void End();

@@ -6,11 +6,11 @@
 //				[  8 ][ 16 ]...........[  8 ][ 16 ]..............
 //				<---------Size-------->
 
+extern BYTE *currIn;
+
 BYTE *CProgram::NewLine = NULL;
 BYTE *CProgram::CurrLine = NULL;
 BYTE *CProgram::CurrPos = NULL;
-BYTE *CProgram::NextReturnPoint = NULL;
-BYTE *CProgram::NextCurrLine = NULL;
 bool CProgram::IsEnd = false;
 bool CProgram::InIf = false;
 bool CProgram::IsNext = false;
@@ -29,6 +29,7 @@ void CProgram::Init()
 	CurrLine = NULL;
 	CurrPos = NULL;
 	IsEnd = false;
+	IsNext = false;
 	InIf = false;
 }
 
@@ -153,6 +154,7 @@ void CProgram::Run(short lineNo)
 
 	IsEnd = false;
 	InIf = false;
+	IsNext = false;
 	NewLine = NULL;
 
 	DoIt();
@@ -223,7 +225,7 @@ void CProgram::Goto(short lineNo)
 	}
 }
 
-void CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
+bool CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 {
 	NewLine = Find(lineNo);
 
@@ -235,30 +237,59 @@ void CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 	BYTE temp[5];
 
 	*temp = SID_GOSUB;
-	*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
-	*(temp+3) = (BYTE)(returnPoint-CurrLine);
 	*(temp+4) = (inIf==true)?1:0;
+
+	if (CurrLine == 0)
+	{
+		*((WORD *)(temp+1)) = (WORD)(0);
+		*(temp+3) = (BYTE)(0);
+	}
+	else
+	{
+		*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
+		*(temp+3) = (BYTE)(returnPoint-CurrLine);
+	}
 
 	CExprStack::push(temp);
 
 	if (CurrLine == NULL)
 	{
 		IsEnd = false;
+		BYTE *pos = currIn;
 		DoIt();
+		currIn = pos;
+		return false;
 	}
+
+	return true;
 }
 
 void CProgram::Return()
 {
+	if (CExprStack::isEmpty())
+	{
+		throw CError(E_EXP_RETWITHOUTGOSUB);
+	}
+
 	BYTE *temp = CExprStack::pop();
 
 	if (*temp != SID_GOSUB)
 	{
-		throw CError();
+		throw CError(E_EXP_RETWITHOUTGOSUB);
 	}
 
-	NewLine = Memory+*((WORD *)(temp+1));
-	CurrPos = NewLine + *(temp+3);
+	if (*((WORD *)(temp+1)) == 0)
+	{
+		NewLine = 0;
+		CurrPos = 0;
+		CurrLine = 0;
+	}
+	else
+	{
+		NewLine = Memory+*((WORD *)(temp+1));
+		CurrPos = NewLine + *(temp+3);
+	}
+
 	InIf = (*(temp+4)==0)?false:true;
 }
 
@@ -293,14 +324,14 @@ void CProgram::Continue()
 {
 	if (CExprStack::isEmpty())
 	{
-		return;
+		throw CError(E_EXP_CONTWITHOUTSTOP);
 	}
 
 	BYTE *temp = CExprStack::pop();
 
 	if (*temp != SID_STOP)
 	{
-		throw CError();
+		throw CError(E_EXP_CONTWITHOUTSTOP);
 	}
 
 	CurrLine = Memory+*((WORD *)(temp+1));
@@ -343,14 +374,4 @@ void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float s
 void CProgram::Next(BYTE *returnPoint)
 {
 	IsNext = true;
-	NextReturnPoint = returnPoint;
-
-	if (CurrLine)
-	{
-		NextCurrLine = CurrLine+*CurrLine;
-	}
-	else
-	{
-		NextCurrLine = NULL;
-	}
 }
