@@ -31,10 +31,10 @@ protected:
 	ErrorType m_error;
 	char m_symbol;
 
-	friend std::ostream operator<< (std::ostream &os, const CError &e);
+	friend std::ostream &operator<< (std::ostream &os, const CError &e);
 };
 
-std::ostream operator<< (std::ostream &os, const CError &e);
+std::ostream &operator<< (std::ostream &os, const CError &e);
 
 
 #endif

@@ -9,7 +9,7 @@ Error errorStr[] = {
 	E_UNKNOWN,			"Unknown Error"
 };
 
-std::ostream operator<< (std::ostream &os, const CError &e)
+std::ostream &operator<< (std::ostream &os, const CError &e)
 {
 	Error *current = errorStr;
 

@@ -11,9 +11,9 @@ public:
 private:
 	const char *m_str;
 
-	friend std::ostream operator<< (std::ostream &os, const untokenize &u);
+	friend std::ostream &operator<< (std::ostream &os, const untokenize &u);
 };
 
-std::ostream operator<< (std::ostream &os, const untokenize &u);
+std::ostream &operator<< (std::ostream &os, const untokenize &u);
 
 #endif

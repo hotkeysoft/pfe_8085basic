@@ -4,7 +4,7 @@
 #include "tokenize.h"
 
 
-std::ostream operator<< (std::ostream &os, const untokenize &u)
+std::ostream &operator<< (std::ostream &os, const untokenize &u)
 {
 	const char *currChar = u.m_str;
 
