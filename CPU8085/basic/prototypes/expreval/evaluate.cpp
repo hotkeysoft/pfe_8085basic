@@ -49,6 +49,8 @@ void CEvaluate::Evaluate(KEYWORDS k)
 	case K_SGN:			UnaryOp();	Sgn();			break;
 	case K_SQR:			UnaryOp();	Sqr();			break;
 	case K_VAL:			UnaryOp();	Val();			break;
+	case K_SIN:			UnaryOp();	Sin();			break;
+	case K_COS:			UnaryOp();	Cos();			break;
 
 	case K_CHR:			UnaryOp();	Chr();			break;
 	case K_STR:			UnaryOp();	Str();			break;
@@ -263,7 +265,7 @@ void CEvaluate::BinaryCalc(KEYWORDS k)
 
 		switch(k)
 		{
-		case K_POWER:		result = (float)pow(op2, op1);	break;
+		case K_POWER:		result = powf(op2, op1);break;
 		case K_MULTIPLY:	result = op2 * op1;		break;
 		case K_ADD:			result = op2 + op1;		break;
 		case K_SUBSTRACT:	result = op2 - op1;		break;
@@ -682,7 +684,7 @@ void CEvaluate::Sqr()
 		throw CError(E_EXP_ILLEGAL);
 	}
 
-	SetFloat(tempVar3, (float)sqrt(val));
+	SetFloat(tempVar3, sqrtf(val));
 	CExprStack::push(tempVar3);
 }
 
@@ -712,6 +714,49 @@ void CEvaluate::Val()
 		throw CError(E_EXP_TYPEMISMATCH);
 	}
 }
+
+void CEvaluate::Sin()
+{	
+	float val;
+
+	if (*tempVar1 == SID_CINT)
+	{
+		val = GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		val = GetFloat(tempVar1);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	SetFloat(tempVar3, sinf(val));
+	CExprStack::push(tempVar3);
+}
+
+void CEvaluate::Cos()
+{	
+	float val;
+
+	if (*tempVar1 == SID_CINT)
+	{
+		val = GetInt(tempVar1);
+	}
+	else if (*tempVar1 == SID_CFLOAT)
+	{
+		val = GetFloat(tempVar1);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+
+	SetFloat(tempVar3, cosf(val));
+	CExprStack::push(tempVar3);
+}
+
 
 void CEvaluate::Chr()
 {

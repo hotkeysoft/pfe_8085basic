@@ -33,6 +33,8 @@ public:
 	static void Sgn();
 	static void Sqr();
 	static void Val();
+	static void Sin();
+	static void Cos();
 
 	static void Str();
 	static void Chr();
