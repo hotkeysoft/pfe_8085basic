@@ -1,4 +1,15 @@
 
+	; STACK ID
+	.globl	SID_CINT
+	.globl	SID_CFLOAT
+	.globl	SID_CSTR
+	.globl	SID_VAR
+	.globl	SID_GOSUB
+	.globl	SID_FOR
+	.globl	SID_STOP
+	.globl	SID_FBASE
+
+	; KEYWORDS
 	.globl	K_NONE
 
 	.globl	K_POWER
@@ -66,8 +77,10 @@
 	.globl	K_THEN
 	.globl	K_TO
 
+	; KEYWORD TABLE
 	.globl	K_TABLE
 	
+	; FUNCTIONS
 	.globl	C_TAG2NAME
 	.globl	C_NAME2TAG
 
