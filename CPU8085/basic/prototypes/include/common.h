@@ -13,7 +13,7 @@ const std::string variableNameStr = " 0123456789"\
 									"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-struct Keywords
+struct Keyword
 {
 	int id;
 	const char *name;
@@ -76,13 +76,16 @@ struct Keywords
 	0xCD, "OUT",
 	0xCE, "POKE",
 	0xCF, "PRINT",
+	0xCF, "?",
 	0xD0, "REM",
 	0xD1, "RETURN",
 	0xD2, "RUN",
 	0xD3, "STEP",
 	0xD4, "SYS",
 	0xD5, "THEN",
-	0xD6, "TO"
+	0xD6, "TO",
+
+	NULL, NULL
 };
 
 
