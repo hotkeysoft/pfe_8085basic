@@ -243,25 +243,21 @@ bool CProgram::Gosub(short lineNo, BYTE *returnPoint, bool inIf)
 	{
 		*((WORD *)(temp+1)) = (WORD)(0);
 		*(temp+3) = (BYTE)(0);
-	}
-	else
-	{
-		*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
-		*(temp+3) = (BYTE)(returnPoint-CurrLine);
-	}
 
-	CExprStack::push(temp);
+		CExprStack::push(temp);
 
-	if (CurrLine == NULL)
-	{
 		IsEnd = false;
 		BYTE *pos = currIn;
 		DoIt();
 		currIn = pos;
 		return false;
 	}
-
-	return true;
+	else
+	{
+		*((WORD *)(temp+1)) = (WORD)(CurrLine-Memory);
+		*(temp+3) = (BYTE)(returnPoint-CurrLine);
+		return true;
+	}
 }
 
 void CProgram::Return()
