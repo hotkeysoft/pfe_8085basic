@@ -1,4 +1,6 @@
 
+	.globl	PRG_CURRLINE
+	
 	.globl	PRG_LOPTR
 	.globl	PRG_HIPTR
 

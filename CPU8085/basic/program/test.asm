@@ -5,6 +5,10 @@
 .include	'..\common\common.def'
 .include	'..\io\io.def'
 .include	'..\error\error.def'
+.include	'..\expreval\expreval.def'
+.include	'..\integer\integer.def'
+.include	'..\strings\strings.def'
+.include	'..\variables\variable.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
@@ -28,14 +32,39 @@ START:
 	SIM
 	EI				;ENABLE INTERRUPTS
 
+	; IO INIT
+	CALL	IO_INIT
+	LXI	H,0
+	SHLD	PRG_CURRLINE
 
+	CALL	INT_INIT
+	CALL	EXP_INIT
+
+	; TEST PROGRAM
 	LXI	H,TESTPRG1		; PROGRAM MEMORY
 	SHLD	PRG_LOPTR
 	
 	LXI	H,TESTPRG4END
 	SHLD	PRG_HIPTR
+	SHLD	VAR_LOPTR
+	SHLD	VAR_HIPTR
 	
-	CALL	PRG_INIT
+	CALL	PRG_INIT	
+
+	; SET STR PTRS
+	LXI	H,0xA000
+	SHLD	STR_LOPTR
+	SHLD	STR_HIPTR
+
+	; SET ZZ = 70
+	MVI	B,'Z
+	MVI	C,'Z
+	MVI	A,SID_CINT
+	STA	VAR_TEMP1
+	LXI	H,70
+	SHLD	VAR_TEMP1+1
+	LXI	H,VAR_TEMP1
+	CALL	VAR_SET
 
 ;	JMP	TEST_LIST
 ;	JMP	TEST_FIND
@@ -142,6 +171,9 @@ TEST_REMOVE:
 	CALL	IO_PUTCR
 
 TEST_RUN:
+	LXI	H,LOOP
+	SHLD	ERR_RESTARTPTR
+
 	CALL	PRG_LIST
 	CALL	IO_PUTCR
 	
