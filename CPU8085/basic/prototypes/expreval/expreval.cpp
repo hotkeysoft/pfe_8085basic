@@ -490,8 +490,11 @@ bool DoElse(bool inIf, bool execute)
 }
 
 void DoRun(bool execute)
-{
+{	
+	++currIn;
+	BYTE *temp = currIn;
 	CProgram::Run();
+	currIn = temp;
 }
 
 void DoReturn(bool execute)
