@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "expreval", "expreval\expreval.vcproj", "{1735EF55-71D3-48A3-8EDB-9D3FED164D8D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tokenize", "tokenize\tokenize.vcproj", "{548EC40E-4FC6-40E0-9BC5-666ED11B360C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "variables", "variables\variables.vcproj", "{5DF7623A-D32A-4324-AFD4-552C1E35EDB6}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{1735EF55-71D3-48A3-8EDB-9D3FED164D8D}.Debug.ActiveCfg = Debug|Win32
+		{1735EF55-71D3-48A3-8EDB-9D3FED164D8D}.Debug.Build.0 = Debug|Win32
+		{1735EF55-71D3-48A3-8EDB-9D3FED164D8D}.Release.ActiveCfg = Release|Win32
+		{1735EF55-71D3-48A3-8EDB-9D3FED164D8D}.Release.Build.0 = Release|Win32
+		{548EC40E-4FC6-40E0-9BC5-666ED11B360C}.Debug.ActiveCfg = Debug|Win32
+		{548EC40E-4FC6-40E0-9BC5-666ED11B360C}.Debug.Build.0 = Debug|Win32
+		{548EC40E-4FC6-40E0-9BC5-666ED11B360C}.Release.ActiveCfg = Release|Win32
+		{548EC40E-4FC6-40E0-9BC5-666ED11B360C}.Release.Build.0 = Release|Win32
+		{5DF7623A-D32A-4324-AFD4-552C1E35EDB6}.Debug.ActiveCfg = Debug|Win32
+		{5DF7623A-D32A-4324-AFD4-552C1E35EDB6}.Debug.Build.0 = Debug|Win32
+		{5DF7623A-D32A-4324-AFD4-552C1E35EDB6}.Release.ActiveCfg = Release|Win32
+		{5DF7623A-D32A-4324-AFD4-552C1E35EDB6}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
