@@ -26,6 +26,7 @@
 	.globl	INT_DIV
 	
 	.globl	INT_ITOA
+	.globl	INT_ATOI
 	
 	
 	

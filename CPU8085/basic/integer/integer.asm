@@ -1,6 +1,8 @@
 .module 	integer
 .title 		Integer module
 
+.include	'..\common\common.def'
+
 .area	_CODE
 
 ;*********************************************************
@@ -366,8 +368,9 @@ INT_SHR:
 	RET
 
 ;*********************************************************
-;* INT_MUL: MULTIPLIES INT_ACC1 WITH INTEGER AT [H-L]
-;* INT_ACC0 = INT_ACC1 * [H-L]
+;* INT_MUL: MULTIPLIES INT_ACC0 WITH INTEGER AT [H-L]
+;* RESULT IN INT_ACC0 - USES TEMP REG INT_ACC1
+;* INT_ACC0 = INT_ACC0 * [H-L]
 INT_MUL::
 	PUSH	PSW
 	PUSH	B	
@@ -400,6 +403,11 @@ INT_MUL::
 2$:
 	MOV	A,C					;C IN A
 	XRA	B					;A = A XOR B;  PARITY BIT = 0 IF SAME SIGN
+
+	LDA	INT_ACC0				;COPY ACC0 TO ACC1
+	STA	INT_ACC1
+	LDA	INT_ACC0+1
+	STA	INT_ACC1+1
 
 	LXI	H,INT_ACC0				;ADDRESS OF INT_ACC0 IN H-L
 	CALL 	INT_ZERO				;ZERO INT_ACC0
@@ -825,6 +833,71 @@ INT_ITOA::
 	POP	D
 	POP	B
 	
+	RET
+
+;*********************************************************
+;* INT_ATOI: CONVERTS ASCII STRING AT (H-L) INTO INTEGER
+;* (PUT IN INT_ACC0)
+;* USES TEMP REGISTERS: INT_ACC1, INT_ACC2, INT_ACC3
+INT_ATOI::
+
+	MVI	A,10			; STORE 10 IN IACC2
+	STA	INT_ACC2		; 
+	MVI	A,0			;
+	STA	INT_ACC2+1		;
+	
+	STA	INT_ACC3		; ZERO IACC3
+	STA	INT_ACC3+1		;
+
+	MOV	A,M			; FIRST CHAR IN ACC
+	
+	
+	CPI	'+			; CHECK FOR POSITIVE SIGN 
+	JZ	POS
+	
+	CPI	'-			; CHECK FOR NEGATIVE SIGN
+	JNZ	NONEG			
+	
+	STC				; SET CARRY
+	PUSH	PSW			; PUT ON THE STACK
+	JMP	NONEG
+	
+POS:
+	ORA	A			; RESET CARRY FLAG
+	PUSH	PSW			; PUT ON THE STACK
+
+NONEG:
+	MOV	A,M			; CURRENT CHAR IN ACC
+	INX	H			; HL++
+
+	CALL	C_ISDIGIT		; CONTINUE WHILE CHAR IS DIGIT
+	JNC 	END
+	
+	SUI	'0			; CONVERT FROM ASCII
+	STA	INT_ACC3		; STORE VALUE IN INT_ACC3
+	
+	PUSH	H			; KEEP ADDRESS
+	
+	LXI	H,INT_ACC2		; INT_ACC0 *= 10
+	CALL	INT_MUL			;
+	
+	LXI	H,INT_ACC3		; INT_ACC0 += INT_ACC3
+	CALL	INT_ADD			;
+	
+	POP	H			; RESTORE ADDRESS
+	
+	JMP	NONEG
+	
+END:
+	DCX	H
+	
+	POP	PSW			; RESTORE CARRY FLAG
+	
+	JNC	END2
+	
+	CALL 	INT_NEG
+	
+END2:	
 	RET
 	
 
