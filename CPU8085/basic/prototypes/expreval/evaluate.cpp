@@ -291,6 +291,38 @@ void CEvaluate::BinaryRel(KEYWORDS k)
 		SetInt(tempVar3, result?-1:0);
 		CExprStack::push(tempVar3);
 	}
+	else if (*tempVar1 == SID_CSTR)
+	{
+		BYTE size1;
+		BYTE size2;
+
+		BYTE *addr1 = GetStr(tempVar1, size1);
+		BYTE *addr2 = GetStr(tempVar2, size2);
+
+		std::string op1;
+		std::string op2;
+
+		op1.assign((char *)addr1, size1);
+		op2.assign((char *)addr2, size2);
+
+		bool result;
+
+		switch(k)
+		{
+		case K_NOTEQUAL:		result = (op2 != op1);	break;
+		case K_LESSEQUAL:		result = (op2 <= op1);	break;
+		case K_GREATEREQUAL:	result = (op2 >= op1);	break;
+		case K_LESS:			result = (op2 < op1);	break;
+		case K_GREATER:			result = (op2 > op1);	break;
+		case K_EQUAL:			result = (op2 == op1);	break;
+		default:
+			throw CError(E_EXP_TYPEMISMATCH);
+			break;
+		}
+
+		SetInt(tempVar3, result?-1:0);
+		CExprStack::push(tempVar3);
+	}
 	else
 	{
 		throw CError(E_EXP_TYPEMISMATCH);
