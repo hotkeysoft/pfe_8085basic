@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "variables.h"
+#include "..\strings\strings.h"
 #include <string>
 
 void CVariables::Set(BYTE tag[2], BYTE *val)
@@ -33,6 +34,13 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 	{
 		BYTE size;
 		BYTE *str = GetStr(val, size);
+
+		if (str < LoProgram)	// Must copy
+		{
+			BYTE *newAddr = CStrings::Allocate((WORD)(addr-Memory), size);
+			memcpy(newAddr, str, size);
+			str = newAddr;
+		}
 	
 		*(addr+2) = size;
 		*(WORD *)(addr+3) = (WORD)(str-Memory);

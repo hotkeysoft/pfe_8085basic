@@ -127,6 +127,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\strings\strings.cpp">
+			</File>
+			<File
 				RelativePath="variables.cpp">
 			</File>
 		</Filter>
@@ -141,6 +144,9 @@
 			</File>
 			<File
 				RelativePath="stdafx.h">
+			</File>
+			<File
+				RelativePath="..\strings\strings.h">
 			</File>
 			<File
 				RelativePath="variables.h">

@@ -34,11 +34,13 @@ int main(int argc, char* argv[])
 	BYTE tag2[2];
 	BYTE tag3[2];
 	BYTE tag4[2];
+	BYTE tag5[2];
 
 	Name2Tag("fl", tag1);
 	Name2Tag("sh%", tag2);
 	Name2Tag("a", tag3);
 	Name2Tag("b", tag4);
+	Name2Tag("a$", tag5);
 
 	try
 	{
@@ -58,11 +60,13 @@ int main(int argc, char* argv[])
 		SetInt(tempVar2, 0);
 		CVariables::Set(tag2, tempVar2);
 
+
+
 		CVariables::Dump();
 
 		CVariables::Get(tag1, tempVar1);
 		CVariables::Get(tag2, tempVar1);
-		CVariables::Get(tag3, tempVar1);
+//		CVariables::Get(tag3, tempVar1);
 	//	CVariables::Get(tag4);
 	}
 	catch (CError e)
