@@ -29,9 +29,14 @@ void CVariables::Set(BYTE tag[2], BYTE *val)
 	{
 		*((short *)(addr+2)) = GetInt(val);
 	}
-//	else if (hi2 == 128)	// 10xxxxxx = string
-//	{
-//	}
+	else if (hi2 == 128)	// 10xxxxxx = string
+	{
+		BYTE size;
+		BYTE *str = GetStr(val, size);
+	
+		*(addr+2) = size;
+		*(WORD *)(addr+3) = (WORD)(str-Memory);
+	}
 	else
 	{
 		throw CError();
@@ -58,9 +63,11 @@ void CVariables::Get(BYTE tag[2], BYTE *var)
 	{
 		SetInt(var, *((short *)(addr+2)));
 	}
-//	else if (hi2 == 128)	// 10xxxxxx = string
-//	{
-//	}
+	else if (hi2 == 128)	// 10xxxxxx = string
+	{
+		BYTE *str = Memory + *((WORD *)(addr+3));
+		SetStr(var, str, *(addr+2));
+	}
 	else
 	{
 		throw CError();
@@ -115,7 +122,15 @@ void CVariables::Dump()
 		}
 		else if (hi2 == 128)	// 10xxxxxx = string
 		{
-			std::cerr << "Str = " << std::endl;
+			std::cerr << "Str = \"";
+
+			BYTE size = *(curr+2);
+			WORD offset = *((WORD *)(curr+3));
+
+			std::string str;
+			str.assign((char *)(Memory+offset), size);
+			
+			std::cerr << str << '"' << std::endl;
 		}
 		else
 		{
