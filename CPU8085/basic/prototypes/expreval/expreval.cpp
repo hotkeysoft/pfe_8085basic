@@ -152,6 +152,12 @@ void L6()
 
 void L7()
 {
+	// ship whitespace
+	while(*currIn == ' ')
+	{
+		++currIn;
+	}
+
 	switch(*currIn)
 	{
 	case SID_CINT:
@@ -178,6 +184,11 @@ void L7()
 		{
 			++currIn;
 			L0();
+
+			if (*currIn != ')')
+			{
+				throw CError();
+			}
 			++currIn; // Trailing ')'
 		}
 		else if (((*currIn & 0xA0) == 0xA0) || ((*currIn & 0xB0) == 0xB0))
@@ -185,17 +196,40 @@ void L7()
 			KEYWORDS currToken = (KEYWORDS)*currIn;
 
 			++currIn; // skips keyword
+
+			while(*currIn == ' ')
+			{
+				++currIn;
+			}
+
+			if (*currIn != '(')
+			{
+				throw CError();
+			}
 			++currIn; // skips '('
+
 			L0();	// expression
-			++currIn; // trailing ')'
+
+			if (*currIn != ')')
+			{
+				throw CError();
+			}
+			++currIn; // Trailing ')'
 
 			CEvaluate::Evaluate(currToken);
 		}
 		break;
 	}
+
+	// ship whitespace
+	while(*currIn == ' ')
+	{
+		++currIn;
+	}
+	
 }
 
-void expreval(char *in, char *out)
+void expreval(char *in)
 {
 	currIn = (BYTE *)in;
 
