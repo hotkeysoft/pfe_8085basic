@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "..\include\common.h"
+#include "..\include\error.h"
 #include "tokenize.h"
 
 // Returns token ID from string token
@@ -43,7 +44,7 @@ const char *findTokenStr(const unsigned char token)
 
 // Tokenize, pass 1: converts keywords to tokens,
 // ignore variables, constants & delimiters
-bool tokenize1(const char *in, char *out)
+void tokenize1(const char *in, char *out)
 {
 	const char *currIn = in;
 	char *currOut = out;
@@ -102,7 +103,7 @@ bool tokenize1(const char *in, char *out)
 
 			if (*currIn == NULL)
 			{
-				return false; // unterminated string constant
+				throw CError(E_TOK_NOENDSTR);	// unterminated string constant
 			}
 
 			*currOut = *currIn;
@@ -176,7 +177,7 @@ bool tokenize1(const char *in, char *out)
 			}
 			break;
 		default:
-			if (findToken(currIn, token, tokenLength))
+			if (findToken(currIn, token, tokenLength) == true)
 			{
 				*currOut = token;
 				++currOut;
@@ -194,11 +195,11 @@ bool tokenize1(const char *in, char *out)
 		}
 	}
 
-	return true;
+	return;
 }
 
 // Tokenize, pass 2: encodes variables & constants
-bool tokenize2(const char *in, char *out)
+void tokenize2(const char *in, char *out)
 {
 	const char *currIn = in;
 	char *currOut = out;
@@ -310,5 +311,5 @@ bool tokenize2(const char *in, char *out)
 		}
 	}
 
-	return true;
+	return;
 }
