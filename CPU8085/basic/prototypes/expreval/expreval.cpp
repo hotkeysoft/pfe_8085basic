@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "expreval.h"
+#include "evaluate.h"
 #include "exprstack.h"
 
 BYTE *currOut;
@@ -84,13 +85,12 @@ void L3()
 
 	while (1)
 	{
-		BYTE currToken = *currIn;
+		KEYWORDS currToken = KEYWORDS(*currIn);
 		if (currToken == K_ADD || currToken == K_SUBSTRACT)
 		{
 			++currIn;
 			L4();
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		else
 		{
@@ -105,13 +105,12 @@ void L4()
 
 	while (1)
 	{
-		BYTE currToken = *currIn;
-		if (currToken == K_MULTIPLY || currToken == K_DIVIDE)
+		KEYWORDS currToken = KEYWORDS(*currIn);
+		if (currToken == K_MULTIPLY || currToken == K_FDIVIDE || currToken == K_IDIVIDE)
 		{
 			++currIn;
 			L5();
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		else
 		{
@@ -140,13 +139,12 @@ void L6()
 	L7();
 	while (1)
 	{
-		BYTE currToken = *currIn;
+		KEYWORDS currToken = KEYWORDS(*currIn);
 		if (currToken == K_POWER)
 		{
 			++currIn;
 			L7();
-			*currOut = currToken;
-			++currOut;
+			CEvaluate::Evaluate(currToken);
 		}
 		else
 		{
