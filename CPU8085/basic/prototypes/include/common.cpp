@@ -325,5 +325,5 @@ void SetStr(BYTE *var, BYTE *addr, BYTE size)
 	*var = SID_CSTR;
 	*(var+1) = size;
 	
-	*((WORD *)(var+2)) = addr-Memory;
+	*((WORD *)(var+2)) = (WORD)(addr-Memory);
 }
