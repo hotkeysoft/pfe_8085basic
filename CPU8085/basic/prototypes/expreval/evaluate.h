@@ -11,8 +11,9 @@ public:
 	static void Evaluate(KEYWORDS);
 
 protected:
-	static void BinaryOp();
 	static void UnaryOp();
+	static void BinaryOp();
+	static void TernaryOp();
 
 	static void ConvertToSameType();
 	static void ConvertToFloat();
@@ -33,5 +34,12 @@ protected:
 	static void Sgn();
 	static void Sqr();
 	static void Val();
+
+	static void Str();
+	static void Chr();
+
+	static void LeftRight(KEYWORDS);
+	static void Mid();
+
 };
 

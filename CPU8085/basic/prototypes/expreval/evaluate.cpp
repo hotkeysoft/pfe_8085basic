@@ -2,6 +2,7 @@
 #include "evaluate.h"
 #include "exprstack.h"
 #include "..\variables\variables.h"
+#include "..\strings\strings.h"
 
 #include <math.h>
 
@@ -35,22 +36,43 @@ void CEvaluate::Evaluate(KEYWORDS k)
 	case K_OR:			BinaryOp(); ConvertToInt();		BinaryLog(k);	break;
 	case K_XOR:			BinaryOp(); ConvertToInt();		BinaryLog(k);	break;
 
-	case K_NOT:			UnaryOp();  Not();		break;
+	case K_NOT:			UnaryOp();  Not();			break;
 
-	case K_NEGATE:		UnaryOp();	Negate();	break;
+	case K_NEGATE:		UnaryOp();	Negate();		break;
 
-	case K_ABS:			UnaryOp();	Abs();		break;
-	case K_ASC:			UnaryOp();	Asc();		break;
-	case K_INT:			UnaryOp();	Int();		break;
-	case K_LEN:			UnaryOp();	Len();		break;
-	case K_PEEK:		UnaryOp();	Peek();		break;
-	case K_RND:			UnaryOp();	Rnd();		break;
-	case K_SGN:			UnaryOp();	Sgn();		break;
-	case K_SQR:			UnaryOp();	Sqr();		break;
-	case K_VAL:			UnaryOp();	Val();		break;
+	case K_ABS:			UnaryOp();	Abs();			break;
+	case K_ASC:			UnaryOp();	Asc();			break;
+	case K_INT:			UnaryOp();	Int();			break;
+	case K_LEN:			UnaryOp();	Len();			break;
+	case K_PEEK:		UnaryOp();	Peek();			break;
+	case K_RND:			UnaryOp();	Rnd();			break;
+	case K_SGN:			UnaryOp();	Sgn();			break;
+	case K_SQR:			UnaryOp();	Sqr();			break;
+	case K_VAL:			UnaryOp();	Val();			break;
+
+	case K_CHR:			UnaryOp();	Chr();			break;
+	case K_STR:			UnaryOp();	Str();			break;
+
+	case K_LEFT:		BinaryOp();	LeftRight(k);	break;
+	case K_RIGHT:		BinaryOp();	LeftRight(k);	break;
+	case K_MID:			TernaryOp();Mid();			break;
 
 	default:
 		break;
+	}
+}
+
+void CEvaluate::UnaryOp()
+{
+	BYTE *op = CExprStack::pop();
+
+	if (*op == SID_VAR)
+	{
+		CVariables::Get(op+1, tempVar1);
+	}
+	else
+	{
+		memcpy(tempVar1, op, 5);
 	}
 }
 
@@ -78,19 +100,40 @@ void CEvaluate::BinaryOp()
 	}
 }
 
-void CEvaluate::UnaryOp()
+void CEvaluate::TernaryOp()
 {
-	BYTE *op = CExprStack::pop();
+	BYTE *op1 = CExprStack::pop();
+	BYTE *op2 = CExprStack::pop();
+	BYTE *op3 = CExprStack::pop();
 
-	if (*op == SID_VAR)
+	if (*op1 == SID_VAR)
 	{
-		CVariables::Get(op+1, tempVar1);
+		CVariables::Get(op1+1, tempVar1);
 	}
 	else
 	{
-		memcpy(tempVar1, op, 5);
+		memcpy(tempVar1, op1, 5);
+	}
+
+	if (*op2 == SID_VAR)
+	{
+		CVariables::Get(op2+1, tempVar2);
+	}
+	else
+	{
+		memcpy(tempVar2, op2, 5);
+	}
+
+	if (*op3 == SID_VAR)
+	{
+		CVariables::Get(op3+1, tempVar3);
+	}
+	else
+	{
+		memcpy(tempVar3, op3, 5);
 	}
 }
+
 
 void CEvaluate::ConvertToSameType()
 {
@@ -237,6 +280,24 @@ void CEvaluate::BinaryCalc(KEYWORDS k)
 		}
 
 		SetFloat(tempVar3, result);
+		CExprStack::push(tempVar3);
+	}
+    else if (*tempVar1 == SID_CSTR && k == K_ADD)
+	{
+		BYTE size1;
+		BYTE size2;
+
+		BYTE *op1 = GetStr(tempVar1, size1);
+		BYTE *op2 = GetStr(tempVar2, size2);
+
+        // Create new temp string
+		BYTE *result = CStrings::Allocate(0, size1+size2);
+
+		// Concatenate the strings
+		memcpy(result, op2, size2);
+		memcpy(result+size2, op1, size1);
+
+		SetStr(tempVar3, result, size1+size2);
 		CExprStack::push(tempVar3);
 	}
 	else
@@ -650,4 +711,121 @@ void CEvaluate::Val()
 	{
 		throw CError(E_EXP_TYPEMISMATCH);
 	}
+}
+
+void CEvaluate::Chr()
+{
+	if (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT)
+	{
+		short sChr;
+		float fChr;
+		BYTE chr;
+
+		if (*tempVar1 == SID_CINT)
+		{
+			sChr = GetInt(tempVar1);
+			if (sChr > 255 || sChr < 0)
+			{
+				throw CError(E_EXP_ILLEGAL);
+			}
+
+			chr = (BYTE)sChr;
+		}
+		else
+		{
+			fChr = GetFloat(tempVar1);
+			if (fChr > 255 || fChr < 0)
+			{
+				throw CError(E_EXP_ILLEGAL);
+			}
+
+			chr = (BYTE)fChr;
+		}
+
+		BYTE *str = CStrings::Allocate(0, 1);
+	
+		*str = chr;
+
+		SetStr(tempVar3, str, 1);
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Str()
+{
+	if (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT)
+	{
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::LeftRight(KEYWORDS k)
+{
+	if (*tempVar2 == SID_CSTR && (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT))
+	{
+		BYTE size;
+		BYTE *addr = GetStr(tempVar2, size);
+
+		short sLen;
+		float fLen;
+		BYTE len;
+
+		if (*tempVar1 == SID_CINT)
+		{
+			sLen = GetInt(tempVar1);
+			if (sLen > 255 || sLen < 0)
+			{
+				throw CError(E_EXP_ILLEGAL);
+			}
+
+			len = (BYTE)sLen;
+		}
+		else
+		{
+			fLen = GetFloat(tempVar1);
+			if (fLen > 255 || fLen < 0)
+			{
+				throw CError(E_EXP_ILLEGAL);
+			}
+
+			len = (BYTE)fLen;
+		}
+
+		if (len > size)
+		{
+			len = size;
+		}
+
+		BYTE *newStr = CStrings::Allocate(0, len);
+
+		if (k == K_LEFT)
+		{
+			memcpy(newStr, addr, len);
+		}
+		else
+		{
+			memcpy(newStr, addr+size-len, len);
+		}
+
+		SetStr(tempVar3, newStr, len);
+
+		CExprStack::push(tempVar3);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
+
+void CEvaluate::Mid()
+{
+
 }
