@@ -89,6 +89,10 @@ SOURCE=..\include\common.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\error.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\main.cpp
 # End Source File
 # Begin Source File
@@ -111,6 +115,10 @@ SOURCE=.\untokenize.cpp
 # Begin Source File
 
 SOURCE=..\include\common.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\error.h
 # End Source File
 # Begin Source File
 
