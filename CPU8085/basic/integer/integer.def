@@ -4,17 +4,17 @@
 	.globl	INT_ACC2
 	.globl	INT_ACC3
 
+	.globl	INT_OVERFLOW
+
 	.globl	INT_ACCSTR
 
 	.globl	INT_ZERO
 
-	.globl	INT_INC
-	.globl	INT_DEC
-	
 	.globl	INT_NEG
 	
 	.globl	INT_ADD
 	.globl	INT_SUB
+	.globl	INT_CMP
 	
 	.globl	INT_AND
 	.globl	INT_OR
