@@ -85,7 +85,7 @@ EVAL_EVALUATE::
 	
 5$:
 	CALL	EVAL_UNARYOP
-;	CALL	EVAL_NOT
+	CALL	EVAL_NOT
 	JMP	END
 	
 END:
@@ -354,6 +354,24 @@ EVAL_NEGATE::
 	
 1$:	HLT
 	
+
+;*********************************************************
+;* EVAL_NOT: 	EVALUATES LOGICAL NOT
+EVAL_NOT::
+	LDA	VAR_TEMP1			; TYPE OF VAR1 IN ACC
+	CPI	SID_CSTR
+	JZ	1$				; MUST BE INTEGER
+	
+	LXI	H,VAR_TEMP1+1
+	
+	CALL	INT_NOT
+	
+	LXI	H,VAR_TEMP1			; ADDRESS OF VAR_TEMP1 IN HL	
+	CALL	EXP_PUSH			; PUSH RESULT ON STACK
+	
+	RET	
+	
+1$:	HLT
 
 ;*********************************************************
 ;* EVAL_COPY1: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP1
