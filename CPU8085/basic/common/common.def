@@ -1,0 +1,68 @@
+
+	.globl	K_NONE
+
+	.globl	K_POWER
+
+	.globl	K_NEGATE
+
+	.globl	K_MULTIPLY
+	.globl	K_DIVIDE
+
+	.globl	K_ADD
+	.globl	K_SUBSTRACT
+
+	.globl	K_NOTEQUAL
+	.globl	K_LESSEQUAL
+	.globl	K_GREATEREQUAL
+	.globl	K_LESS
+	.globl	K_GREATER
+	.globl	K_EQUAL
+
+	.globl	K_NOT
+	.globl	K_AND
+	.globl	K_OR
+	.globl	K_XOR
+
+	.globl	K_ABS
+	.globl	K_ASC
+	.globl	K_INT
+	.globl	K_IN
+	.globl	K_LEN
+	.globl	K_PEEK
+	.globl	K_RND
+	.globl	K_SGN
+	.globl	K_SQR
+	.globl	K_VAL
+
+	.globl	K_CHR
+	.globl	K_LEFT
+	.globl	K_MID
+	.globl	K_RIGHT
+	.globl	K_STR
+
+	.globl	K_CLR
+	.globl	K_CONT
+	.globl	K_DIM
+	.globl	K_END
+	.globl	K_STOP
+	.globl	K_FOR
+	.globl	K_GOSUB
+	.globl	K_GOTO
+	.globl	K_IF
+	.globl	K_ELSE
+	.globl	K_INPUT
+	.globl	K_LET
+	.globl	K_LIST
+	.globl	K_NEW
+	.globl	K_NEXT
+	.globl	K_OUT
+	.globl	K_POKE
+	.globl	K_PRINT
+	.globl	K_REM
+	.globl	K_RETURN
+	.globl	K_RUN
+	.globl	K_STEP
+	.globl	K_SYS
+	.globl	K_THEN
+	.globl	K_TO
+
