@@ -215,7 +215,6 @@ IO_PUTCR::
 ; IO_PUTS: PUTS STRING - TERMINATED BY NULL OR HI BYTE=1
 ;	   PRE TO STRING IN HL
 IO_PUTS::
-	PUSH	PSW
 	PUSH	H
 	
 1$:
@@ -232,13 +231,11 @@ IO_PUTS::
 	
 2$:
 	POP	H
-	POP	PSW
 	RET
 
 ;********************************************************
 ; IO_PUTSN: PUTS STRING - LENGTH IN B, PTR IN HL
 IO_PUTSN::
-	PUSH	PSW
 	PUSH	B
 	
 1$:
@@ -257,13 +254,11 @@ IO_PUTSN::
 	
 2$:
 	POP	B
-	POP	PSW
 	RET
 	
 ;********************************************************
 ; IO_PUTCB: PRINTS A BYTE (ACC) IN BINARY (I.E. 10011010)
 IO_PUTCB::
-	PUSH	PSW
 	PUSH	B
 	
 	MOV	C,A		;KEEP IN NUMBER IN C
@@ -287,7 +282,6 @@ IO_PUTCB::
 	JNZ	1$
 	
 	POP	B
-	POP	PSW
 	RET
 
 ;********************************************************
@@ -320,12 +314,10 @@ IO_PUTN:
 ;********************************************************
 ; IO_PUTHLHEX: SHOW 16 BIT VALUE OF HL IN HEX
 IO_PUTHLHEX::
-	PUSH 	PSW
 	MOV	A,H		;GET H
 	CALL	IO_PUTCH	;DISPLAY H IN HEX
 	MOV	A,L		;GET L
 	CALL	IO_PUTCH	;DISPLAY L IN HEX
-	POP	PSW
 	RET
 
 ;*********************************************************
@@ -418,7 +410,6 @@ IO_MOVERIGHT::
 ;*********************************************************
 ;* IO_SETFG:  SET FOREGROUND COLOR (IN ACC) (0-15)
 IO_SETFG::
-	PUSH	PSW
 	PUSH	B
 	
 	ANI	0x0F		;CLEAR USELESS BITS
@@ -432,13 +423,11 @@ IO_SETFG::
 	CALL	IO_SETCOLOR	;STORE NEW ATTR VALUE
 	
 	POP	B
-	POP	PSW
 	RET
 
 ;*********************************************************
 ;* IO_SETBG:  SET BACKGROUND COLOR (IN ACC) (0-15)
 IO_SETBG::
-	PUSH	PSW
 	PUSH	B
 	
 	ANI	0x0F		;CLEAR USELESS BITS
@@ -456,7 +445,6 @@ IO_SETBG::
 	CALL	IO_SETCOLOR	;STORE NEW ATTR VALUE
 	
 	POP	B	
-	POP	PSW
 	RET
 
 ;*********************************************************
@@ -533,15 +521,11 @@ INTTI0:
 ;* IO_BEEP:  MAKES A 440HZ BEEP FOR 1/2 SECOND
 IO_BEEP::
 .if ~DEBUG
-	PUSH 	PSW
-	
 	MVI	A,45			;LA4 440HZ
 	CALL	IO_SOUNDON
 	MVI	A,5		
 	CALL 	IO_DELAY		;WAIT 5 * 100 MS
 	CALL	IO_SOUNDOFF
-	
-	POP	PSW
 .endif	
 	RET
 
@@ -549,8 +533,7 @@ IO_BEEP::
 ;* IO_SOUNDON:  PROGRAMS COUNTER 0 AND ENABLES SOUND OUTPUT
 IO_SOUNDON::
 .if ~DEBUG
-
-	PUSH 	PSW
+	PUSH	H
 	PUSH	B
 	
 	CALL	IO_SOUNDOFF		;TURNS OFF SOUND BEFORE REPROGRAMMING
@@ -577,7 +560,7 @@ IO_SOUNDON::
 	OUT	MISC			;OUTPUT MISC REGISTER
 	
 	POP	B
-	POP	PSW	
+	POP	H
 .endif
 	RET
 
@@ -585,13 +568,9 @@ IO_SOUNDON::
 ;* IO_SOUNDOFF:  DISABLES SOUND OUTPUT
 IO_SOUNDOFF::
 .if ~DEBUG
-	PUSH 	PSW
-	
 	IN	MISC			;INPUT MISC REGISTER
 	ANI	0xFB			;TURNS OFF BIT 2
 	OUT	MISC			;OUTPUT MISC REGISTER
-	
-	POP	PSW
 .endif	
 	RET
 
@@ -610,7 +589,6 @@ IO_INITMISC:
 ;* IO_DELAY, WAITS ACC * 100MS
 IO_DELAY::
 .if ~DEBUG
-	PUSH 	PSW
 	PUSH 	H
 	PUSH	D
 
@@ -637,7 +615,6 @@ IO_DELAY::
 	
 	POP	D
 	POP	H
-	POP 	PSW
 .endif	
 	RET
 
