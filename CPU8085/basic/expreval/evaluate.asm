@@ -5,7 +5,7 @@
 ;*		ARITHMETIC, BINARY, RELATIONS, LOGICAL, 
 ;*		FUNCTIONS
 ;*
-;* $Id: evaluate.asm,v 1.38 2001-12-03 00:16:36 Dominic Thibodeau Exp $
+;* $Id: evaluate.asm,v 1.39 2001-12-06 16:53:25 Dominic Thibodeau Exp $
 ;*
 
 .module 	evaluate
@@ -127,7 +127,7 @@ EVAL_EVALUATE::
 	JZ	19$
 
 
-	JMP	ERR_UNKNOWN
+	JMP	ERR_SYNTAX
 
 1$:
 	CALL	EVAL_BINARYOP
@@ -305,7 +305,7 @@ EVAL_BINARYCALC::
 	CPI	K_DIVIDE
 	JZ	4$
 	
-	JMP	ERR_UNKNOWN
+	JMP	ERR_SYNTAX
 	
 1$:	; ADD
 	CALL	INT_ADD
@@ -435,7 +435,7 @@ EVAL_BINARYREL::
 	CPI	K_GREATEREQUAL
 	JZ	8$
 
-	JMP	ERR_UNKNOWN
+	JMP	ERR_SYNTAX
 
 3$:	; =
 	MVI	A,0x00				; CHECK IF B == 0
@@ -514,7 +514,7 @@ EVAL_BINARYLOG::
 	CPI	K_XOR
 	JZ	3$
 	
-	JMP	ERR_UNKNOWN
+	JMP	ERR_SYNTAX
 	
 1$:	; AND
 	CALL	INT_AND
