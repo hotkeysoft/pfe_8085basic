@@ -38,13 +38,35 @@ std::ostream operator<< (std::ostream &os, const untokenize &u)
 				}
 			}
 		}
+		else if (*currChar == SID_CINT)
+		{
+			++currChar;
+			short number;
+
+			memcpy(&number, currChar, sizeof(short));
+
+			os << "[I " << number << "]";
+
+			currChar += sizeof(short);
+		}
+		else if (*currChar == SID_CFLOAT)
+		{
+			++currChar;
+			float number;
+
+			memcpy(&number, currChar, sizeof(float));
+
+			os << "[F " << number << "]";
+
+			currChar += sizeof(float);
+		}
 		else
 		{
 			os << *currChar;
 		}
 
 
-		currChar++;
+		++currChar;
 	}
 
 	return os;
