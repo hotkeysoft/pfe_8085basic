@@ -1,7 +1,5 @@
 #include "stdafx.h"
 
-#include "variables.h"
-#include "..\strings\strings.h"
 #include <string>
 
 void CVariables::Set(BYTE tag[2], BYTE *val)
@@ -108,6 +106,17 @@ BYTE *CVariables::internalGet(BYTE tag[2])
 	}
 
 	return NULL;
+}
+
+StackID CVariables::GetType(BYTE tag[2])
+{
+	switch(tag[0] & 192)
+	{
+	case 0:		return SID_CFLOAT;
+	case 64:	return SID_CINT;
+	case 128:	return SID_CSTR;
+	default:	throw CError();
+	}
 }
 
 void CVariables::Dump()
