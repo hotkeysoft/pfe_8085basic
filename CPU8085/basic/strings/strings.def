@@ -4,7 +4,8 @@
 	.globl	STR_COPY
 	.globl	STR_CMP
 	.globl	STR_GARBAGECOLLECTION
-	
+	.globl	STR_GETUNIQUEPTR
+		
 	.globl	STR_LOPTR
 	.globl	STR_HIPTR
 
