@@ -29,6 +29,33 @@ const short fb_size = (80*25)*2;
 enum bool {false, true};
 
 bool echo = true;
+bool immediateMode = true;
+
+int getX(char *pos)
+{
+	return ((pos-fb_buffer)%160) / 2;
+}
+
+int getY(char *pos)
+{
+	return (pos-fb_buffer)/160;
+}
+
+bool isEmpty(int line)
+{
+	char *begin = fb_buffer + (line * 160);
+	char *end = begin + 160;
+
+	for (char *temp = begin; temp < end; temp+=2)
+	{
+		if (*temp != 0)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
 
 bool io_getChar(char &ch)
 {
@@ -43,6 +70,11 @@ bool io_getChar(char &ch)
 	if (kbhit())
 	{
 		ch = getch();         	/* If key pressed, get Char */
+
+		if (immediateMode == false)
+		{
+			outportb(PORT1, ch);
+		}
 		return true;
 	}
 
@@ -52,31 +84,15 @@ bool io_getChar(char &ch)
 char waitForChar()
 {
 	char ch = 0;
-	bool done = false;
 
-	do
-	{
-		done = io_getChar(ch);
-
-		if (kbhit())
-		{
-			ch = getch();         	/* If key pressed, get Char */
-			done = true;
-		}
-	}
-	while (done == false);
+	while (io_getChar(ch) == false);
 
 	return ch;
 }
 
 void updateCursor()
 {
-	short offset = fb_currpos - fb_buffer;
-
-	short y = offset/160;
-	short x = (offset%160) / 2;
-
-	gotoxy(x+1, y+1);
+	gotoxy(getX(fb_currpos)+1, getY(fb_currpos)+1);
 }
 
 void fb_memsetw(char *src, char c, char a, short size)
@@ -90,13 +106,13 @@ void fb_memsetw(char *src, char c, char a, short size)
 
 void fb_homeX()
 {
-	fb_currpos = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer;
+	fb_currpos = getY(fb_currpos)*160 + fb_buffer;
 	updateCursor();
 }
 
 void fb_homeY()
 {
-	fb_currpos = (fb_currpos-fb_buffer)%160 + fb_buffer;
+	fb_currpos = getX(fb_currpos)*2 + fb_buffer;
 	updateCursor();
 }
 
@@ -108,19 +124,19 @@ void fb_homeXY()
 
 void fb_endX()
 {
-	fb_currpos = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer + 158;
+	fb_currpos = getY(fb_currpos)*160 + fb_buffer + 160 - 4;
 	updateCursor();
 }
 
 void fb_endY()
 {
-	fb_currpos = (fb_currpos-fb_buffer)%160 + fb_buffer + (24*160);
+	fb_currpos = getX(fb_currpos)*2 + fb_buffer + (24*160);
 	updateCursor();
 }
 
 void fb_endXY()
 {
-	fb_currpos = fb_buffer+fb_size-2;
+	fb_currpos = fb_buffer+fb_size-4;
 	updateCursor();
 }
 
@@ -140,10 +156,13 @@ void fb_setcolor(char c)
 
 void fb_gotoxy(char x, char y)
 {
-	short offset = (y*160) + (x*2);
-	fb_currpos = fb_buffer + offset;
+	if (x < 79 && y < 25)
+	{
+		short offset = (y*160) + (x*2);
+		fb_currpos = fb_buffer + offset;
 
-	updateCursor();
+		updateCursor();
+	}
 }
 
 void fb_scrollup()
@@ -152,18 +171,57 @@ void fb_scrollup()
 	fb_memsetw(fb_buffer+fb_size-160, 0, fb_defattr, 80);
 }
 
+void fb_insertLine()
+{
+	int currY = getY(fb_currpos);
+
+	// begin of line
+	char *temp = fb_buffer + (currY*160);
+
+	for (int y = 24; y>currY; --y)
+	{
+		memcpy(fb_buffer+(y*160), fb_buffer+((y-1)*160), 160);
+	}
+
+	fb_memsetw(temp, 0, fb_defattr, 80);
+}
+
 void putChar(const char c)
 {
+	bool insertLine = false;
+
 	*fb_currpos = c;
 	++fb_currpos;
 
 	*fb_currpos = fb_currattr;
 	++fb_currpos;
 
+	if ((fb_currpos-fb_buffer)%160==158)
+	{
+		if (*fb_currpos != 27)
+		{
+			*fb_currpos = 27;
+			++fb_currpos;
+
+			*fb_currpos = fb_defattr;
+			++fb_currpos;
+
+			insertLine = true;
+		}
+		else
+		{
+			fb_currpos += 2;
+		}
+	}
+
 	if (fb_currpos == fb_buffer+fb_size)
 	{
 		fb_scrollup();
 		fb_currpos = fb_buffer+fb_size-160;
+	}
+	else if (insertLine == true)
+	{
+		fb_insertLine();
 	}
 
 	updateCursor();
@@ -195,6 +253,11 @@ void fb_moveleft()
 {
 	if (fb_currpos > fb_buffer)
 	{
+		if (getX(fb_currpos) == 0)
+		{
+			fb_currpos -= 2;
+		}
+
 		fb_currpos -= 2;
 		updateCursor();
 	}
@@ -204,7 +267,12 @@ void fb_moveright()
 {
 	fb_currpos += 2;
 
-	if (fb_currpos == fb_buffer+fb_size)
+	if (getX(fb_currpos) == 79)
+	{
+		fb_currpos += 2;
+	}
+
+	if (fb_currpos >= fb_buffer+fb_size)
 	{
 		fb_scrollup();
 		fb_currpos = fb_buffer+fb_size - 160;
@@ -220,19 +288,56 @@ void fb_insert()
 
 void fb_backspace()
 {
-
+	fb_moveleft();
+	fb_delete();
 }
 void fb_delete()
 {
-	char *end = fb_currpos;
+	// end of current line
+	int begin = getY(fb_currpos);
+	int end = begin;
 
-	// Find end of the 'string'
-	while (end <= fb_buffer+fb_size && *end)
+	char *temp = fb_buffer + (end * 160) + 160 - 2;
+
+	while (*temp == 27)
 	{
-		end+=2;
+		temp += 160;
+		++end;
 	}
 
-	memmove(fb_currpos, fb_currpos+2, end-fb_currpos);
+	for (int i=begin; i<=end; ++i)
+	{
+		char *currLine = fb_buffer + (i*160);
+
+		if (i == begin)
+		{
+			memmove(fb_currpos, fb_currpos+2, (currLine+160-4)-fb_currpos);
+		}
+		else
+		{
+			memmove(currLine, currLine+2, 160-4);
+		}
+
+		if (*(currLine+160-2) == 27)
+		{
+			// wrap around last char
+			*(currLine+160-4) = *(currLine+160);
+			*(currLine+160-3) = *(currLine+161);
+
+			*(currLine+160) = 0;
+
+			if (isEmpty(i+1))
+			{
+				*(currLine+160-2) = 0;
+				*(currLine+160-1) = fb_defattr;
+			}
+		}
+		else
+		{
+			*(currLine+160-4) = 0;
+			*(currLine+160-3) = fb_defattr;
+		}
+	}
 }
 
 void processChar()
@@ -259,7 +364,45 @@ void processChar()
 		case 32:	fb_insert();	break;
 		case 33:	fb_backspace();	break;
 		case 34:	fb_delete();	break;
+
+		case 64:	immediateMode = true;	break;
+		case 65:	immediateMode = false;	break;
 	}
+}
+
+void sendLine()
+{
+	char *begin;
+	char *end;
+
+	// Beginning of current line
+	char *curr = ((fb_currpos-fb_buffer)/160)*160 + fb_buffer;
+
+	// Find beginning of statement, if multiple lines
+	for (begin=curr; (begin>fb_buffer) && (*(begin-2) != 0); begin-=160);
+
+	// Find end of statement, if multiple lines
+	for (end = begin+160-2; *end != 0; end+=160);
+
+	char *tempStr = new char[end-begin+1];
+
+	int i;
+    char *temp;
+	for (i=0,temp = begin; temp<end; ++i,temp+=2)
+	{
+		char ch = *temp;
+		if (ch == 0)
+		{
+			ch = 32;
+		}
+
+		tempStr[i] = ch;
+	}
+
+	tempStr[i] = 0;
+
+	delete []tempStr;
+
 }
 
 void main(void)
@@ -292,23 +435,30 @@ void main(void)
 		ok = io_getChar(ch);
 		if (ok == true)
 		{
-			if (ch== 0)
+			if (ch == 8)
+			{
+				fb_backspace();
+			}
+			else if (ch == 0)
 			{
 				ch = getch();
-				switch (ch)
+				if (immediateMode == true)
 				{
-					case 0x48:	fb_moveup();	break;
-					case 0x4b:	fb_moveleft();	break;
-					case 0x4d:	fb_moveright();	break;
-					case 0x50:	fb_movedown();	break;
+					switch (ch)
+					{
+						case 0x48:	fb_moveup();	break;
+						case 0x4b:	fb_moveleft();	break;
+						case 0x4d:	fb_moveright();	break;
+						case 0x50:	fb_movedown();	break;
 
-					case 0x47:	fb_homeX();		break;
-					case 0x4f:	fb_endX();		break;
-					case 0x75:	fb_endY();		break;
-					case 0x77:	fb_homeY();		break;
+						case 0x47:	fb_homeX();		break;
+						case 0x4f:	fb_endX();		break;
+						case 0x75:	fb_endY();		break;
+						case 0x77:	fb_homeY();		break;
 
-					case 0x52:	fb_insert();	break;
-					case 0x53:	fb_delete();	break;
+						case 0x52:	fb_insert();	break;
+						case 0x53:	fb_delete();	break;
+					}
 				}
 			}
 			else if (ch == 255 || ch == 1)
@@ -317,7 +467,15 @@ void main(void)
 			}
 			else
 			{
-				putChar(ch);
+				if (ch == 13 && immediateMode == true)
+				{
+					sendLine();
+				}
+				else
+				{
+					putChar(ch);
+				}
+
 			}
 
 		}
