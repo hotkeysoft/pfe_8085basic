@@ -243,7 +243,7 @@ C_NAME2TAG::
 	RET
 	
 4$:
-	HLT			; HANDLE ERROR
+	JMP	ERR_UNKNOWN	; HANDLE ERROR
 	RET
 
 ;*********************************************************
