@@ -1074,7 +1074,7 @@ INT_SQR::
 	MOV	B,M			; HI BYTE OF SOURCE
 
 	ORA	B			; UPDATE FLAGS
-	JM	NEG			; NO NEGATIVE NUMBER
+	JM	ERR_ILLEGAL		; NO NEGATIVE NUMBER
 
 	LXI	H,1			; SQUARE = 1
 	LXI	D,3			; DELTA = 3
@@ -1129,9 +1129,6 @@ SKIP2:
 	POP	H
 
 	RET
-
-NEG:
-	HLT
 
 ;*********************************************************
 ;* RAM VARIABLES
