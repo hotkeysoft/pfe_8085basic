@@ -9,6 +9,7 @@ Error errorStr[] = {
 	E_EXP_STACKOVERFLOW,	"EXP: Stack overflow",
 	E_EXP_STACKUNDERFLOW,	"EXP: Stack underflow",
 	E_EXP_TYPEMISMATCH,		"EXP: Type mismatch",
+	E_EXP_OVERFLOW,			"EXP: Overflow",
 
 	E_UNKNOWN,			"Unknown Error"
 };
