@@ -151,7 +151,7 @@ void CProgram::Run(short lineNo)
 	{
 		NewLine = NULL;
 
-		std::cout << std::endl << *((WORD *)(CurrLine+1)) << "\t";
+//		std::cout << std::endl << *((WORD *)(CurrLine+1)) << "\t";
 
 		if (CurrPos)
 		{
