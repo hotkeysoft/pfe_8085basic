@@ -1,17 +1,12 @@
-// tokenize.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
 
-#include <string>
-#include <map>
-
 #include "..\include\common.h"
+#include "tokenize.h"
 
-bool findToken(char *in, char &token, int &length)
+// Returns token ID from string token
+bool findToken(const char *in, char &token, int &length)
 {
 	Keyword *currKeyword = keywords;
-
 
 	while (currKeyword->id)
 	{
@@ -28,6 +23,26 @@ bool findToken(char *in, char &token, int &length)
 	return false;
 }
 
+// Returns string token from ID
+const char *findTokenStr(const unsigned char token)
+{
+	Keyword *currKeyword = keywords;
+
+	while (currKeyword->id)
+	{
+		if (currKeyword->id == (token))
+		{
+			return currKeyword->name;
+		}
+
+		++currKeyword;
+	}
+
+	return NULL;
+}
+
+// Tokenize, pass 1: converts keywords to tokens,
+// ignore variables, constants & delimiters
 bool tokenize1(char *in, char *out)
 {
 	char *currIn = in;
@@ -47,10 +62,13 @@ bool tokenize1(char *in, char *out)
 		}
 	}
 
+	unsigned char lastToken = 0;
+
 	while(1)
 	{
 		if (*currIn == NULL)
 		{
+			*currOut = NULL;
 			break;
 		}
 
@@ -61,7 +79,13 @@ bool tokenize1(char *in, char *out)
 		case ':':
 		case ';':
 		case ',':
-		case ' ':
+			*currOut = *currIn;
+			++currIn;
+			++currOut;
+			lastToken = *currIn;
+			break;
+
+		case ' ':	// whitespace.. should be ignored
 			*currOut = *currIn;
 			++currIn;
 			++currOut;
@@ -84,20 +108,62 @@ bool tokenize1(char *in, char *out)
 			*currOut = *currIn;
 			++currIn;
 			++currOut;
+			lastToken = *currIn;
 			break;
 
+		case '-':	// special case not handled by findToken function
+			switch (lastToken)
+			{
+			// could be simplified, if whole category is used (check MSBits = 0x80)
+			case K_POWER:
+			case K_NEGATE:
+			case K_MULTIPLY:
+			case K_DIVIDE:		
+			case K_ADD:
+			case K_SUBSTRACT:
+			case K_LESSEQUAL:
+			case K_GREATEREQUAL:
+			case K_LESS:
+			case K_GREATER:
+			case K_EQUAL:
+			case K_NOT:
+			case K_AND:
+			case K_OR:
+			case K_XOR:
+			case K_ASSIGN:
+
+			case '(':
+			case ':':
+			case ';':
+			case ',':
+				*currOut = (char)K_NEGATE;
+				++currIn;
+				++currOut;
+				lastToken = (char)K_NEGATE;	
+				break;
+
+			default: 
+				*currOut = (char)K_SUBSTRACT;
+				++currIn;
+				++currOut;
+				lastToken = (char)K_SUBSTRACT;	
+				break;
+			}
+			break;
 		default:
 			if (findToken(currIn, token, tokenLength))
 			{
 				*currOut = token;
 				currOut++;
 				currIn += tokenLength;
+				lastToken = token;
 			}
 			else
 			{
 				*currOut = *currIn;
 				++currIn;
 				++currOut;
+				lastToken = 0;
 			}
 			break;
 		}
@@ -119,15 +185,3 @@ bool tokenize2(char *in)
 
 	return true;
 }
-
-int main(int argc, char* argv[])
-{
-	char str[256];
-	char tok1[256];
-	strcpy(str, "10 let variable$ = \"blah\" + chr$(147): i = sqrt ( abs ( 2.5 * B ) )");
-
-	tokenize1(str, tok1);
-
-	return 0;
-}
-
