@@ -172,13 +172,16 @@ void CProgram::DoIt()
 		{
 			BYTE *temp = CurrPos;
 			CurrPos = 0;
-			if (expreval((char *)(temp), InIf) == true);
+
+			expreval((char *)(temp), InIf);
+
 			if (IsNext)
 				break;
 		}
 		else if (CurrLine)
 		{
-			if (expreval((char *)(CurrLine+3)) == true);
+			expreval((char *)(CurrLine+3), InIf);
+
 			if (IsNext)
 				break;
 		}
@@ -204,7 +207,7 @@ void CProgram::DoIt()
 		else break;
 	}  	
 
-	CurrLine = 0;
+//	CurrLine = 0;
 	CurrPos = 0;
 	IsEnd = false;
 	InIf = false;
@@ -316,8 +319,6 @@ void CProgram::Continue()
 
 void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float step)
 {
-	InIf = inIf;
-
 	BYTE *oldPos;
 	oldPos = CurrLine;
 
@@ -326,6 +327,7 @@ void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float s
 		CurrLine = oldPos;
 		CurrPos = returnPoint;
 		IsNext = false;
+		InIf = inIf;
 		DoIt();
 
 		if (IsNext)
@@ -338,8 +340,6 @@ void CProgram::For(BYTE *returnPoint, bool inIf, BYTE var[2], float end, float s
 			if (curr > end)
 			{
 				IsNext = false;
-				CurrPos = NextReturnPoint;
-				NewLine = NextCurrLine;
 			}
 		}
 	} 
@@ -350,5 +350,13 @@ void CProgram::Next(BYTE *returnPoint)
 {
 	IsNext = true;
 	NextReturnPoint = returnPoint;
-	NextCurrLine = CurrLine;
+
+	if (CurrLine)
+	{
+		NextCurrLine = CurrLine+*CurrLine;
+	}
+	else
+	{
+		NextCurrLine = NULL;
+	}
 }

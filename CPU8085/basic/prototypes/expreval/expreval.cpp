@@ -279,6 +279,7 @@ void DoPrint(bool execute)
 		L0();
 
 		CEvaluate::UnaryOp();	// value in tempVar1
+
 		if (execute)
 		{
 			switch(*tempVar1)
@@ -627,11 +628,11 @@ void DoFor(bool execute, bool inIf)
 		}
 	}
 
-	SetFloat(tempVar1, beginValue);
-	CVariables::Set(tag, tempVar1);
-
 	if (execute)
 	{
+		SetFloat(tempVar1, beginValue);
+		CVariables::Set(tag, tempVar1);
+
 		CProgram::For(currIn, inIf, tag, endValue, stepValue);
 	}
 }
