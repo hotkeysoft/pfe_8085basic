@@ -2,6 +2,8 @@
 integer
 test
 ..\common\common
+..\error\error
+..\io\io
 -b DATA   = 0x8000
 -b _CODE  = 0x0040
 -e
