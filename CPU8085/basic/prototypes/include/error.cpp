@@ -29,7 +29,7 @@ std::ostream &operator<< (std::ostream &os, const CError &e)
 		{
 			if (e.m_symbol != 0)
 			{
-				os << "E_" << current->text << ": '" << e.m_symbol << "'" << std::endl;
+				os << "E_" << current->text << ": '" << (char)e.m_symbol << "'" << std::endl;
 			}
 			else if (e.m_tag[0] != 0)
 			{
