@@ -2,6 +2,7 @@
 .title 		Tests expreval Module
 
 .include	'expreval.def'
+.include	'..\integer\integer.def'
 .include	'..\tokenize\tokenize.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
@@ -27,6 +28,7 @@ START:
 	SIM
 	EI				;ENABLE INTERRUPTS
 
+	CALL	INT_INIT
 	CALL	EXP_INIT
 
 ;	JMP	TEST_BINCALC
@@ -36,7 +38,8 @@ START:
 ;	JMP	TEST_NOT
 ;	JMP	TEST_ABS
 ;	JMP	TEST_SGN
-	JMP	TEST_PEEK
+;	JMP	TEST_PEEK
+	JMP	TEST_RND
 	
 TEST_BINCALC:	; TEST OF ARITHMETIC OPERATORS
 	LXI	H,TESTSTR001	; 4+4
@@ -159,7 +162,6 @@ TEST_SGN:	;	TESTS OF SGN
 	LXI	H,TESTSTR605	; SGN ( 32767 )
 	CALL 	EVAL		; RESULT: 1
 
-
 TEST_PEEK:	;	TESTS OF PEEK
 	LXI	H,TESTSTR701	; PEEK ( 0  )
 	CALL 	EVAL		; 
@@ -167,6 +169,17 @@ TEST_PEEK:	;	TESTS OF PEEK
 	CALL 	EVAL		; 
 	LXI	H,TESTSTR703	; PEEK ( -1 )
 	CALL 	EVAL		; 
+
+TEST_RND:	;	TESTS OF RND
+	LXI	H,TESTSTRRND	; RND(0)
+	CALL 	EVAL		; 
+	LXI	H,TESTSTRRND	; RND(0)
+	CALL 	EVAL		; 
+	LXI	H,TESTSTRRND	; RND(0)
+	CALL 	EVAL		; 
+	LXI	H,TESTSTRRND	; RND(0)
+	CALL 	EVAL		; 
+
 
 
 LOOP:
@@ -265,6 +278,10 @@ TESTSTR605:	.asciz	'SGN ( 32767 )'		; 1
 TESTSTR701:	.asciz	'PEEK ( 0  ) '		; 
 TESTSTR702:	.asciz	'PEEK ( 32767  ) '	; 
 TESTSTR703:	.asciz	'PEEK ( -1 )'		; 1
+
+;	TESTS OF RND
+TESTSTRRND:	.asciz	'RND(0)'		; 
+
 
 
 OUTSTR:		.ds 128

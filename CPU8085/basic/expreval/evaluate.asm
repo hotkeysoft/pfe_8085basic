@@ -69,6 +69,11 @@ EVAL_EVALUATE::
 	; PEEK
 	CPI	K_PEEK
 	JZ	8$
+
+	; RND
+	CPI	K_RND
+	JZ	9$
+
 	
 	HLT
 
@@ -113,6 +118,11 @@ EVAL_EVALUATE::
 8$:
 	CALL	EVAL_UNARYOP
 	CALL	EVAL_PEEK
+	JMP	END
+
+9$:
+	CALL	EVAL_UNARYOP
+	CALL	EVAL_RND
 	JMP	END
 	
 END:
@@ -419,7 +429,7 @@ EVAL_ABS::
 1$:	HLT
 
 ;*********************************************************
-;* EVAL_ABS: 	EVALUATES SGN (INT)
+;* EVAL_SGN: 	EVALUATES SGN (INT)
 EVAL_SGN::
 	LDA	VAR_TEMP1			; TYPE OF VAR1 IN ACC
 	CPI	SID_CSTR
@@ -457,6 +467,29 @@ EVAL_PEEK::
 	RET	
 	
 1$:	HLT
+
+;*********************************************************
+;* EVAL_RND: 	EVALUATES RND (INT)
+EVAL_RND::
+	LDA	VAR_TEMP1			; TYPE OF VAR1 IN ACC
+	CPI	SID_CSTR
+	JZ	1$				; MUST BE INTEGER
+	
+	CALL	INT_RND
+	
+	LHLD	INT_ACC0			; READ BACK VALUE IN HL
+	SHLD	VAR_TEMP1+1			; SAVE IN VAR_TEMP1
+
+	MVI	A,SID_CINT			; FLAG AS AN INT
+	STA	VAR_TEMP1			; PUT AT BEGINNING OF VAR_TEMP1
+
+	LXI	H,VAR_TEMP1			; ADDRESS OF VAR_TEMP1 IN HL	
+	CALL	EXP_PUSH			; PUSH RESULT ON STACK
+	
+	RET	
+	
+1$:	HLT
+
 
 ;*********************************************************
 ;* EVAL_COPY1: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP1
