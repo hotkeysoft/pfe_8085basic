@@ -12,7 +12,22 @@ public:
 	static void Insert(short lineNo, BYTE *contents, BYTE length);
 	static void Remove(short lineNo);
 
+	static void Run(short lineNo = 0);
+	static void Goto(short lineNo);
+	static void Gosub(short lineNo, BYTE *returnPoint);
+	static void Return();
+
+	static void End();
+	static void Stop();
+	static void Continue();
+
 protected:
+	static BYTE *NewLine;
+	static BYTE *CurrLine;
+	static BYTE *CurrPos;
+
+	static bool IsEnd;
+
 	static BYTE *Find(short lineNo, BYTE **insertionPoint = NULL);
 	static void Remove(BYTE *addr);
 };
