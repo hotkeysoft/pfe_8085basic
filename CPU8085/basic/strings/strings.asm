@@ -17,6 +17,8 @@ RST7:
 ;*			    'PARENT' PTR IN 'BC'
 ;*			RETURNS ADDRESS IN (H-L)
 STR_ALLOCATE::
+	PUSH	D
+	
 	; KEEP SIZE
 	PUSH	PSW
 	
@@ -45,6 +47,7 @@ STR_ALLOCATE::
 	MOV	M,A				; STORE LENGTH
 	INX	H
 	
+	POP	D
 	RET
 	
 ;*********************************************************
