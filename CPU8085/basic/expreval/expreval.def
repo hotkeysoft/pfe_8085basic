@@ -14,6 +14,8 @@
 
 	.globl	EXP_SKIPWHITESPACE
 
+	.globl	EXP_STACKTEMP
+
 .if DEBUG
 	.globl	EXP_DUMPSTACK
 	.globl	EXP_CLEARSTACK
