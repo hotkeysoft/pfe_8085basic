@@ -5,5 +5,6 @@
 ..\..\bin\AS8085.EXE -lo ..\io\io
 ..\..\bin\AS8085.EXE -lo ..\error\error
 ..\..\bin\AS8085.EXE -lo ..\integer\integer
+..\..\bin\AS8085.EXE -lo ..\variables\variable
 ..\..\bin\aslink.exe -f program
 ..\..\bin\hexbin program.ihx
