@@ -20,6 +20,10 @@ enum ErrorType
 	E_EXP_SYNTAX,			// Syntax error (missing parameter)
 	E_EXP_ELSEWITHOUTIF,	// Else without if
 	E_EXP_LINENOTFOUND,		// Line not found
+	E_EXP_RETWITHOUTGOSUB,	// RETURN without GOSUB
+	E_EXP_CONTWITHOUTSTOP,	// CONTINUE without STOP
+	E_EXP_NEXTWITHOUTFOR,	// NEXT without FOR
+
 
 	// variables module errors
 	E_VAR_NOTINIT,			// variables used before being initialized

@@ -15,6 +15,9 @@ Error errorStr[] = {
 	E_EXP_SYNTAX,			"EXP: Syntax error",
 	E_EXP_ELSEWITHOUTIF,	"EXP: ELSE without IF",
 	E_EXP_LINENOTFOUND,		"EXP: Undefined line number",
+	E_EXP_RETWITHOUTGOSUB,	"EXP: RETURN without GOSUB",
+	E_EXP_CONTWITHOUTSTOP,	"EXP: CONTINUE without STOP",
+	E_EXP_NEXTWITHOUTFOR,	"EXP: NEXT without FOR",
 
 	E_VAR_NOTINIT,			"VAR: Variable used before initialization",
 
