@@ -27,15 +27,13 @@ int main(int argc, char* argv[])
 	tempVar2 = tempVar1+5;
 	tempVar3 = tempVar2+5;
 
-	char str[256];
-
-	char out[256];
-
 	while (1)
 	{
 		std::cin.getline((char *)Memory, 255);
-		if (strcmp(str, "") == 0)
+		if (strcmp((char *)Memory, "") == 0)
+		{
 			break;
+		}
 
 		try
 		{
@@ -46,7 +44,7 @@ int main(int argc, char* argv[])
 
 			std::cout << untokenize((char *)(Memory+256)) << std::endl;
 
-			expreval((char *)(Memory+256), out);
+			expreval((char *)(Memory+256));
 
 			CExprStack::Dump();
 		}
