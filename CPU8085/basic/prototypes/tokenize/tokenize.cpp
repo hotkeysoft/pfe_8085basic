@@ -105,37 +105,12 @@ void tokenize1(const char *in, char *out)
 			}
 
 			*currOut = *currIn;
+			lastToken = *currIn;
 			++currIn;
 			++currOut;
-			lastToken = *currIn;
 			break;
 
-		case '+':	// special case not handled by findToken function
-			if ( isdigit(*(currIn+1)) || *(currIn+1) == '.')
-			{
-				*currOut = *currIn;
-				++currIn;
-				++currOut;
-				lastToken = 0;
-			}
-			else
-			{
-				*currOut = (char)K_ADD;
-				++currIn;
-				++currOut;
-				lastToken = (char)K_ADD;
-			}
-			break;
-		case '-':	// special case not handled by findToken function
-			if ( isdigit(*(currIn+1)) || *(currIn+1) == '.')
-			{
-				*currOut = *currIn;
-				++currIn;
-				++currOut;
-				lastToken = 0;
-				break;
-			}
-
+		case '-': // special case handled by tokenize2() function
 			switch (lastToken)
 			{
 			// could be simplified, if whole category is used (check MSBits = 0x80)
@@ -161,16 +136,16 @@ void tokenize1(const char *in, char *out)
 			case ';':
 			case ',':
 				*currOut = (char)K_NEGATE;
-				++currIn;
-				++currOut;
 				lastToken = (char)K_NEGATE;	
-				break;
-
-			default: 
-				*currOut = (char)K_SUBSTRACT;
 				++currIn;
 				++currOut;
-				lastToken = (char)K_SUBSTRACT;	
+				break;
+			default: 
+				// Not sure yet, will have to confirm later
+				*currOut = *currIn;
+				++currIn;
+				++currOut;
+				lastToken = 0;
 				break;
 			}
 			break;
@@ -201,6 +176,7 @@ void tokenize2(const char *in, char *out)
 {
 	const char *currIn = in;
 	char *currOut = out;
+	char lastToken = 0;
 
 	while(1)
 	{
@@ -212,6 +188,7 @@ void tokenize2(const char *in, char *out)
 		else if ((*currIn & 0x80) == 0x80)	// token
 		{
 			*currOut = *currIn;
+			lastToken = *currIn;
 			++currIn;
 			++currOut;
 		}
@@ -240,8 +217,30 @@ void tokenize2(const char *in, char *out)
 
 			*(currOut-(length+1)) = length;
 
+			lastToken = SID_CSTR;
 		}
-		else if (*currIn == '-' || *currIn == '.' || isdigit(*currIn)) // const int/float
+		else if (*currIn == '-')
+		{
+			switch (lastToken)
+			{
+			case SID_CINT:
+			case SID_CFLOAT:
+			case SID_CSTR:
+			case SID_VAR:
+				*currOut = (char)K_SUBSTRACT;
+				lastToken = (char)K_SUBSTRACT;	
+				++currIn;
+				++currOut;
+				break;
+			default:
+				*currOut = (char)K_NEGATE;
+				lastToken = (char)K_NEGATE;	
+				++currIn;
+				++currOut;
+				break;
+			}
+		}
+		else if (*currIn == '.' || isdigit(*currIn)) // const int/float
 		{
 			float number;
 			int length;
@@ -259,6 +258,8 @@ void tokenize2(const char *in, char *out)
 				memcpy(currOut, &iNumber, sizeof(short));
 
 				currOut += sizeof(short);
+
+				lastToken = SID_CINT;
 			}
 			else	// float const
 			{
@@ -268,6 +269,8 @@ void tokenize2(const char *in, char *out)
 				memcpy(currOut, &number, sizeof(float));
 
 				currOut += sizeof(float);
+
+				lastToken = SID_CFLOAT;
 			}
 		}
 		else if (isalpha(*currIn))	// variable name
@@ -300,17 +303,21 @@ void tokenize2(const char *in, char *out)
 
 			*currOut = tag[1];
 			++currOut;
+
+			lastToken = SID_VAR;
 		}
 		else // misc characters (space, '(', ')', ';', ':', etc...)
 		{
+
 			switch (*currIn)
 			{
-			case ' ':
 			case '(':
 			case ')':
 			case ';':
 			case ',':
 			case ':':
+				lastToken = *currIn;	// fall-through
+			case ' ':
 				*currOut = *currIn;
 				++currIn;
 				++currOut;
