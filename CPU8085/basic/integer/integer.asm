@@ -1,874 +1,821 @@
-PAGE
-
-STACK	EQU	$FFFF		SYSTEM STACK
-
-
-* RAM VARIABLES
-RAMBASE	EQU	$8000		RAM BASE
-
-IACCB	EQU	RAMBASE			(0)
-IACC0	EQU	IACCB			(2) 
-IACC1 	EQU	IACC0+2			(2)
-IACC2	EQU	IACC1+2			(2)
-IACC3	EQU	IACC2+2			(2)
-IACCSTR	EQU	IACC3+2			(7)
-
-*********************************************************
-* MAIN PROGRAM
-*********************************************************
-START	
-	LXI	SP,STACK			INITALIZE STACK
-	JMP	GO
+.module 	integer
+.title 		Integer module
 
 
-	ORG	$38
-RST7
-	HLT
-	
-GO
-	LXI	H,IACC0
-	MVI	M,$FF
-	INX	H
-	MVI	M,$00
-
-	LXI	H,IACC1
-	MVI	M,$01
-	INX	H
-	MVI	M,$00
-LOOP
-	LXI	H,IACC1
-	CALL	IDIV
-	
-	JMP	LOOP
-
-**
-*	INCREMENTS INTEGER AT [H-L]
-*
-IINC
+;*********************************************************
+;* INT_INC:  INCREMENTS INTEGER AT [H-L]
+INT_INC::
 	PUSH	B
 
 	MVI	A,0
 	
-	MOV	C,M					LOAD LOW BYTE IN C
-	INX	H					HL++
-	MOV	B,M					LOAD HI BYTE IN B
-	ORA	B					UPDATES SIGN FLAG
+	MOV	C,M					;LOAD LOW BYTE IN C
+	INX	H					;HL++
+	MOV	B,M					;LOAD HI BYTE IN B
+	ORA	B					;UPDATES SIGN FLAG
 
-	JM	IINCNEG					IF POSITIVE, MUST CHECK FOR WRAP 32767->-32768
+	JM	1$					;IF POSITIVE, MUST CHECK FOR WRAP 32767->-32768
 		
-	INX	B					BC++
-	ORA	B					UPDATES SIGN FLAG1
+	INX	B					;BC++
+	ORA	B					;UPDATES SIGN FLAG1
 	
-	JM	IINCOVER				STILL POSITIVE, CONTINUE AS NORMAL
+	JM	3$					;STILL POSITIVE, CONTINUE AS NORMAL
 
-IINCOK	
-	MOV	M,B					SAVE HI BYTE IN B
-	DCX	H					HL--
-	MOV	M,C					SAVE LOW BYTE IN C	
+2$:
+	MOV	M,B					;SAVE HI BYTE IN B
+	DCX	H					;HL--
+	MOV	M,C					;SAVE LOW BYTE IN C	
 	
-	JMP	IINCRET		
+	JMP	4$		
 
-IINCNEG
-	INX	B					BC++
-	JMP	IINCOK
+1$:
+	INX	B					;BC++
+	JMP	2$
 
-IINCOVER
-******* SET OVERFLOW HERE *****************************
+3$:
+;******* SET OVERFLOW HERE *****************************
 	DCX	H
 	RST	7
 	
-IINCRET
+4$:
 	POP 	B
 	RET
 
 
-**
-*	DECREMENTS INTEGER AT [H-L]
-*
-IDEC
+;*********************************************************
+;* INT_DEC:  DECREMENTS INTEGER AT [H-L]
+INT_DEC::
 	PUSH	B
 
 	MVI	A,0
 	
-	MOV	C,M					LOAD LOW BYTE IN C
-	INX	H					HL++
-	MOV	B,M					LOAD HI BYTE IN B
-	ORA	B					UPDATES SIGN FLAG
+	MOV	C,M					;LOAD LOW BYTE IN C
+	INX	H					;HL++
+	MOV	B,M					;LOAD HI BYTE IN B
+	ORA	B					;UPDATES SIGN FLAG
 
-	JP	IDECNEG					IF NEGATIVE, MUST CHECK FOR WRAP -32768->32767
+	JP	1$					;IF NEGATIVE, MUST CHECK FOR WRAP -32768->32767
 		
-	DCX	B					BC++
-	ANA	B					UPDATES SIGN FLAG1
+	DCX	B					;BC++
+	ANA	B					;UPDATES SIGN FLAG1
 	
-	JP	IDECOVER				STILL NEGATIVE, CONTINUE AS NORMAL
+	JP	2$					;STILL NEGATIVE, CONTINUE AS NORMAL
 
-IDECOK	
-	MOV	M,B					SAVE HI BYTE IN B
-	DCX	H					HL--
-	MOV	M,C					SAVE LOW BYTE IN C	
+3$:
+	MOV	M,B					;SAVE HI BYTE IN B
+	DCX	H					;HL--
+	MOV	M,C					;SAVE LOW BYTE IN C	
 	
-	JMP	IDECRET		
+	JMP	4$		
 
-IDECNEG
-	DCX	B					BC++
-	JMP	IDECOK
+1$:
+	DCX	B					;BC++
+	JMP	3$
 
-IDECOVER
-******* SET OVERFLOW HERE *****************************
+2$:
+;******* SET OVERFLOW HERE *****************************
 	DCX	H
 	RST	7
 	
-IDECRET
+4$:
 	POP 	B
 	RET
 
-**
-*	NEGATES INTEGER AT [H-L]
-*
-INEG
+;*********************************************************
+;* INT_NEG:  NEGATES INTEGER AT [H-L]
+INT_NEG::
 	PUSH	B
 
-	MOV	A,M					LOAD LOW BYTE IN ACC
-	CMA						COMPLEMENT ACC
-	MOV 	C,A					PUT ~LOW BYTE IN C
+	MOV	A,M					;LOAD LOW BYTE IN ACC
+	CMA						;COMPLEMENT ACC
+	MOV 	C,A					;PUT ~LOW BYTE IN C
 	
-	INX	H					HL++
-	MOV	A,M					LOAD HI BYTE IN ACC
-	CMA						COMPLEMENT ACC
-	MOV	B,A					PUT ~HIGH BYTE IN B 
+	INX	H					;HL++
+	MOV	A,M					;LOAD HI BYTE IN ACC
+	CMA						;COMPLEMENT ACC
+	MOV	B,A					;PUT ~HIGH BYTE IN B 
 	
-*	WE NOW HAVE ~[HL] IN BC
+;	WE NOW HAVE ~[HL] IN BC
 	
-	INX	B					BC = ~[HL] + 1			
+	INX	B					;BC = ~[HL] + 1			
 	
-* 	PUT BACK IN [HL]
+; 	PUT BACK IN [HL]
 
-	MOV	M,B					SAVE HI BYTE IN B
-	DCX	H					HL--
-	MOV	M,C					SAVE LOW BYTE IN C	
+	MOV	M,B					;SAVE HI BYTE IN B
+	DCX	H					;HL--
+	MOV	M,C					;SAVE LOW BYTE IN C	
 	
 	POP	B
 	RET
 
-**
-*	ADDS INTEGER AT [H-L] TO INTEGER IN IACC0 (RESULT IN IACC0)
-*
-IADD
+;*********************************************************
+;* INT_ADD:  ADDS INTEGER AT [H-L] TO INTEGER IN INT_ACC0 
+;* (RESULT IN INT_ACC0)
+INT_ADD::
 	PUSH	B
 	PUSH 	D
 	PUSH	H
 	
-	MOV	C,M					LOAD LOW BYTE IN C
-	INX	H					HL++
-	MOV	B,M					LOAD HI BYTE IN B
+	MOV	C,M					;LOAD LOW BYTE IN C
+	INX	H					;HL++
+	MOV	B,M					;LOAD HI BYTE IN B
 
-	LXI	H,IACC0					ADDRESS OF IACC0 IN H-L
+	LXI	H,INT_ACC0				;ADDRESS OF INT_ACC0 IN H-L
 	
-	MOV	E,M					LOAD LOW BYTE IN E
-	INX	H					HL++
-	MOV	D,M					LOAD HI BYTE IN D
+	MOV	E,M					;LOAD LOW BYTE IN E
+	INX	H					;HL++
+	MOV	D,M					;LOAD HI BYTE IN D
 
-*	THIS SECTION CHECKS THE SIGN OF THE TWO OPERANDS
-*	IF THEY ARE SAME, WE MUST CHECK FOR POSSIBLE OVERFLOW
+;	THIS SECTION CHECKS THE SIGN OF THE TWO OPERANDS
+;	IF THEY ARE SAME, WE MUST CHECK FOR POSSIBLE OVERFLOW
 
-	MOV	A,B					HI BYTE 1 IN A
-	XRA	D					XOR WITH HI BYTE 2
+	MOV	A,B					;HI BYTE 1 IN A
+	XRA	D					;XOR WITH HI BYTE 2
 	
-	JP	IADD1					SIGN BYTE 0 -> CHECK FOR OVERFLOW
+	JP	1$					;SIGN BYTE 0 -> CHECK FOR OVERFLOW
 	
 	MVI	A,0
-	JMP	IADD2
+	JMP	2$
 
-IADD1
+1$:
 	MVI	A,1
 	
-IADD2	PUSH	PSW					PUSH 1 IF MUST CHECK, OTHERWISE 0
+2$:	PUSH	PSW					;PUSH 1 IF MUST CHECK, OTHERWISE 0
 	
-*       PERFORM ADD
+;       PERFORM ADD
 
-	XCHG						SWAP HL AND DE
+	XCHG						;SWAP HL AND DE
 	
-	DAD	B					HL = HL + BC
+	DAD	B					;HL = HL + BC
 	
-	XCHG						SWAP HL AND DE
+	XCHG						;SWAP HL AND DE
 	
-	MOV	M,D					SAVE HI BYTE IN D
-	DCX	H					HL--
-	MOV	M,E					SAVE LOW BYTE IN E	
+	MOV	M,D					;SAVE HI BYTE IN D
+	DCX	H					;HL--
+	MOV	M,E					;SAVE LOW BYTE IN E	
 
-*
-*	CHECK FOR OVERFLOW?
+;
+;	CHECK FOR OVERFLOW?
 
-	POP	PSW					GET BACK VALUE PUSHED EARLIER
+	POP	PSW					;GET BACK VALUE PUSHED EARLIER
 	ORA	A					
-	JZ 	IADDRET
+	JZ 	3$
 	
-*	WE MUST CHECK IS SIGN CHANGED
-	MOV	A,B					HI BYTE 1 IN A
-	XRA	D					XOR WITH HI BYTE 2
+;	WE MUST CHECK IS SIGN CHANGED
+	MOV	A,B					;HI BYTE 1 IN A
+	XRA	D					;XOR WITH HI BYTE 2
 	
-	JP	IADDRET					SIGN BYTE 0 -> SAME (NO OVERFLOW)
+	JP	3$					;SIGN BYTE 0 -> SAME (NO OVERFLOW)
 
-******* SET OVERFLOW HERE *****************************
+;****** SET OVERFLOW HERE *****************************
 	RST 	7
 
-IADDRET
+3$:
 	POP	H
 	POP	D
 	POP 	B
 
 	RET
 
-**
-*	SUBSTRACTS INTEGER AT [H-L] FROM INTEGER IN IACC0 (RESULT IN IACC0)
-*	IACC0 = IACC0 - [H-L]
-*
-ISUB
-	CALL INEG
-	CALL IADD
-	CALL INEG
+;*********************************************************
+;* INT_SUB:  SUBSTRACTS INTEGER AT [H-L] FROM INTEGER IN INT_ACC0 
+;* (RESULT IN INT_ACC0)		INT_ACC0 = INT_ACC0 - [H-L]
+INT_SUB::
+	CALL INT_NEG
+	CALL INT_ADD
+	CALL INT_NEG
 	RET
 
-**
-*	CLEAR INTEGER AT [H-L]
-*	
-IZERO
+
+;*********************************************************
+;* INT_ZERO: CLEAR INTEGER AT [H-L]
+INT_ZERO::
 	MVI	M,0
 	INX	H	
 	MVI	M,0
 	DCX	H	
 	RET
-	
-**
-*	LOGICAL AND IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 AND [H-L]
-IAND
-	LDA	IACC0					LOAD LOW BYTE OF IACC0 IN A
-	ANA	M					AND A WITH LOW BYTE OF H-L
-	STA	IACC0					SAVE A IN LOW BYTE OF IACC0
-	
-	INX	H					HL++
 
-	LDA	IACC0+1
-	ANA	M					AND A WITH HI BYTE OF H-L
-	STA	IACC0+1					SAVE A IN HI BYTE OF IACC0
+	
+;*********************************************************
+;* INT_AND: LOGICAL AND INT_ACC0 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC0 AND [H-L]
+INT_AND::
+	LDA	INT_ACC0				;LOAD LOW BYTE OF INT_ACC0 IN A
+	ANA	M					;AND A WITH LOW BYTE OF H-L
+	STA	INT_ACC0				;SAVE A IN LOW BYTE OF INT_ACC0
+	
+	INX	H					;HL++
 
-	DCX	H					HL--
+	LDA	INT_ACC0+1
+	ANA	M					;AND A WITH HI BYTE OF H-L
+	STA	INT_ACC0+1				;SAVE A IN HI BYTE OF INT_ACC0
+
+	DCX	H					;HL--
 		
 	RET
 
-**
-*	LOGICAL OR IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 OR [H-L]
-IOR
-	LDA	IACC0					LOAD LOW BYTE OF IACC0 IN A
-	ORA	M					OR A WITH LOW BYTE OF H-L
-	STA	IACC0					SAVE A IN LOW BYTE OF IACC0
+;*********************************************************
+;* INT_OR: LOGICAL OR INT_ACC0 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC0 OR [H-L]
+INT_OR::
+	LDA	INT_ACC0				;LOAD LOW BYTE OF INT_ACC0 IN A
+	ORA	M					;OR A WITH LOW BYTE OF H-L
+	STA	INT_ACC0				;SAVE A IN LOW BYTE OF INT_ACC0
 	
-	INX	H					HL++
+	INX	H					;HL++
 
-	LDA	IACC0+1
-	ORA	M					OR A WITH HI BYTE OF H-L
-	STA	IACC0+1					SAVE A IN HI BYTE OF IACC0
+	LDA	INT_ACC0+1
+	ORA	M					;OR A WITH HI BYTE OF H-L
+	STA	INT_ACC0+1				;SAVE A IN HI BYTE OF INT_ACC0
 
-	DCX	H					HL--
+	DCX	H					;HL--
 		
 	RET
 
-**
-*	LOGICAL XOR IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 XOR [H-L]
-IXOR
-	LDA	IACC0					LOAD LOW BYTE OF IACC0 IN A
-	XRA	M					XOR A WITH LOW BYTE OF H-L
-	STA	IACC0					SAVE A IN LOW BYTE OF IACC0
+;*********************************************************
+;* INT_OR: LOGICAL XOR INT_ACC0 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC0 XOR [H-L]
+INT_XOR::
+	LDA	INT_ACC0				;LOAD LOW BYTE OF INT_ACC0 IN A
+	XRA	M					;XOR A WITH LOW BYTE OF H-L
+	STA	INT_ACC0				;SAVE A IN LOW BYTE OF INT_ACC0
 	
-	INX	H					HL++
+	INX	H					;HL++
 
-	LDA	IACC0+1
-	XRA	M					XOR A WITH HI BYTE OF H-L
-	STA	IACC0+1					SAVE A IN HI BYTE OF IACC0
+	LDA	INT_ACC0+1
+	XRA	M					;XOR A WITH HI BYTE OF H-L
+	STA	INT_ACC0+1				;SAVE A IN HI BYTE OF INT_ACC0
 
-	DCX	H					HL--
+	DCX	H					;HL--
 		
 	RET
 
-**
-*	LOGICAL NOT INTEGER AT [H-L]
-*	[H-L] = ![H-L]
-INOT
-	MOV	A,M					LOAD LOW BYTE OF [H-L] IN A
-	CMA						A = ~A
-	MOV	M,A					SAVE A IN LOW BYTE OF [H-L]
+;*********************************************************
+;* INT_NOT: LOGICAL NOT INTEGER AT [H-L]
+;* [H-L] = ![H-L]
+INT_NOT::
+	MOV	A,M					;LOAD LOW BYTE OF [H-L] IN A
+	CMA						;A = ~A
+	MOV	M,A					;SAVE A IN LOW BYTE OF [H-L]
 	
-	INX	H					HL++
+	INX	H					;HL++
 
-	MOV	A,M					LOAD HI BYTE OF [H-L] IN A
-	CMA						A = ~A
-	MOV	M,A					SAVE A IN HI BYTE OF [H-L]
+	MOV	A,M					;LOAD HI BYTE OF [H-L] IN A
+	CMA						;A = ~A
+	MOV	M,A					;SAVE A IN HI BYTE OF [H-L]
 
-	DCX	H					HL--
+	DCX	H					;HL--
 		
 	RET
 
-**
-*	SHIFTS *POSITIVE* INTEGER AT [H-L] 'ACC' BITS TO THE LEFT (PAD WITH 0)
-*	[H-L] = [H-L]<<(A)
-*	OVERFLOWS IF BIT 7 BECOMES 1
-ISHLP
+;*********************************************************
+;* INT_SHLP: SHIFTS *POSITIVE* INTEGER AT [H-L] 'ACC' BITS 
+;* TO THE LEFT (PAD WITH 0)	[H-L] = [H-L]<<(A)
+;* OVERFLOWS IF BIT 7 BECOMES 1
+INT_SHLP:
 	PUSH 	B
 	PUSH 	D
 
-	MOV	E,A					NUMBER OF BITS TO SHIFT IN D-E
-	ORA	E					RESETS CARRY BIT
+	MOV	E,A					;NUMBER OF BITS TO SHIFT IN D-E
+	ORA	E					;RESETS CARRY BIT
 
-	JZ	ISHLRET					NOTHING TO SHIFT
+	JZ	3$					;NOTHING TO SHIFT
 	
-	MOV	C,M					LOAD LOW BYTE IN C
-	INX	H					HL++
-	MOV	B,M					LOAD HI BYTE IN B
+	MOV	C,M					;LOAD LOW BYTE IN C
+	INX	H					;HL++
+	MOV	B,M					;LOAD HI BYTE IN B
 
-ISHLLOOP
+1$:
 
-*	LOW BYTE
-	MOV	A,C					LOW BYTE IN A
-	RAL						ROTATE ACC LEFT 1 BIT
-	MOV	C,A					STORE BACK IN C
+;	LOW BYTE
+	MOV	A,C					;LOW BYTE IN A
+	RAL						;ROTATE ACC LEFT 1 BIT
+	MOV	C,A					;STORE BACK IN C
 	
-*	HI BYTE
-	MOV	A,B					HI BYTE IN A
-	RAL						ROTATE ACC LEFT 1 BIT
-	MOV	B,A					STORE BACK IN B
+;	HI BYTE
+	MOV	A,B					;HI BYTE IN A
+	RAL						;ROTATE ACC LEFT 1 BIT
+	MOV	B,A					;STORE BACK IN B
 
 	ORA	B
-	JM	ISHLOV					OVERFLOW IF NUMBER BIT 7 IS SET
+	JM	2$					;OVERFLOW IF NUMBER BIT 7 IS SET
 
-*	END SHIFT ONCE
+;	END SHIFT ONCE
 	
-	DCR	E					E--
-	JNZ	ISHLLOOP				LOOP N TIMES
+	DCR	E					;E--
+	JNZ	1$					;LOOP N TIMES
 
-	MOV	M,B					SAVE HI BYTE IN B
-	DCX	H					HL--
-	MOV	M,C					SAVE LOW BYTE IN C
+	MOV	M,B					;SAVE HI BYTE IN B
+	DCX	H					;HL--
+	MOV	M,C					;SAVE LOW BYTE IN C
 
-	JMP	ISHLRET
+	JMP	3$
 
-ISHLOV
-******* SET OVERFLOW HERE *****************************
+2$:
+;****** SET OVERFLOW HERE *****************************
 	RST	7
 
-
-ISHLRET
+3$:
 	POP	D
 	POP	B
 	RET
 
-**
-*	SHIFTS INTEGER AT [H-L] 'ACC' BITS TO THE RIGHT (PAD WITH 0)
-*	[H-L] = [H-L]>>(A)
-ISHR
+;*********************************************************
+;* INT_SHR: SHIFTS INTEGER AT [H-L] 'ACC' BITS TO THE RIGHT 
+;* (PAD WITH 0)	[H-L] = [H-L]>>(A)
+INT_SHR:
 	PUSH 	B
 	PUSH 	D
 
-	MOV	E,A					NUMBER OF BITS TO SHIFT IN D-E
+	MOV	E,A					;NUMBER OF BITS TO SHIFT IN D-E
 
-	ORA	E					CHECK IF NB = 0
-	JZ	ISHRRET					NOTHING TO SHIFT
+	ORA	E					;CHECK IF NB = 0
+	JZ	2$					;NOTHING TO SHIFT
 	
-	MOV	C,M					LOAD LOW BYTE IN C
-	INX	H					HL++
-	MOV	B,M					LOAD HI BYTE IN B
+	MOV	C,M					;LOAD LOW BYTE IN C
+	INX	H					;HL++
+	MOV	B,M					;LOAD HI BYTE IN B
 
-ISHRLOOP
-	ORA	A					RESET CARRY BIT
+1$:
+	ORA	A					;RESET CARRY BIT
 
-*	HI BYTE
-	MOV	A,B					HI BYTE IN A
-	RAR						ROTATE ACC LEFT 1 BIT
-	MOV	B,A					STORE BACK IN B
+;	HI BYTE
+	MOV	A,B					;HI BYTE IN A
+	RAR						;ROTATE ACC LEFT 1 BIT
+	MOV	B,A					;STORE BACK IN B
 
-*	LOW BYTE
-	MOV	A,C					LOW BYTE IN A
-	RAR						ROTATE ACC LEFT 1 BIT
-	MOV	C,A					STORE BACK IN C
+;	LOW BYTE
+	MOV	A,C					;LOW BYTE IN A
+	RAR						;ROTATE ACC LEFT 1 BIT
+	MOV	C,A					;STORE BACK IN C
 
-*	END SHIFT ONCE
+;	END SHIFT ONCE
 	
-	DCR	E					E--
-	JNZ	ISHRLOOP				LOOP N TIMES
+	DCR	E					;E--
+	JNZ	1$					;LOOP N TIMES
 
-	MOV	M,B					SAVE HI BYTE IN B
-	DCX	H					HL--
-	MOV	M,C					SAVE LOW BYTE IN C
+	MOV	M,B					;SAVE HI BYTE IN B
+	DCX	H					;HL--
+	MOV	M,C					;SAVE LOW BYTE IN C
 
-ISHRRET
+2$:
 	POP	D
 	POP	B
 	RET
 
-**
-*	MULTIPLIES IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 * [H-L]
-*	USES TEMPORARY ACC IACC1
-IMUL
+;*********************************************************
+;* INT_MUL: MULTIPLIES INT_ACC0 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC0 * [H-L]
+;* USES TEMPORARY ACC INT_ACC1
+INT_MUL::
 	PUSH	B	
 	PUSH	D
 	PUSH	H
 	
-*	CHECK SIGN OF [H-L]
-	PUSH 	H					KEEP HL
+;	CHECK SIGN OF [H-L]
+	PUSH 	H					;KEEP HL
 	
-	INX	H					HL++
-	MOV	B,M					HI BYTE OF [H-L] IN B
-	ORA	B					CHECK SIGN
-	JP	IMULN1
+	INX	H					;HL++
+	MOV	B,M					;HI BYTE OF [H-L] IN B
+	ORA	B					;CHECK SIGN
+	JP	1$
 	
-	DCX 	H					HL--
-	CALL	INEG					NEGATES IF NEGATIVE
+	DCX 	H					;HL--
+	CALL	INT_NEG					;NEGATES IF NEGATIVE
 	
-IMULN1
-*	CHECK SIGN OF IACC1
-	LXI	H,IACC1+1
-	MOV	C,M					HI BYTE OF IACC0 IN C
+1$:
+;	CHECK SIGN OF INT_ACC1
+	LXI	H,INT_ACC1+1
+	MOV	C,M					;HI BYTE OF INT_ACC0 IN C
 	ORA	C
-	JP	IMULN2
+	JP	2$
 
-	DCX 	H					HL--
-	CALL	INEG
+	DCX 	H					;HL--
+	CALL	INT_NEG
 
-IMULN2
-	MOV	A,C					C IN A
-	XRA	B					A = A XOR B;  PARITY BIT = 0 IF SAME SIGN
+2$:
+	MOV	A,C					;C IN A
+	XRA	B					;A = A XOR B;  PARITY BIT = 0 IF SAME SIGN
 
-IMULCONT
-	LXI	H,IACC0					ADDRESS OF IACC0 IN H-L
-	CALL 	IZERO					ZERO IACC0
+	LXI	H,INT_ACC0				;ADDRESS OF INT_ACC0 IN H-L
+	CALL 	INT_ZERO				;ZERO INT_ACC0
 
-	POP	H					RESTORE HL
+	POP	H					;RESTORE HL
 
-	PUSH	PSW					STORE PARITY BIT
+	PUSH	PSW					;STORE PARITY BIT
 
-	MVI	B,0					SHIFT COUNTER
-	MVI	C,16					BIT COUNTER
+	MVI	B,0					;SHIFT COUNTER
+	MVI	C,16					;BIT COUNTER
 
-IMULLOOP
+3$:
 	MVI	A,1
-	CALL 	ISHR					SHIFT ONE TO THE RIGHT
+	CALL 	INT_SHR					;SHIFT ONE TO THE RIGHT
 	
-	DCR	C					C++
-	JZ	IMULDONE				PROCESSED ALL BITS?
+	DCR	C					;C++
+	JZ	5$					;PROCESSED ALL BITS?
 	
-	JC 	IMUL1					CURRENT BIT == 1?
+	JC 	4$					;CURRENT BIT == 1?
 	
-	INR	B					NO, INCREMENT B
-	JMP	IMULLOOP				AND LOOP
+	INR	B					;NO, INCREMENT B
+	JMP	3$					;AND LOOP
 	
-IMUL1
-*	WE HAVE A ONE - DO THE SHIFT/ADD
-	XCHG						SWAP H-L WITH D-E (WE NEED TO KEEP H-L)
+4$:
+;	WE HAVE A ONE - DO THE SHIFT/ADD
+	XCHG						;SWAP H-L WITH D-E (WE NEED TO KEEP H-L)
 	
-	MOV	A,B					NUMBER OF BITS TO SHIFT
-	LXI	H,IACC1					TEMP ACC1
-	CALL	ISHLP					SHIFT ACC1 TO THE LEFT 'B' TIMES
+	MOV	A,B					;NUMBER OF BITS TO SHIFT
+	LXI	H,INT_ACC1				;TEMP ACC1
+	CALL	INT_SHLP				;SHIFT ACC1 TO THE LEFT 'B' TIMES
 	
-	CALL 	IADD					ADDS TO ACC0
+	CALL 	INT_ADD					;ADDS TO ACC0
 
-	MVI	B,1					RESET SHIFT COUNTER
-	XCHG						GET BACK H-L
-	JMP	IMULLOOP				GO BACK						
+	MVI	B,1					;RESET SHIFT COUNTER
+	XCHG						;GET BACK H-L
+	JMP	3$					;GO BACK						
 	
-IMULDONE
-	POP	PSW					GET PARITY BIT BACK	
-	JP	IMULRET					SAME SIGN - DONT INVERT RESULT
+5$:
+	POP	PSW					;GET PARITY BIT BACK	
+	JP	6$					;SAME SIGN - DONT INVERT RESULT
 	
-	LXI	H,IACC0					
-	CALL	INEG					NEGATES RESULT
+	LXI	H,INT_ACC0					
+	CALL	INT_NEG					;NEGATES RESULT
 	
-IMULRET	
+6$:	
 	POP	H
 	POP	D	
 	POP	B
 
 	RET
 
-**
-*	(INTERNAL - USED BY IDIV)
-*	SHIFTS ONE BIT TO THE LEFT ("32-BITS" REG COMPOSED OF HL(MSW) AND IACC0(LSW))	
-IIDIVLS
-*	ORA	A					CLEARS CARRY BIT
+;*********************************************************
+;* INT_DIVLS: (INTERNAL - USED BY IDIV)
+;* SHIFTS ONE BIT TO THE LEFT ("32-BITS" REG COMPOSED OF 
+;* HL(MSW) AND INT_ACC0(LSW))
+INT_DIVLS:
+;	ORA	A					;CLEARS CARRY BIT
 
-	LDA	IACC0					LSW - LSB
-	RAL						ROTATE LEFT
-	STA	IACC0					PUT BACK
+	LDA	INT_ACC0				;LSW - LSB
+	RAL						;ROTATE LEFT
+	STA	INT_ACC0				;PUT BACK
 	
-	LDA	IACC0+1					LSW - MSB
-	RAL						ROTATE LEFT
-	STA	IACC0+1					PUT BACK
+	LDA	INT_ACC0+1				;LSW - MSB
+	RAL						;ROTATE LEFT
+	STA	INT_ACC0+1				;PUT BACK
 	
-	MOV	A,L					MBW - LSB
-	RAL						ROTATE LEFT
-	MOV	L,A					PUT BACK
+	MOV	A,L					;MBW - LSB
+	RAL						;ROTATE LEFT
+	MOV	L,A					;PUT BACK
 	
-	MOV	A,H					MBW - MSB
-	RAL						ROTATE LEFT
-	MOV	H,A					PUT BACK
+	MOV	A,H					;MBW - MSB
+	RAL						;ROTATE LEFT
+	MOV	H,A					;PUT BACK
 	
 	RET	
-	
-**
-*	DIVIDES IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 / [H-L]
-IDIV
-*	PUSH	B
-*	PUSH	D
-*	PUSH	H
 
-	ORA	A					CLEAR CARRY BIT
+;*********************************************************
+;* INT_DIV: DIVIDES INT_ACC0 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC0 / [H-L]
+INT_DIV::
+;	PUSH	B
+;	PUSH	D
+;	PUSH	H
 
-	MOV	C,M					MSB OF DIVISOR
+	ORA	A					;CLEAR CARRY BIT
+
+	MOV	C,M					;MSB OF DIVISOR
 	INX	H
-	MOV	B,M					LSB OF DIVISOR
+	MOV	B,M					;LSB OF DIVISOR
 	DCX 	H
 	
-	CALL 	INEG					GET -DIVISOR
+	CALL 	INT_NEG					;GET -DIVISOR
 	
-	MOV	E,M					MSB OF -DIVISOR
+	MOV	E,M					;MSB OF -DIVISOR
 	INX	H
-	MOV	D,M					LSB OF -DIVISOR
+	MOV	D,M					;LSB OF -DIVISOR
 	DCX	H
 	
-	CALL	INEG					GET BACK DIVISOR
+	CALL	INT_NEG					;GET BACK DIVISOR
 	
-	MVI	H,0					CLEAR H-L
+	MVI	H,0					;CLEAR H-L
 	MVI	L,0
 
-*	FIRST TIME: 2*A - B
-	CALL	IIDIVLS					2*S
+;	FIRST TIME: 2*A - B
+	CALL	INT_DIVLS				;2*S
 	
-	MOV	A,L					- B
+	MOV	A,L					;- B
 	ADD	E
 	MOV	L,A
 	MOV	A,H
 	ADC	D
 	MOV	H,A
 	
-	MVI	A,15					DO IT 15+1 TIMES
-	STA	IACC1					WE HAVE RAN OUT OF REGISTERS
-*							PUT COUNTER IN MEMORY
+	MVI	A,15					;DO IT 15+1 TIMES
+	STA	INT_ACC1				;WE HAVE RAN OUT OF REGISTERS
+;							;PUT COUNTER IN MEMORY
 
-IDIVLOOP
-	JC	IDIVSUB
+1$:
+	JC	2$
 
-*	no carry
-*	2*A
-	CALL	IIDIVLS					SHIFT EVERYTHING LEFT ONE BIT
-*	2*A + B
-	MOV	A,L					ADDS DIVISOR TO H-L
+;	NO CARRY
+;	2*A
+	CALL	INT_DIVLS				;SHIFT EVERYTHING LEFT ONE BIT
+;	2*A + B
+	MOV	A,L					;ADDS DIVISOR TO H-L
 	ADD	C
 	MOV	L,A
 	MOV	A,H
 	ADC	B
 	MOV	H,A
 
-	JMP	IDIVNEXT
+	JMP	3$
 
-*	2*A - B
-IDIVSUB
-*	2*A
-	LDA	IACC0
+;	2*A - B
+2$:
+;	2*A
+	LDA	INT_ACC0
 	ORI	1
-	STA	IACC0
+	STA	INT_ACC0
 	
-	CALL	IIDIVLS					SHIFT EVERYTHING LEFT ONE BIT
-	MOV	A,L					SUBSTRACTS DIVISOR FROM H-L
+	CALL	INT_DIVLS				;SHIFT EVERYTHING LEFT ONE BIT
+	MOV	A,L					;SUBSTRACTS DIVISOR FROM H-L
 	ADD	E
 	MOV	L,A
 	MOV	A,H
 	ADC	D
 	MOV	H,A
 
-IDIVNEXT
-	LDA	IACC1					GET BACK COUNTER
-	DCR	A					COUNTER--
-	STA	IACC1
-	JNZ	IDIVLOOP
+3$:
+	LDA	INT_ACC1				;GET BACK COUNTER
+	DCR	A					;COUNTER--
+	STA	INT_ACC1
+	JNZ	1$
 	
-	JC	IDIVNOR
+	JC	4$
 	
-*	FINAL STEP: RESTORE
-	MOV	A,L					ADDS DIVISOR TO H-L
+;	FINAL STEP: RESTORE
+	MOV	A,L					;ADDS DIVISOR TO H-L
 	ADD	C
 	MOV	L,A
 	MOV	A,H
 	ADC	B
 	MOV	H,A
 	
-	JMP	IDIVRET
+	JMP	5$
 	
-IDIVNOR
-	LDA	IACC0					SET LAST BIT...
+4$:
+	LDA	INT_ACC0				;SET LAST BIT...
 	ORI	1
-	STA	IACC0
+	STA	INT_ACC0
 		
-IDIVRET
+5$:
 	
-*	POP	H
-*	POP	D
-*	POP	B
+;	POP	H
+;	POP	D
+;	POP	B
 	RET
 	
-**
-*	REMAINDER FROM DIVISION OF IACC0 WITH INTEGER AT [H-L]
-*	IACC0 = IACC0 % [H-L]
-IMOD
-	RET
-	
-	
-**
-*
-*	CONVERTS INTEGER IN IACC0 TO ASCII STRING AT ???
-*	
-IBIN2DEC
+;*********************************************************
+;* INT_ITOA: CONVERTS INTEGER IN INT_ACC0 TO ASCII STRING AT INT_ACCSTR
+INT_ITOA::
 	PUSH	B
 	PUSH	D
 	PUSH	H
 
-*	SAVE IACC0
-	LDA	IACC0
-	MOV	L,A					LOW BYTE
+;	SAVE INT_ACC0
+	LDA	INT_ACC0
+	MOV	L,A					;LOW BYTE
 
-	LDA	IACC0+1
-	MOV	H,A					HIGH BYTE
+	LDA	INT_ACC0+1
+	MOV	H,A					;HIGH BYTE
 
-	PUSH	H					PUSH ON THE STACK
+	PUSH	H					;PUSH ON THE STACK
 
-	ORA	A					UPDATES THE SIGN FLAG
-	PUSH	PSW					WE HAVE TO REMEMBER THE SIGN FLAG
+	ORA	A					;UPDATES THE SIGN FLAG
+	PUSH	PSW					;WE HAVE TO REMEMBER THE SIGN FLAG
 	
-	JP	IBINPOS
+	JP	1$
 	
-	LXI	H,IACC0					
-	CALL	INEG					NEGATES IACC0
+	LXI	H,INT_ACC0					
+	CALL	INT_NEG					;NEGATES INT_ACC0
 	
-IBINPOS
+1$:
 
-*	CLEAR EVERYTHING
+;	CLEAR EVERYTHING
 	LXI	B,0
 	LXI	D,0
 	LXI	H,0
 
 	MVI	L,17
 
-IBINS0	
-	DCR	L					CHECK EXIT CONDITION
-	JZ 	IBINRET
+2$:	
+	DCR	L					;CHECK EXIT CONDITION
+	JZ 	14$
 
-	MOV	A,L					TIME TO SWAP BYTES?
+	MOV	A,L					;TIME TO SWAP BYTES?
 	CPI	8
-	JNZ 	IBINNL
+	JNZ 	3$
 	
-	LDA	IACC0					REPLACE HI BYTE WITH LOW
-	STA	IACC0+1
+	LDA	INT_ACC0				;REPLACE HI BYTE WITH LOW
+	STA	INT_ACC0+1
 	
-IBINNL
-	LDA	IACC0+1					LOAD ACC0 LOW BYTE IN A
+3$:
+	LDA	INT_ACC0+1				;LOAD ACC0 LOW BYTE IN A
 	ORA	A
-	RAL						ROTATE LEFT THRU CARRY
-	STA	IACC0+1					STORE BACK
+	RAL						;ROTATE LEFT THRU CARRY
+	STA	INT_ACC0+1				;STORE BACK
 
 	PUSH	PSW
 
-*******************************************************
-*	BIN2BCD - REG B
+;******************************************************
+;	BIN2BCD - REG B
 	MOV	A,B
-	SUI	$50					SUBSTRACTS 4 FROM HI NIBBLE
-	JM	IBINN1
-	ADI	$30					IF HI NIBBLE >5, ADD 3
-IBINN1
-	ADI	$50					PUT BACK 4 REMOVED BEFORE
+	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
+	JM	4$
+	ADI	0x30					;IF HI NIBBLE >5, ADD 3
+4$:
+	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
 	
-	MOV	B,A					PUT BACK IN B
+	MOV	B,A					;PUT BACK IN B
 	
-*******************************************************
-*	BIN2BCD - REG C
+;******************************************************
+;	BIN2BCD - REG C
 	MOV	A,C
-	SUI	$50					SUBSTRACTS 4 FROM HI NIBBLE
-	JM	IBINN2
-	ADI	$30					IF HI NIBBLE >5, ADD 3
-IBINN2
-	ADI	$50					PUT BACK 4 REMOVED BEFORE
+	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
+	JM	5$
+	ADI	0x30					;IF HI NIBBLE >5, ADD 3
+5$:
+	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
 	
-	MOV	C,A					PUT BACK IN C
+	MOV	C,A					;PUT BACK IN C
 
-*******************************************************
-*	BIN2BCD - REG D
+;******************************************************
+;	BIN2BCD - REG D
 	MOV	A,D
-	SUI	$50					SUBSTRACTS 4 FROM HI NIBBLE
-	JM	IBINN3
-	ADI	$30					IF HI NIBBLE >5, ADD 3
-IBINN3
-	ADI	$50					PUT BACK 4 REMOVED BEFORE
+	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
+	JM	6$
+	ADI	0x30					;IF HI NIBBLE >5, ADD 3
+6$:
+	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
 	
-	MOV	D,A					PUT BACK IN B
+	MOV	D,A					;PUT BACK IN B
 
-*******************************************************
-*	BIN2BCD - REG E
+;******************************************************
+;	BIN2BCD - REG E
 	MOV	A,E
-	SUI	$50					SUBSTRACTS 4 FROM HI NIBBLE
-	JM	IBINN4
-	ADI	$30					IF HI NIBBLE >5, ADD 3
-IBINN4
-	ADI	$50					PUT BACK 4 REMOVED BEFORE
+	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
+	JM	7$
+	ADI	0x30					;IF HI NIBBLE >5, ADD 3
+7$:
+	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
 	
-	MOV	E,A					PUT BACK IN B
+	MOV	E,A					;PUT BACK IN B
 
-*******************************************************
-*	BIN2BCD - REG H
+;******************************************************
+;	BIN2BCD - REG H
 	MOV	A,H
-	SUI	$50					SUBSTRACTS 4 FROM HI NIBBLE
-	JM	IBINN5
-	ADI	$30					IF HI NIBBLE >5, ADD 3
-IBINN5
-	ADI	$50					PUT BACK 4 REMOVED BEFORE
+	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
+	JM	8$
+	ADI	0x30					;IF HI NIBBLE >5, ADD 3
+8$:
+	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
 	
-	MOV	H,A					PUT BACK IN B
+	MOV	H,A					;PUT BACK IN B
 
 	POP	PSW
 
-*******************************************************
-*	MUSICAL CHAIR...
-*******************************************************
-*	(B)  ->  C  ->  D  ->  E  ->  H  	
-	MOV	A,B					B IN A	
+;******************************************************
+;	MUSICAL CHAIR...
+;******************************************************
+;	(B)  ->  C  ->  D  ->  E  ->  H  	
+	MOV	A,B					;B IN A	
 
-	JNC	IBINS1					SET BIT 3?
+	JNC	9$					;SET BIT 3?
 
-	ORI	8					YES		
-IBINS1
-	RAL						ROTATE LEFT THRU CARRY
-	MOV	B,A					PUT BACK IN B
+	ORI	8					;YES		
+9$:
+	RAL						;ROTATE LEFT THRU CARRY
+	MOV	B,A					;PUT BACK IN B
 	
-*******************************************************
-*	 B   -> (C) ->  D  ->  E  ->  H  	
-	MOV	A,C					C IN A	
+;******************************************************
+;	 B   -> (C) ->  D  ->  E  ->  H  	
+	MOV	A,C					;C IN A	
 
-	JNC	IBINS2					SET BIT 3?
+	JNC	10$					;SET BIT 3?
 
-	ORI	8					YES		
-IBINS2
-	RAL						ROTATE LEFT THRU CARRY
-	MOV	C,A					PUT BACK IN C
+	ORI	8					;YES		
+10$:
+	RAL						;ROTATE LEFT THRU CARRY
+	MOV	C,A					;PUT BACK IN C
 	
-*******************************************************
-*	 B   ->  C  -> (D) ->  E  ->  H  	
-	MOV	A,D					D IN A	
+;******************************************************
+;	 B   ->  C  -> (D) ->  E  ->  H  	
+	MOV	A,D					;D IN A	
 
-	JNC	IBINS3					SET BIT 3?
+	JNC	11$					;SET BIT 3?
 
-	ORI	8					YES		
-IBINS3
-	RAL						ROTATE LEFT THRU CARRY
-	MOV	D,A					PUT BACK IN D
+	ORI	8					;YES		
+11$:
+	RAL						;ROTATE LEFT THRU CARRY
+	MOV	D,A					;PUT BACK IN D
 	
-*******************************************************
-*	 B   ->  C  ->  D  -> (E) ->  H  	
-	MOV	A,E					E IN A	
+;******************************************************
+;	 B   ->  C  ->  D  -> (E) ->  H  	
+	MOV	A,E					;E IN A	
 
-	JNC	IBINS4					SET BIT 3?
+	JNC	12$					;SET BIT 3?
 
-	ORI	8					YES		
-IBINS4
-	RAL						ROTATE LEFT THRU CARRY
-	MOV	E,A					PUT BACK IN E
+	ORI	8					;YES		
+12$:
+	RAL						;ROTATE LEFT THRU CARRY
+	MOV	E,A					;PUT BACK IN E
 
 
-*******************************************************
-*	 B   ->  C  ->  D  ->  E  -> (H)  	
-	MOV	A,H					H IN A	
+;******************************************************
+;	 B   ->  C  ->  D  ->  E  -> (H)  	
+	MOV	A,H					;H IN A	
 
-	JNC	IBINS5					SET BIT 3?
+	JNC	13$					;SET BIT 3?
 
-	ORI	8					YES		
-IBINS5
-	RAL						ROTATE LEFT THRU CARRY
-	MOV	H,A					PUT BACK IN H
+	ORI	8					;YES		
+13$:
+	RAL						;ROTATE LEFT THRU CARRY
+	MOV	H,A					;PUT BACK IN H
 
-	JMP	IBINS0
+	JMP	2$
 	
-IBINRET
+14$:
+	POP	PSW					;GET BACK THE SIGN FLAG
 
-	POP	PSW					GET BACK THE SIGN FLAG
-
-********************************************************
-* 	PUT IN IACCSTR (STRING - UNFORMATTED)
-	JP	IBINSP
+;*******************************************************
+; 	PUT IN INT_ACCSTR (STRING - UNFORMATTED)
+	JP	15$
 	
-	MVI	A,'-'
-	JMP	IBINSC
-IBINSP
-	MVI	A,' '
+	MVI	A,#'-
+	JMP	16$
+15$:
+	MVI	A,#' 
 
-IBINSC
-	STA	IACCSTR					SIGN CHAR
+16$:
+	STA	INT_ACCSTR				;SIGN CHAR
 	
-*	N * 10000	
+;	N * 10000	
 	MOV	A,H	
 	RRC
-	RRC						DIVIDE BY 16 
-	RRC						(HI NIBBLE -> LOW)
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
 	RRC						
-	ADI	'0'					CONVERT TO CHAR
-	STA	IACCSTR+1				PUT IN STRING
+	ADI	#'0					;CONVERT TO CHAR
+	STA	INT_ACCSTR+1				;PUT IN STRING
 
-*	N * 1000	
+;	N * 1000	
 	MOV	A,E
 	RRC
-	RRC						DIVIDE BY 16 
-	RRC						(HI NIBBLE -> LOW)
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
 	RRC						
-	ADI	'0'					CONVERT TO CHAR
-	STA	IACCSTR+2				PUT IN STRING
+	ADI	#'0					;CONVERT TO CHAR
+	STA	INT_ACCSTR+2				;PUT IN STRING
 
-*	N * 100
+;	N * 100
 	MOV	A,D
 	RRC
-	RRC						DIVIDE BY 16 
-	RRC						(HI NIBBLE -> LOW)
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
 	RRC						
-	ADI	'0'					CONVERT TO CHAR
-	STA	IACCSTR+3				PUT IN STRING
+	ADI	#'0					;CONVERT TO CHAR
+	STA	INT_ACCSTR+3				;PUT IN STRING
 	
-*	N * 10
+;	N * 10
 	MOV	A,C
 	RRC
-	RRC						DIVIDE BY 16 
-	RRC						(HI NIBBLE -> LOW)
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
 	RRC						
-	ADI	'0'					CONVERT TO CHAR
-	STA	IACCSTR+4				PUT IN STRING
+	ADI	#'0					;CONVERT TO CHAR
+	STA	INT_ACCSTR+4				;PUT IN STRING
 	
-*	N * 1
+;	N * 1
 	MOV	A,B
 	RRC
-	RRC						DIVIDE BY 16 
-	RRC						(HI NIBBLE -> LOW)
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
 	RRC						
-	ADI	'0'					CONVERT TO CHAR
-	STA	IACCSTR+5				PUT IN STRING
+	ADI	#'0					;CONVERT TO CHAR
+	STA	INT_ACCSTR+5				;PUT IN STRING
 	
 	MVI	A,0
-	STA	IACCSTR+6
+	STA	INT_ACCSTR+6
 	
 
-*	RESTORE IACC0
+;	RESTORE INT_ACC0
 	POP	H
 	
 	MOV	A,L
-	STA	IACC0					LOW BYTE
+	STA	INT_ACC0				;LOW BYTE
 	
 	MOV	A,H
-	STA	IACC0+1					HIGH BYTE
+	STA	INT_ACC0+1				;HIGH BYTE
 
 
 	POP	H
@@ -877,4 +824,18 @@ IBINSC
 	
 	RET
 	
+
+;*********************************************************
+;* RAM VARIABLES
+;*********************************************************
+
+.area	DATA	(REL,CON)
+
+INT_ACC0::	.ds	2
+INT_ACC1::	.ds	2
+INT_ACC2::	.ds	2
+INT_ACC3::	.ds 	2
+
+INT_ACCSTR::	.ds	7
+
 
