@@ -1,4 +1,5 @@
 @ECHO OFF
+..\..\bin\AS8085.EXE -lo main
 ..\..\bin\AS8085.EXE -lo ..\common\common
 ..\..\bin\AS8085.EXE -lo ..\error\error
 ..\..\bin\AS8085.EXE -lo ..\expreval\evaluate
