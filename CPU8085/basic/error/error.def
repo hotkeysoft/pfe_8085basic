@@ -1,6 +1,7 @@
 
 	.globl	ERR_RESTARTPTR
 
+	.globl	ERR_BREAK
 	.globl	ERR_UNKNOWN
 	.globl	ERR_NOENDSTR
 	.globl	ERR_INVALIDCHAR
