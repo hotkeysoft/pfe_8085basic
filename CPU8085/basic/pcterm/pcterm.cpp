@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <conio.h>
 #include <mem.h>
+#include <iostream.h>
+#include <fstream.h>
+#include <string.h>
 
 #define PORT1 0x2F8
 
@@ -58,7 +61,7 @@ bool isEmpty(int line)
 	return true;
 }
 
-void io_putChar(char ch)
+void io_putChar(unsigned char ch)
 {
 	char in;
 
@@ -71,7 +74,7 @@ void io_putChar(char ch)
 	outportb(PORT1, ch);
 }
 
-bool io_getChar(char &ch)
+bool io_getChar(unsigned char &ch)
 {
 	ch = inportb(PORT1 + 5);     /* Check to see if char has been */
 								/* received.                     */
@@ -84,9 +87,18 @@ bool io_getChar(char &ch)
 	return false;
 }
 
-char waitForChar()
+void io_putLine(const char *str)
 {
-	char ch = 0;
+	for (int i=0; i<80 && str[i]; ++i)
+	{
+		io_putChar(str[i]);
+	}
+	io_putChar(13);
+}
+
+unsigned char waitForChar()
+{
+	unsigned char ch = 0;
 
 	while (io_getChar(ch) == false);
 
@@ -159,9 +171,9 @@ void fb_setcolor(char c)
 
 void fb_gotoxy(char x, char y)
 {
-	if (x < 79 && y < 25)
+	if (x < 79 && y <= 25)
 	{
-		short offset = (y*160) + (x*2);
+		short offset = ((y-1)*160) + ((x-1)*2);
 		fb_currpos = fb_buffer + offset;
 
 		updateCursor();
@@ -187,6 +199,17 @@ void fb_insertLine()
 	}
 
 	fb_memsetw(temp, 0, fb_defattr, 80);
+}
+
+void fb_tab()
+{
+	fb_currpos = ((fb_currpos-fb_buffer)/16+1)*16 + fb_buffer;
+
+	if (fb_currpos >= fb_buffer+fb_size)
+	{
+		fb_scrollup();
+		fb_currpos = fb_buffer+fb_size - 160;
+	}
 }
 
 void putChar(const char c)
@@ -429,8 +452,7 @@ void sendLine()
 	{
 		if (tempStr[j] != 32)
 		{
-			tempStr[j+1] = 13;
-			tempStr[j+2] = 0;
+			tempStr[j+1] = 0;
 			break;
 		}
 	}
@@ -440,17 +462,96 @@ void sendLine()
 		tempStr[0] = 0;
 	}
 
-	for (i=0; i<80 && tempStr[i]; ++i)
-	{
-		io_putChar(tempStr[i]);
-	}
+	io_putLine(tempStr);
 
 	delete []tempStr;
 }
 
+void upload()
+{
+	char Filename[16];
+	char line[256];
+
+	clrscr();
+	cout << "File to load? ";
+	cin.getline(Filename, 16);
+
+	ifstream fs(Filename);
+	if (!fs)
+	{
+		cout << "File not found" << endl;
+		do; while (kbhit==0);
+		getch();
+		clrscr();
+		fb_gotoxy(1,1);
+		return;
+	}
+
+	io_putLine("new");
+
+	while(fs)
+	{
+		fs.getline(line,256);
+		io_putLine(line);
+	}
+
+	fs.close();
+
+	clrscr();
+	fb_gotoxy(1,1);
+}
+
+void download()
+{
+	char Filename[16];
+	char line[256];
+	unsigned char ch;
+
+	clrscr();
+	cout << "File to save as? ";
+	cin.getline(Filename, 16);
+
+	ofstream fs(Filename);
+
+	io_putLine("list");
+
+	char *ptr = line;
+	*ptr = 0;
+
+	while(1)
+	{
+		if (io_getChar(ch) == true)
+		{
+			if (ch == 13)
+			{
+				*ptr++ = 0;
+
+				if (strcmp(line, "Ready.") == 0)
+				{
+					break;
+				}
+
+				fs << line << endl;
+
+				ptr = line;
+				*ptr = 0;
+			}
+			else
+			{
+				*ptr++ = ch;
+			}
+		}
+	}
+
+	fs.close();
+
+	clrscr();
+	fb_gotoxy(1,1);
+}
+
 void main(void)
 {
-	char ch;
+	unsigned char ch;
 
 	outportb(PORT1 + 1 , 0);   /* Turn off interrupts - Port1 */
 
@@ -467,7 +568,8 @@ void main(void)
 					/*         0x30 =   2,400 BPS */
 	outportb(PORT1 + 1 , 0x00);  /* Set Baud rate - Divisor Latch High Byte */
 	outportb(PORT1 + 3 , 0x03);  /* 8 Bits, No Parity, 1 Stop Bit */
-	outportb(PORT1 + 2 , 0xC7);  /* FIFO Control Register */
+//	outportb(PORT1 + 2 , 0xC7);  /* FIFO Control Register */
+	outportb(PORT1 + 2 , 0x00);  /* FIFO Control Register */
 	outportb(PORT1 + 4 , 0x0B);  /* Turn on DTR, RTS, and OUT2 */
 
 	fb_cls();
@@ -478,7 +580,11 @@ void main(void)
 		// Check for data coming from remote computer
 		if (io_getChar(ch) == true)
 		{
-			if (ch == 255 || ch == 1)
+			if (ch == 9) // tab
+			{
+				fb_tab();
+			}
+			else if (ch == 1)
 			{
 				processChar();
 			}
@@ -491,7 +597,10 @@ void main(void)
 				}
 				else
 				{
-					putChar(ch);
+					if (ch < 255)
+					{
+						putChar(ch);
+					}
 				}
 			}
 		}
@@ -505,6 +614,14 @@ void main(void)
 			{
 				fb_backspace();
 			}
+			else if (ch == 9)
+			{
+				fb_tab();
+			}
+			else if (ch == 27) // Escape
+			{
+				outportb(PORT1, 27);
+			}
 			else if (ch == 0)
 			{
 				ch = getch();
@@ -517,6 +634,8 @@ void main(void)
 				{
 					switch (ch)
 					{
+						case 0x49:  upload(); 		break;
+						case 0x51:	download(); 	break;
 						case 0x48:	fb_moveup();	break;
 						case 0x4b:	fb_moveleft();	break;
 						case 0x4d:	fb_moveright();	break;
@@ -542,7 +661,10 @@ void main(void)
 				}
 				else
 				{
-					putChar(ch);
+					if (ch >= 32 && ch < 255)
+					{
+						putChar(ch);
+					}
 				}
 			}
 		}
