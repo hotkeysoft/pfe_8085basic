@@ -110,9 +110,7 @@ EXP_EXPREVAL::
 
 3$:	; END
 	CALL	EXP_DO_END
-	MOV	A,C				; QUIT IF EXECUTE = TRUE
-	CPI	TRUE				; ELSE LOOP
-	JZ	101$
+	JC	101$
 	JMP	100$
 
 4$:	; NEW
@@ -145,7 +143,7 @@ EXP_EXPREVAL::
 
 11$:	; GOTO
 	CALL	EXP_DO_GOTO
-	JZ	101$				; EXIT
+	JC	101$				; EXIT
 	JMP	100$
 
 12$:	; GOSUB
@@ -155,7 +153,7 @@ EXP_EXPREVAL::
 
 13$:	; RETURN
 	CALL	EXP_DO_RETURN
-	JZ	101$				; EXIT
+	JC	101$				; EXIT
 	JMP	100$
 
 14$:	; CLS
@@ -226,14 +224,20 @@ EXP_DO_LIST:
 ;*********************************************************
 ;* EXP_DO_END: 	EXECUTE END
 ;*		IN: C = EXECUTE
+;*		OUT: CF = 1 IF MUST EXIT
 EXP_DO_END:
 	INX	H			; SKIP KEYWORD
 
 	MOV	A,C
 	CPI	FALSE			; CHECK EXECUTE FLAG
-	RZ
+	JZ	1$
 
 	CALL	PRG_END
+	STC
+	RET
+
+1$:
+	ORA	A
 	RET
 
 ;*********************************************************
@@ -552,15 +556,21 @@ EXP_DO_RUN:
 ;*********************************************************
 ;* EXP_DO_RETURN:	EXECUTE RETURN
 ;*			IN: C = EXECUTE
+;*			OUT: CF = 1 IF MUST EXIT
 EXP_DO_RETURN:
 	INX	H			; SKIP KEYWORD
 
 	MOV	A,C
 	CPI	FALSE			; CHECK EXECUTE FLAG
-	RZ
+	JZ	1$
 
 	CALL	PRG_RETURN		; EXECUTE RETURN
-	
+
+	STC
+	RET
+		
+1$:
+	ORA	A
 	RET
 
 ;*********************************************************
@@ -700,31 +710,39 @@ EXP_DO_FOR::
 
 	POP	D
 	POP	B
+	STC
 	RET
 	
 100$:
 	ORA	A
 	POP	D
 	POP	B
+	ORA	A
 	RET
 
 ;*********************************************************
 ;* EXP_DO_NEXT:		EXECUTE NEXT
 ;*			IN: C = EXECUTE
+;*			OUT: CF = 1 IF MUST EXIT
 EXP_DO_NEXT:
 	INX	H			; SKIP KEYWORD
 
 	MOV	A,C
 	CPI	FALSE			; CHECK EXECUTE FLAG
-	RZ
+	JZ	1$
 
 	CALL	PRG_NEXT		; EXECUTE NEXT
+	STC
+	RET
 	
+1$:
+	ORA	A
 	RET
 
 ;*********************************************************
 ;* EXP_DO_GOTO:		EXECUTE GOTO
 ;*			IN: C = EXECUTE
+;*			OUT: CF = 1 IF MUST EXIT
 EXP_DO_GOTO:
 	INX	H			; SKIP KEYWORD
 	
@@ -743,6 +761,7 @@ EXP_DO_GOTO:
 	ORA	H			; HI BYTE IN ACC
 	JM	ERR_ILLEGAL		; VALUE MUST BE POSITIVE
 
+	ORA	A
 	MOV	A,C			; CHECK EXECUTE FLAG
 	CPI	FALSE
 	JZ	1$
@@ -753,6 +772,7 @@ EXP_DO_GOTO:
 	MOV	C,L
 
 	CALL	PRG_GOTO		; EXECUTE GOTO
+	STC
 
 	POP	B
 1$:
@@ -764,7 +784,7 @@ EXP_DO_GOTO:
 ;* EXP_DO_GOSUB:	EXECUTE GOSUB
 ;*			IN: B = INIF
 ;*			IN: C = EXECUTE
-;*			OUT: CF = 0 IF IMMEDIATE MODE, ELSE 1
+;*			OUT: CF = 1 IF MUST EXIT
 EXP_DO_GOSUB::
 	PUSH	B
 	PUSH	D
@@ -801,13 +821,14 @@ EXP_DO_GOSUB::
 
 	POP	D
 	POP	B
+	STC	
 	RET
 
 1$:	; EXECUTE = FALSE
-	ORA	A			; RESET CARRY
 	POP	H
 	POP	D
 	POP	B
+	ORA	A	
 	RET
 
 ;*********************************************************
