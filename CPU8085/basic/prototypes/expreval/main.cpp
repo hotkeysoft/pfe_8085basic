@@ -122,6 +122,7 @@ int main(int argc, char* argv[])
 
 				expreval((char *)(Memory+256));
 				std::cout << "Ready." << std::endl;
+				CStrings::Dump();
 //				CExprStack::Dump();
 			}
 		}

@@ -439,9 +439,6 @@ void DoIf(bool execute)
 	}
 	else if (*currIn == K_GOTO)
 	{
-//		++currIn;
-
-		//DoGoto(result);
 		Execute(true, result);
 	}
 	else throw CError(E_EXP_SYNTAX);
@@ -481,6 +478,7 @@ void Execute(bool inIf, bool execute)
 		case K_IF:			DoIf(execute);			break;
 		case K_ELSE:		DoElse(inIf, execute);	break;
 		case K_GOTO:		DoGoto(execute);		break;
+		case K_REM:			while (*currIn) ++currIn;	return;
 
 		default: throw CError();
 		}
