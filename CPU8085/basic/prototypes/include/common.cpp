@@ -297,6 +297,17 @@ float GetFloat(BYTE *var)
 	return *((float *)(var+1));
 }
 
+BYTE *GetStr(BYTE *var, BYTE &size)
+{
+	assert(*var == SID_CSTR);
+	size = *(var+1);
+
+	WORD offset = *((WORD *)(var+2));
+
+	return Memory+offset;
+}
+
+
 void SetInt(BYTE *var, short value)
 {
 	*var = SID_CINT;
@@ -307,4 +318,12 @@ void SetFloat(BYTE *var, float value)
 {
 	*var = SID_CFLOAT;
 	*((float  *)(var+1)) = value;
+}
+
+void SetStr(BYTE *var, BYTE *addr, BYTE size)
+{
+	*var = SID_CSTR;
+	*(var+1) = size;
+	
+	*((WORD *)(var+2)) = addr-Memory;
 }
