@@ -27,5 +27,47 @@ START:
 	EI				;ENABLE INTERRUPTS
 
 
+;*********************************************************
+;* TEST C_ISDIGIT FUNCTION
+	MVI	A,'0		; CF = 1
+	CALL	C_ISDIGIT
+	
+	MVI	A,'9		; CF = 1
+	CALL	C_ISDIGIT
+	
+	MVI	A,'0 - 1	; CF = 0
+	CALL	C_ISDIGIT
+	
+	MVI	A,'9 + 1	; CF = 0
+	CALL 	C_ISDIGIT
+
+;*********************************************************
+;* TEST C_ISALPHA FUNCTION
+	MVI	A,'A
+	CALL	C_ISALPHA		; CF = 1
+	
+	MVI	A,'Z
+	CALL	C_ISALPHA		; CF = 1
+	
+	MVI	A,'a
+	CALL	C_ISALPHA		; CF = 1
+	
+	MVI	A,'z
+	CALL 	C_ISALPHA		; CF = 1
+
+	MVI	A,'A - 1
+	CALL	C_ISALPHA		; CF = 0
+	
+	MVI	A,'Z + 1
+	CALL	C_ISALPHA		; CF = 0
+	
+	MVI	A,'a - 1
+	CALL	C_ISALPHA		; CF = 0
+	
+	MVI	A,'z + 1
+	CALL 	C_ISALPHA		; CF = 0
+
+
+
 LOOP:
 	JMP	LOOP
