@@ -470,30 +470,30 @@ TOK_UNTOKENIZE::
 	PUSH	B
 	PUSH	D
 	
-LOOP:
+1$:
 	MOV	A,M				; CURRENT CHAR IN ACC
 	
 	CPI	0				; CHECK FOR END OF STRING
-	JZ	END
+	JZ	6$
 	
 	CPI	SID_CINT			; INT?
-	JZ	INT
+	JZ	2$
 	
 	CPI	SID_CSTR
-	JZ	STR
+	JZ	3$
 	
 	CPI	SID_VAR
-	JZ	VAR
+	JZ	4$
 	
 	CPI	0x80
-	JAE	TOKEN
+	JAE	5$
 	
 	CALL	IO_PUTC				; MISC CHAR 
 	
 	INX	H				; NEXT CHAR
-	JMP	LOOP				; LOOP
+	JMP	1$				; LOOP
 	
-INT:
+2$:	;INTEGER
 	INX	H				; HL++
 	
 	MOV	E,M				; READ INT IN DE (LO)
@@ -508,10 +508,9 @@ INT:
 	CALL	IO_PUTS				; PRINT IT
 
 	XCHG					; GET BACK PTR
-	JMP	LOOP				; LOOP
+	JMP	1$				; LOOP
 
-STR:
-
+3$:	;STRING
 	INX	H				; NEXT CHAR
 	
 	MOV	B,M				; LENGTH OF STRING IN B
@@ -525,9 +524,9 @@ STR:
 	MVI	A,'"
 	CALL	IO_PUTC
 	
-	JMP	LOOP				; LOOP
+	JMP	1$				; LOOP
 
-VAR:
+4$:	;VARIABLE
 	INX	H
 	
 	MOV	B,M				; READ TAG
@@ -542,9 +541,9 @@ VAR:
 	CALL	IO_PUTS				; PRINT IT
 	
 	XCHG
-	JMP	LOOP				; LOOP
+	JMP	1$				; LOOP
 
-TOKEN:
+5$:	;TOKEN
 	XCHG					; SWAP HL<->DE
 	CALL 	TOK_FINDTOKENSTR		; FIND TEXT EQUIVALENT
 	CALL	IO_PUTS				; PRINT STRING
@@ -552,11 +551,11 @@ TOKEN:
 	XCHG					; SWAP HL<->DE
 
 	INX	H				; NEXT CHAR
-	JMP	LOOP				; LOOP
+	JMP	1$				; LOOP
 
-END:
+6$:
 	POP	D
-	POP	H
+	POP	B
 	RET
 
 ;*********************************************************
