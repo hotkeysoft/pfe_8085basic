@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "expreval.h"
+#include "exprstack.h"
 
 BYTE *currOut;
 BYTE *currIn;
@@ -159,21 +160,24 @@ void L7()
 	switch(*currIn)
 	{
 	case SID_CINT:
-		memcpy(currOut, currIn, sizeof(short)+1);
-		currOut += sizeof(short)+1;
+		CExprStack::push(currIn);
 		currIn += sizeof(short)+1;
 		break;
 	case SID_CFLOAT:
-		memcpy(currOut, currIn, sizeof(float)+1);
+		CExprStack::push(currIn);
 		currIn += sizeof(float)+1;
-		currOut += sizeof(float)+1;
 		break;
 	case SID_VAR:
-		memcpy(currOut, currIn, 3);
+		CExprStack::push(currIn);
 		currIn += 3;
-		currOut += 3;
 		break;
-//	case SID_CSTR:
+	case SID_CSTR:
+		{
+			BYTE length = *(currIn+1);
+			CExprStack::push(currIn);
+			currIn += length+2;
+		}
+		break;
 	default:
 		if (*currIn == '(')
 		{
