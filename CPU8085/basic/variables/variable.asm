@@ -80,11 +80,6 @@ VAR_GET::
 
 	LDAX	D				; BYTE 3
 	MOV	M,A		
-	INX	D
-	INX	H
-
-	LDAX	D				; BYTE 4
-	MOV	M,A		
 	
 	POP	H				; GET BACK HL
 
