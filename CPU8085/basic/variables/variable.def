@@ -1,4 +1,12 @@
 
+	.globl	VAR_LOPTR
+	.globl	VAR_HIPTR
+
 	.globl	VAR_TEMP1
 	.globl	VAR_TEMP2
 	.globl	VAR_TEMP3
+	
+	
+	; TESTS ONLY
+	.globl	VAR_INTERNALNEW
+	.globl	VAR_INTERNALGET
