@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "common.h"
+#include <math.h>
 
 Keyword keywords[] = {
 	// arithmetic operators
@@ -161,6 +162,106 @@ bool Name2Tag(std::string name, WORD tag[2])
 			return false;
 		}
 	}
+
+	return true;
+}
+
+bool stringToFloat(const char *currIn, float &number, int &length)
+{
+	length = 0;
+	number = 0;
+
+	int ExpInt = 0;
+
+	int Exp = 0;	
+	bool ExpPositive = true;
+
+
+	bool positive = true;
+
+	// sign
+	if (*currIn == '-')
+	{
+		positive = false;
+		++currIn;
+		++length;
+	}
+	else if (*currIn == '+')
+	{
+		positive = true;
+		++currIn;
+		++length;
+	}
+
+	// integer part
+	while(isdigit(*currIn))
+	{
+		number *= 10.0;
+		number += (*currIn - '0');
+
+		++currIn;
+		++length;
+	}
+
+	// decimal part
+	if (*currIn == '.')
+	{
+		++currIn;
+		++length;
+
+		while(isdigit(*currIn))
+		{
+			number *= 10.0;
+			number += (*currIn - '0');
+
+			++currIn;
+			++length;
+
+			--ExpInt;
+		}
+	}
+
+	// exp part
+	if (toupper(*currIn) == 'E')
+	{
+		++currIn;
+		++length;
+
+		// sign
+		if (*currIn == '-')
+		{
+			ExpPositive = false;
+			++currIn;
+			++length;
+		}
+		else if (*currIn == '+')
+		{
+			ExpPositive = true;
+			++currIn;
+			++length;
+		}
+
+		while(isdigit(*currIn))
+		{
+			Exp *= 10;
+			Exp += (*currIn - '0');
+
+			++currIn;
+			++length;
+		}
+
+		if (ExpPositive == false)
+		{
+			Exp = -Exp;
+		}
+	}
+
+	if (positive == false)
+	{
+		number = -number;
+	}
+
+	number *= pow(10, Exp+ExpInt);
 
 	return true;
 }

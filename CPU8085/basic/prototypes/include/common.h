@@ -6,7 +6,7 @@
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 
-enum StackID {	SID_CINT=1, SID_SFLOAT=2, SID_CSTR=4,
+enum StackID {	SID_CINT=1, SID_CFLOAT=2, SID_CSTR=4,
 				SID_VAR=8,	SID_FBASE=128};
 
 const std::string variableNameStr = " 0123456789"\
@@ -90,5 +90,7 @@ extern Keyword keywords[];
  
 bool Tag2Name(const WORD tag[2], std::string &name);
 bool Name2Tag(std::string name, WORD tag[2]);
+
+bool stringToFloat(const char *currIn, float &number, int &length);
 
 #endif
