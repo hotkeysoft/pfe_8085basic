@@ -13,6 +13,8 @@ Error errorStr[] = {
 	E_EXP_ILLEGAL,			"EXP: Illegal argument",
 	E_EXP_DIVZERO,			"EXP: Division by zero",
 
+	E_VAR_NOTINIT,			"VAR: Variable used before initialization",
+
 	E_UNKNOWN,			"Unknown Error"
 };
 
@@ -27,6 +29,12 @@ std::ostream &operator<< (std::ostream &os, const CError &e)
 			if (e.m_symbol != 0)
 			{
 				os << "E_" << current->text << ": '" << e.m_symbol << "'" << std::endl;
+			}
+			else if (e.m_tag[0] != 0)
+			{
+				std::string name;
+				Tag2Name(e.m_tag, name);
+				os << "E_" << current->text << ": '" << name << "'" << std::endl;
 			}
 			else
 			{
