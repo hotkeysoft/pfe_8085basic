@@ -6,6 +6,7 @@
 #include "..\tokenize\tokenize.h"
 #include "..\tokenize\untokenize.h"
 #include "..\variables\variables.h"
+#include "..\strings\strings.h"
 #include "expreval.h"
 #include "exprstack.h"
 
@@ -34,29 +35,41 @@ int main(int argc, char* argv[])
 	BYTE tag4[2];
 	BYTE tag5[2];
 
-	Name2Tag("pi", tag1);
-	Name2Tag("sh%", tag2);
-	Name2Tag("a", tag3);
-	Name2Tag("b", tag4);
-	Name2Tag("c", tag5);
-
-	SetFloat(tempVar1, (float)3.141592654);
-	CVariables::Set(tag1, tempVar1);
-
-	SetInt(tempVar1, 100);
-	CVariables::Set(tag2, tempVar1);
-
-	SetFloat(tempVar1, (float)10.0);
-	CVariables::Set(tag3, tempVar1);
-
-	SetFloat(tempVar1, (float)7.0);
-	CVariables::Set(tag4, tempVar1);
-
-	SetFloat(tempVar1, (float)-2.0);
-	CVariables::Set(tag5, tempVar1);
+	try
+	{
 
 
-	CVariables::Dump();
+		Name2Tag("pi", tag1);
+		Name2Tag("sh%", tag2);
+		Name2Tag("a", tag3);
+		Name2Tag("b", tag4);
+		Name2Tag("a$", tag5);
+
+		SetFloat(tempVar1, (float)3.141592654);
+		CVariables::Set(tag1, tempVar1);
+
+		SetInt(tempVar1, 100);
+		CVariables::Set(tag2, tempVar1);
+
+		SetFloat(tempVar1, (float)10.0);
+		CVariables::Set(tag3, tempVar1);
+
+		SetFloat(tempVar1, (float)7.0);
+		CVariables::Set(tag4, tempVar1);
+
+		BYTE *addr = CStrings::Allocate(0, 4);
+		memcpy((char *)addr, "1234", 4);
+
+		SetStr(tempVar1, addr, 4);
+
+		CVariables::Set(tag5, tempVar1);
+
+		CVariables::Dump();
+	}
+	catch (CError e)
+	{
+		std::cerr << e;
+	}
 
 	while (1)
 	{
