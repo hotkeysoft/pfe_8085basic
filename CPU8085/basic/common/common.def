@@ -1,4 +1,6 @@
 
+	DEBUG == ~0
+
 	; STACK ID
 	.globl	SID_CINT
 	.globl	SID_CFLOAT
