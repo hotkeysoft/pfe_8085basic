@@ -38,5 +38,5 @@
 
 	.globl	IO_DELAY
 
-
+	.globl	TICNT
 	
