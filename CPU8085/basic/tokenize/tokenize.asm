@@ -264,8 +264,139 @@ TOK_TOKENIZE1::
 
 	RET
 	
-	
+;*********************************************************
+;* TOK_TOKENIZE2:  TOKENIZE, PASS 2: ENCODES VARIABLES
+;*		   & CONSTANTS.  
+;*		   INPUT STRING IN (D-E)
+;*		   OUTPUT STRING IN (H-L)
 TOK_TOKENIZE2::
+
+	PUSH	D
+	PUSH	H
+
+	MVI	A,0
+	STA	TOK_LASTTOKEN			; LAST TOKEN = 0
+
+LOOP:
+	LDAX	D				; CURRIN IN ACC
+	
+	ORA	A				; CHECK IF NULL
+	JZ	EXIT				; IF SO, EXIT
+
+	CPI	0xFF				; SKIP 0xFF
+	JZ	SKIPIT
+	
+	CPI	0x80				; ACC >= 0x80 ->
+	JAE	TOKEN				; FOUND TOKEN
+	
+	; STRING CONSTANT
+	CPI	'"	
+	JZ	STRING
+	
+	
+;/////////////////////////////////////////////
+
+	; CHECK FOR DELIMITERS
+	CPI	'(
+	JZ	COPY
+	
+	CPI	')
+	JZ	COPY
+	
+	CPI	';
+	JZ	COPY
+	
+	CPI	',
+	JZ	COPY
+	
+	CPI	':
+	JZ	COPY
+
+	; CHECK FOR WHITESPACE
+	CPI	' 		
+	JZ	DEFAULT
+
+; INVALID CHAR
+	HLT	
+
+SKIPIT:
+	INX	D				; INSTR++	
+	JMP	LOOP				; LOOP
+
+TOKEN:
+	MOV	M,A				; COPY CHAR TO OUTSTR
+	STA	TOK_LASTTOKEN			; SET LASTTOKEN
+	INX	D				; INSTR++
+	INX	H				; OUTSTR++
+	
+	CPI	K_REM				; CHECK IF REM STATEMENT
+	JNZ	LOOP				; IF NOT, LOOP
+	
+	;REM STATEMENT
+	INX	D				; INSTR += 2 (SKIP 'E' 'M')
+	INX	D
+
+ILOOP:
+	LDAX	D				; CURRIN IN ACC
+	ORA	A				; CHECK IF END OF STR
+	JZ	EXIT				; IF SO, EXIT
+	
+	MOV	M,A				; COPY CHAR TO OUTSTR
+	
+	INX	D				; INSTR++
+	INX	H				; OUTSTR++
+	JMP	ILOOP				; LOOP
+
+STRING:
+	MVI	A,SID_CSTR
+	MOV	M,A				; STRING ID
+	STA	TOK_LASTTOKEN			; SAVE AS LAST TOKEN
+
+	INX	D				; INSTR++
+	INX	H				; OUTSTR++
+	
+	PUSH	H				; KEEP THIS PLACE
+	MVI	M,0				; LENGTH (WILL GO BACK LATER)
+	INX	H				; OUTSTR++
+	
+	LXI	B,0				; LENGTH COUNTER
+ILOOP2:
+	LDAX	D				; CURRIN IN ACC
+	CPI	'"				; END OF STRING?
+	JZ	EOS
+
+	MOV	M,A				; COPY CHAR TO OUTSTR
+	
+	INX	D				; INSTR++
+	INX	H				; OUTSTR++
+	INR	C				; LENGTH++
+	JMP	ILOOP2				; LOOP
+	
+EOS:
+	INX	D				; SKIP TRAILING '"'
+	
+	POP	H				; GO BACK TO BEGINNING OF STR
+	MOV	M,C				; SAVE LENGTH
+	
+	DAD	B				; ADD LEN OF STRING TO INPTR
+	INX	H				; OUTSTR++
+			
+	JMP	LOOP				; LOOP
+
+COPY:
+	STA	TOK_LASTTOKEN			; SET LASTTOKEN
+DEFAULT:
+	MOV	M,A				; COPY CHAR TO OUTSTR
+	INX	D				; INSTR++
+	INX	H				; OUTSTR++
+	JMP	LOOP				; LOOP
+	
+EXIT:
+	MOV	M,A				; WRITE NULL CHAR IN OUTSTR	
+
+	POP	H
+	POP	D
+	
 	RET
 
 ;*********************************************************
