@@ -844,5 +844,35 @@ void CEvaluate::LeftRight(KEYWORDS k)
 
 void CEvaluate::Mid()
 {
+	BYTE size;
+	BYTE *addr = GetStr(tempVar3, size);
 
+	BYTE pos = ConvertToByte(tempVar2);
+	BYTE len = ConvertToByte(tempVar1);
+
+	BYTE *newStr;
+
+	if (pos == 0)
+	{
+		throw CError(E_EXP_ILLEGAL);
+	}
+	else if (pos > size)
+	{
+		len = 0;
+		newStr = CStrings::Allocate(0, 0);
+	}
+	else
+	{
+		if ((pos-1)+len > size)
+		{
+			len = size-(pos-1);
+		}
+
+		newStr = CStrings::Allocate(0, len);        
+
+		memcpy(newStr, addr+pos-1, len);
+	}
+
+	SetStr(tempVar3, newStr, len);
+	CExprStack::push(tempVar3);
 }
