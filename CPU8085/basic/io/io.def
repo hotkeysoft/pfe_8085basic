@@ -5,6 +5,7 @@
 
 	.globl	IO_PUTC
 	.globl	IO_PUTS
+	.globl	IO_PUTSN
 	.globl	IO_PUTCB
 	.globl	IO_PUTCH
 	.globl	IO_PUTHLHEX

@@ -232,6 +232,33 @@ IO_PUTS::
 	POP	H
 	POP	PSW
 	RET
+
+;********************************************************
+; IO_PUTSN: PUTS STRING - LENGTH IN B, PTR IN HL
+IO_PUTSN::
+	PUSH	PSW
+	PUSH	B
+	PUSH	H
+	
+1$:
+	MOV	A,B		; CHECK COUNT
+	ORA	A		; CHECK IF ZERO
+	JZ	2$
+	
+	MOV	A,M		;LOAD CHAR FROM MEMORY
+
+	CALL 	IO_PUTC		;PRINT CHAR
+	
+	INX	H		;INCREMENT ADDRESS
+	DCR	B
+	
+	JMP	1$		;LOOP
+	
+2$:
+	POP	H
+	POP	B
+	POP	PSW
+	RET
 	
 ;********************************************************
 ; IO_PUTCB: PRINTS A BYTE (ACC) IN BINARY (I.E. 10011010)
