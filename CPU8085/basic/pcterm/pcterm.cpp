@@ -217,13 +217,22 @@ void fb_insert()
 {
 
 }
+
 void fb_backspace()
 {
 
 }
 void fb_delete()
 {
+	char *end = fb_currpos;
 
+	// Find end of the 'string'
+	while (end <= fb_buffer+fb_size && *end)
+	{
+		end+=2;
+	}
+
+	memmove(fb_currpos, fb_currpos+2, end-fb_currpos);
 }
 
 void processChar()
@@ -235,8 +244,7 @@ void processChar()
 	{
 		case 1: 	fb_cls(); 		break;
 		case 2:		ch = waitForChar(); fb_setcolor(ch);	break;
-		case 3:
-		case 33:	fb_scrollup(); 	break;
+		case 3:		fb_scrollup(); 	break;
 		case 4:		fb_moveup();	break;
 		case 5:		fb_movedown();	break;
 		case 6:		fb_moveleft();	break;
@@ -284,7 +292,26 @@ void main(void)
 		ok = io_getChar(ch);
 		if (ok == true)
 		{
-			if (ch == 255 || ch == 1)
+			if (ch== 0)
+			{
+				ch = getch();
+				switch (ch)
+				{
+					case 0x48:	fb_moveup();	break;
+					case 0x4b:	fb_moveleft();	break;
+					case 0x4d:	fb_moveright();	break;
+					case 0x50:	fb_movedown();	break;
+
+					case 0x47:	fb_homeX();		break;
+					case 0x4f:	fb_endX();		break;
+					case 0x75:	fb_endY();		break;
+					case 0x77:	fb_homeY();		break;
+
+					case 0x52:	fb_insert();	break;
+					case 0x53:	fb_delete();	break;
+				}
+			}
+			else if (ch == 255 || ch == 1)
 			{
 				processChar();
 			}
