@@ -287,26 +287,71 @@ void stringToFloat(const BYTE *currIn, float &number, int &length)
 
 short GetInt(BYTE *var)
 {
-	assert(*var == SID_CINT);
-	return *((short *)(var+1));
+	if (*var == SID_CINT)
+	{
+		return *((short *)(var+1));
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
 }
 
 float GetFloat(BYTE *var)
 {
-	assert(*var == SID_CFLOAT);
-	return *((float *)(var+1));
+	if (*var == SID_CFLOAT)
+	{
+		return *((float *)(var+1));
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
 }
 
 BYTE *GetStr(BYTE *var, BYTE &size)
 {
-	assert(*var == SID_CSTR);
-	size = *(var+1);
+	if (*var == SID_CSTR)
+	{
+		size = *(var+1);
 
-	WORD offset = *((WORD *)(var+2));
+		WORD offset = *((WORD *)(var+2));
 
-	return Memory+offset;
+		return Memory+offset;
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
 }
 
+BYTE ConvertToByte(BYTE *var)
+{
+	if (*var == SID_CINT)
+	{
+		short val = GetInt(var);
+		if (val<0 || val > 255)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+		return BYTE(val);
+	}
+	else if (*var == SID_CFLOAT)
+	{
+		float val = GetFloat(var);
+		if (val<0.0f || val > 255.0f)
+		{
+			throw CError(E_EXP_ILLEGAL);
+		}
+
+		return BYTE(val);
+	}
+	else
+	{
+		throw CError(E_EXP_TYPEMISMATCH);
+	}
+}
 
 void SetInt(BYTE *var, short value)
 {

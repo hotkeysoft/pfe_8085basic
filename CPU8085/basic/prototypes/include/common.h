@@ -115,6 +115,8 @@ short GetInt(BYTE *);
 float GetFloat(BYTE *);
 BYTE *GetStr(BYTE *var, BYTE &size);
 
+BYTE  ConvertToByte(BYTE *);
+
 void SetInt(BYTE *, short);
 void SetFloat(BYTE *, float);
 void SetStr(BYTE *var, BYTE *addr, BYTE size);
