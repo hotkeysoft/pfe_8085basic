@@ -1,12 +1,10 @@
 #include "stdafx.h"
 
-#include "common.h"
-#include "error.h"
-
 Error errorStr[] = {
 	// arithmetic operators
 	E_TOK_UNKNOWN,		"TOK: Unknown",
 	E_TOK_NOENDSTR,		"TOK: Unterminated string constant",
+	E_TOK_INVALIDCHAR,	"TOK: Invalid symbol",
 
 	E_UNKNOWN,			"Unknown Error"
 };
@@ -17,9 +15,17 @@ std::ostream operator<< (std::ostream &os, const CError &e)
 
 	for (current = errorStr; current->id<=E_UNKNOWN; ++current)
 	{
-		if (current->id == e.m_Error)
+		if (current->id == e.m_error)
 		{
-			os << "E_" << current->text << std::endl;
+			if (e.m_symbol != 0)
+			{
+				os << "E_" << current->text << ": '" << e.m_symbol << "'" << std::endl;
+			}
+			else
+			{
+				os << "E_" << current->text << std::endl;
+			}
+
 			return os;
 		}
 	}
