@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "variables", "variables\vari
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strings", "strings\strings.vcproj", "{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "program", "program\program.vcproj", "{04245CEF-FFE6-4A9B-A7EC-861E9B0F512A}"
-EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -33,10 +31,6 @@ Global
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Debug.Build.0 = Debug|Win32
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Release.ActiveCfg = Release|Win32
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Release.Build.0 = Release|Win32
-		{04245CEF-FFE6-4A9B-A7EC-861E9B0F512A}.Debug.ActiveCfg = Debug|Win32
-		{04245CEF-FFE6-4A9B-A7EC-861E9B0F512A}.Debug.Build.0 = Debug|Win32
-		{04245CEF-FFE6-4A9B-A7EC-861E9B0F512A}.Release.ActiveCfg = Release|Win32
-		{04245CEF-FFE6-4A9B-A7EC-861E9B0F512A}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
