@@ -6,5 +6,8 @@
 	.globl	TOK_TOKENIZE2
 
 	.globl	TOK_UNTOKENIZE
+	
+	.globl	TOK_CURRTOKEN
+	.globl	TOK_CURRTOKENLEN
 
 
