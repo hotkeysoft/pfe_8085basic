@@ -3,6 +3,8 @@
 
 .include	'..\common\common.def'
 .include	'..\variables\variable.def'
+.include	'..\integer\integer.def'
+.include	'..\io\io.def'
 .include	'..\error\error.def'
 .include	'evaluate.def'
 
@@ -459,10 +461,92 @@ EXP_POP::
 
 .if DEBUG
 EXP_DUMPSTACK::
-
-
-
+	PUSH	B
+	PUSH	D
+	PUSH	H
+	
+	LXI	H,EXP_STACKLO		; BOTTOM OF STACK IN HL
+	XCHG				; HL<->DE
+	
+	LHLD	EXP_STACKCURR		; CURRENT STACK POS IN HL
+	
+LOOP:
+	MOV	A,L			; CHECK IF BOTTOM OF STACK
+	CMP	E			; COMPARE LOW BYTE
+	JNZ	NOTSAME
+	
+	MOV	A,H
+	CMP	D			; COMPARE HI BYTE
+	JNZ	NOTSAME
+	
+	; END OF STACK
+	CALL	IO_PUTCR	
+	POP	H
+	POP	D
+	POP	B
 	RET
+	
+NOTSAME:
+	LXI	B,-4			; GO BACK 4 BYTES
+	DAD	B			; CURRPOS -= 4
+	
+	PUSH	H			; KEEP FOR LATER
+	
+	MOV	A,M
+	CPI	SID_CINT
+	JZ	SINT
+	
+	CPI	SID_CSTR
+	JZ	SSTR
+	
+	CPI	SID_VAR
+	JZ	SVAR
+	
+	
+CONT:
+	POP	H			; RESTORE PLACE IN STACK
+	JMP	LOOP
+		
+	RET
+	
+SINT:	; PRINT CONST INT
+	PUSH	H
+	LXI	H,SINTSTR
+	CALL	IO_PUTS
+	POP	H
+	
+	INX	H			; HL++
+	MOV	A,M			; LO BYTE OF INT IN ACC
+	STA	INT_ACC0
+	
+	INX	H			; HL++
+	MOV	A,M			; HI BYTE OF INT IN ACC
+	STA	INT_ACC0+1
+	
+	CALL	INT_ITOA		; CONVERT TO STRING
+	CALL	IO_PUTS			; PRINT IT
+		
+	MVI	A,']
+	CALL	IO_PUTC
+	JMP	CONT
+	
+SSTR:	; PRINT CONST STR
+	LXI	H,SSTRSTR
+	CALL	IO_PUTS
+	
+	MVI	A,']
+	CALL	IO_PUTC
+	JMP	CONT
+	
+SVAR:	; PRINT VAR
+	LXI	H,SVARSTR
+	CALL	IO_PUTS
+	JMP	CONT
+
+SINTSTR:	.asciz	'[CI '
+SSTRSTR: 	.asciz	'[CS "'
+SVARSTR:	.asciz	'[VAR]'
+	
 .endif
 
 ;*********************************************************
