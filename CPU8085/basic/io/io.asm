@@ -1,6 +1,8 @@
 .module 	io
 .title 		Input/Output module (term+sound)
 
+.include	'..\common\common.def'
+
 TIMER	=	0x40			;TIMER PORT BASE
 T_C0	=	TIMER+0			;COUNTER 0
 T_C1	=	TIMER+1			;COUNTER 1
@@ -61,6 +63,7 @@ IO_INITKBBUF:
 ;*********************************************************
 ;* IO_INITUART:  INITIALIZES UART
 IO_INITUART:
+.if ~DEBUG
 	MVI	A,0xA0			;SET DLA MODE
 	OUT	U_LCR		
 	
@@ -74,6 +77,7 @@ IO_INITUART:
 	
 	MVI	A,0x01			;INTERRUPT ENABLE REGISTER
 	OUT	U_IER			;ENABLE RECEIVED DATA AVAILABLE INTERRUPT
+.endif
 	RET
 
 ;********************************************************
@@ -174,11 +178,14 @@ IO_GETCHAR::
 ; IO_PUTC: SENDS A CHAR (FROM ACC) TO THE TERMINAL
 IO_PUTC::
 	PUSH	PSW
+
+.if ~DEBUG
 	
 1$:	
 	IN	U_LSR			;LINE STATUS REGISTER
 	ANI	0x20			;CHECK IF UART IS READY
 	JZ	1$			;IF NOT, WAIT FOR IT
+.endif
 	
 	POP	PSW			;GET BACK CHAR
 	OUT	U_THR	
@@ -195,6 +202,7 @@ IO_INITTIMER:
 	LXI	H,0x0000		;CLEAR H-L
 	SHLD	TICNT			;H-L IN WORD AT 'TICNT'
 
+.if ~DEBUG
 ;* SET COUNTER 0	
 
 	MVI	A,0x36			;COUNTER 0, LSB+MSB, MODE 2, NOBCD
@@ -219,6 +227,7 @@ IO_INITTIMER:
 
 	MVI	A,0xB6			;COUNTER 2, LSB+MSB, MODE 3, NOBCD
 	OUT	T_CWR
+.endif
 
 	RET
 
@@ -239,6 +248,7 @@ INTTI0:
 ;*********************************************************
 ;* IO_BEEP:  MAKES A 440HZ BEEP FOR 1/2 SECOND
 IO_BEEP::
+.if ~DEBUG
 	PUSH 	PSW
 	
 	MVI	A,45			;LA4 440HZ
@@ -248,11 +258,14 @@ IO_BEEP::
 	CALL	IO_SOUNDOFF
 	
 	POP	PSW
+.endif	
 	RET
 
 ;*********************************************************
 ;* IO_SOUNDON:  PROGRAMS COUNTER 0 AND ENABLES SOUND OUTPUT
 IO_SOUNDON::
+.if ~DEBUG
+
 	PUSH 	PSW
 	PUSH	B
 	
@@ -281,11 +294,13 @@ IO_SOUNDON::
 	
 	POP	B
 	POP	PSW	
+.endif
 	RET
 
 ;*********************************************************
 ;* IO_SOUNDOFF:  DISABLES SOUND OUTPUT
 IO_SOUNDOFF::
+.if ~DEBUG
 	PUSH 	PSW
 	
 	IN	MISC			;INPUT MISC REGISTER
@@ -293,6 +308,7 @@ IO_SOUNDOFF::
 	OUT	MISC			;OUTPUT MISC REGISTER
 	
 	POP	PSW
+.endif	
 	RET
 
 
@@ -300,13 +316,16 @@ IO_SOUNDOFF::
 ;* MISC ROUTINES
 ;*********************************************************
 IO_INITMISC:
+.if ~DEBUG
 	MVI	A,0			;ALL OUTPUTS LOW
 	OUT	MISC
+.endif	
 	RET
 
 ;*********************************************************
 ;* IO_DELAY, WAITS ACC * 100MS
 IO_DELAY::
+.if ~DEBUG
 	PUSH 	PSW
 	PUSH 	H
 	PUSH	D
@@ -335,6 +354,7 @@ IO_DELAY::
 	POP	D
 	POP	H
 	POP 	PSW
+.endif	
 	RET
 
 
