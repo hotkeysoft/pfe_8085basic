@@ -4,8 +4,8 @@
 ;* DESCRIPTION:	IMPLEMENTATION OF STRING HANDLING FUNCTIONS
 ;*		SUCH AS ALLOCATE, FREE, COMPARE, ETC
 ;*
-;* $Id: strings.asm,v 1.19 2001-12-03 03:38:46 Dominic Thibodeau Exp $
-;*
+;* $Id: strings.asm,v 1.20 2001-12-03 03:41:07 Dominic Thibodeau Exp $
+;* $Log: not supported by cvs2svn $
 
 .module 	strings
 .title 		Strings module
