@@ -1,6 +1,8 @@
 .module 	monitor
 .title 		Monitor
 
+.include	'..\basic\io\io.def'
+
 STACK		=	0xFFFF		;SYSTEM STACK
 
 KBD		=	0x00		;KEYBOARD PORT BASE
