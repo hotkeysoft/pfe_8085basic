@@ -18,18 +18,18 @@ std::ostream &operator<< (std::ostream &os, const untokenize &u)
 		{
 			if ((unsigned char)*currChar == K_NEGATE)
 			{
-				os << "[U-]";
+				os << "-";
 			}
 			else if ((unsigned char)*currChar == K_SUBSTRACT)
 			{
-				os << "[B-]";
+				os << "-";
 			}
 			else
 			{
 				const char *tokenStr = findTokenStr(*currChar);
 				if (tokenStr != NULL)
 				{
-					os << "[" << tokenStr << "]";
+					os << tokenStr;
 				}
 				else 
 				{
@@ -46,7 +46,7 @@ std::ostream &operator<< (std::ostream &os, const untokenize &u)
 
 			memcpy(&number, currChar, sizeof(short));
 
-			os << "[CI " << number << "]";
+			os << number ;
 
 			currChar += sizeof(short);
 		}
@@ -57,7 +57,7 @@ std::ostream &operator<< (std::ostream &os, const untokenize &u)
 
 			memcpy(&number, currChar, sizeof(float));
 
-			os << "[CF " << number << "]";
+			os << number;
 
 			currChar += sizeof(float);
 		}
@@ -72,7 +72,7 @@ std::ostream &operator<< (std::ostream &os, const untokenize &u)
 
 			str.assign(currChar, length);
 
-			os << "[CS \"" << str << "\"]";
+			os << '\"' << str << '\"';
 
 			currChar += length;
 		}
@@ -89,7 +89,7 @@ std::ostream &operator<< (std::ostream &os, const untokenize &u)
 			std::string name;
 			Tag2Name(tag, name);
 
-			os << "[V " << name << "]";
+			os << name;
 		}
 		else
 		{
