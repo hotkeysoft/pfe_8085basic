@@ -53,15 +53,35 @@ STR_ALLOCATE::
 ;*********************************************************
 ;* STR_FREE:	FREE STR AT (H-L) (SETS 'PARENT' TO 0)
 STR_FREE::
+	PUSH	D
 	PUSH	H				; KEEP ADDRESS
 	
+	XCHG					; SWAP HL<->DE
+	LHLD	STR_LOPTR			; BOTTOM OF STR PTR IN HL
+	XCHG					; SWAP HL<->DE
+	
+	; COMPARE STRPTR WITH STR_LOPTR
+	; (ONLY FREE IF STRPTR > STR_LOPTR)
+	MOV	A,H				; COMPARE HI BYTE
+	CMP	D
+	JB	2$
+	JNZ	1$
+	
+	; HI BYTE ARE EQUAL
+	MOV	A,L				; COMPARE LO BYTE
+	CMP	E
+	JB	2$
+
+1$:	; 'FREE' STRING
 	DCX	H
 	DCX	H
 	MVI	M,0
 	DCX	H
 	MVI	M,0
 	
+2$:	
 	POP	H				; RESTORE ADDRESS
+	POP	D
 	RET
 	
 ;*********************************************************
