@@ -26,7 +26,17 @@ int main(int argc, char* argv[])
 
 
 	try
-	{
+	{	BYTE *addr1 = CStrings::Allocate(1234, 10);
+		strcpy((char *)addr1, "012345678");
+
+		BYTE *addr2 = CStrings::Allocate(1234, 5);
+		strcpy((char *)addr2, "toto");
+
+		CStrings::Dump();
+
+		CStrings::Free(addr1);
+
+		CStrings::Dump();
 	}
 	catch (CError e)
 	{
