@@ -263,6 +263,9 @@ EVAL_BINARYCALC::
 	SHLD	INT_ACC0			; PUT IN INT_ACC0
 	
 	LXI	H,VAR_TEMP1+1
+
+	MVI	A,0
+	STA	INT_OVERFLOW
 	
 	LDA	EVAL_CURRKEYWORD		; ACC = CURR KEYWORD
 	
@@ -979,7 +982,7 @@ EVAL_COPY1:
 	MOV	A,M				; DATA TYPE IN ACC
 	
 	CPI	SID_VAR				; CHECK IF VAR
-	JZ	VAR
+	JZ	GETVAR1
 	
 	STA	VAR_TEMP1			; BYTE 1
 	INX	H
@@ -997,6 +1000,15 @@ EVAL_COPY1:
 	INX	H
 	
 	RET
+
+GETVAR1:
+	INX	H				; HL++
+	MOV	B,M				; TAG[0]
+	INX	H				; HL++
+	MOV	C,M				; TAG[1]
+	LXI	H,VAR_TEMP1
+	CALL	VAR_GET
+	RET
 		
 ;*********************************************************
 ;* EVAL_COPY2: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP2
@@ -1006,7 +1018,7 @@ EVAL_COPY2:
 	MOV	A,M				; DATA TYPE IN ACC
 	
 	CPI	SID_VAR				; CHECK IF VAR
-	JZ	VAR
+	JZ	GETVAR2
 	
 	STA	VAR_TEMP2			; BYTE 1
 	INX	H
@@ -1025,6 +1037,15 @@ EVAL_COPY2:
 	
 	RET
 
+GETVAR2:
+	INX	H				; HL++
+	MOV	B,M				; TAG[0]
+	INX	H				; HL++
+	MOV	C,M				; TAG[1]
+	LXI	H,VAR_TEMP2
+	CALL	VAR_GET
+	RET
+
 ;*********************************************************
 ;* EVAL_COPY3: 	POP FROM EXP STACK AND COPY VAR TO VAR_TEMP3
 EVAL_COPY3:
@@ -1033,7 +1054,7 @@ EVAL_COPY3:
 	MOV	A,M				; DATA TYPE IN ACC
 	
 	CPI	SID_VAR				; CHECK IF VAR
-	JZ	VAR
+	JZ	GETVAR3
 	
 	STA	VAR_TEMP3			; BYTE 1
 	INX	H
@@ -1052,9 +1073,14 @@ EVAL_COPY3:
 	
 	RET
 
-
-VAR:
-	HLT
+GETVAR3:
+	INX	H				; HL++
+	MOV	B,M				; TAG[0]
+	INX	H				; HL++
+	MOV	C,M				; TAG[1]
+	LXI	H,VAR_TEMP3
+	CALL	VAR_GET
+	RET
 
 
 ;*********************************************************
