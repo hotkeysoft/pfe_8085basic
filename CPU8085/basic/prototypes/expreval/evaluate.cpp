@@ -715,45 +715,15 @@ void CEvaluate::Val()
 
 void CEvaluate::Chr()
 {
-	if (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT)
-	{
-		short sChr;
-		float fChr;
-		BYTE chr;
+	BYTE chr = ConvertToByte(tempVar1);
 
-		if (*tempVar1 == SID_CINT)
-		{
-			sChr = GetInt(tempVar1);
-			if (sChr > 255 || sChr < 0)
-			{
-				throw CError(E_EXP_ILLEGAL);
-			}
+	BYTE *str = CStrings::Allocate(0, 1);
 
-			chr = (BYTE)sChr;
-		}
-		else
-		{
-			fChr = GetFloat(tempVar1);
-			if (fChr > 255 || fChr < 0)
-			{
-				throw CError(E_EXP_ILLEGAL);
-			}
+	*str = chr;
 
-			chr = (BYTE)fChr;
-		}
+	SetStr(tempVar3, str, 1);
 
-		BYTE *str = CStrings::Allocate(0, 1);
-	
-		*str = chr;
-
-		SetStr(tempVar3, str, 1);
-
-		CExprStack::push(tempVar3);
-	}
-	else
-	{
-		throw CError(E_EXP_TYPEMISMATCH);
-	}
+	CExprStack::push(tempVar3);
 }
 
 void CEvaluate::Str()
@@ -786,60 +756,30 @@ void CEvaluate::Str()
 
 void CEvaluate::LeftRight(KEYWORDS k)
 {
-	if (*tempVar2 == SID_CSTR && (*tempVar1 == SID_CINT || *tempVar1 == SID_CFLOAT))
+	BYTE size;
+	BYTE *addr = GetStr(tempVar2, size);
+
+	BYTE len = ConvertToByte(tempVar1);
+
+	if (len > size)
 	{
-		BYTE size;
-		BYTE *addr = GetStr(tempVar2, size);
+		len = size;
+	}
 
-		short sLen;
-		float fLen;
-		BYTE len;
+	BYTE *newStr = CStrings::Allocate(0, len);
 
-		if (*tempVar1 == SID_CINT)
-		{
-			sLen = GetInt(tempVar1);
-			if (sLen > 255 || sLen < 0)
-			{
-				throw CError(E_EXP_ILLEGAL);
-			}
-
-			len = (BYTE)sLen;
-		}
-		else
-		{
-			fLen = GetFloat(tempVar1);
-			if (fLen > 255 || fLen < 0)
-			{
-				throw CError(E_EXP_ILLEGAL);
-			}
-
-			len = (BYTE)fLen;
-		}
-
-		if (len > size)
-		{
-			len = size;
-		}
-
-		BYTE *newStr = CStrings::Allocate(0, len);
-
-		if (k == K_LEFT)
-		{
-			memcpy(newStr, addr, len);
-		}
-		else
-		{
-			memcpy(newStr, addr+size-len, len);
-		}
-
-		SetStr(tempVar3, newStr, len);
-
-		CExprStack::push(tempVar3);
+	if (k == K_LEFT)
+	{
+		memcpy(newStr, addr, len);
 	}
 	else
 	{
-		throw CError(E_EXP_TYPEMISMATCH);
+		memcpy(newStr, addr+size-len, len);
 	}
+
+	SetStr(tempVar3, newStr, len);
+
+	CExprStack::push(tempVar3);
 }
 
 void CEvaluate::Mid()
