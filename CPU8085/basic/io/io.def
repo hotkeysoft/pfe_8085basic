@@ -8,6 +8,7 @@
 	.globl	IO_PUTCB
 	.globl	IO_PUTCH
 	.globl	IO_PUTHLHEX
+	.globl	IO_PUTCR
 
 	.globl	IO_CLS
 	.globl	IO_HOME	

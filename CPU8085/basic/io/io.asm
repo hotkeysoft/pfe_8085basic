@@ -206,6 +206,12 @@ IO_PUTC::
 	RET
 
 ;********************************************************
+; IO_PUTCR: PRINTS NEW LINE CHARACTER
+IO_PUTCR::
+	MVI	A,13
+	JMP	IO_PUTC
+
+;********************************************************
 ; IO_PUTS: PUTS STRING - NULL-TERMINATED STRING IN HL
 IO_PUTS::
 	PUSH	PSW
