@@ -381,9 +381,9 @@ EXP_SKIPWHITESPACE:
 1$:
 	MOV	A,M				; READ CURRENT CHAR
 	CPI	' 				; CHECK FOR WHITESPACE
-	JZ 	1$				; LOOP
-	
-	RET
+	RNZ					; RETURN IF NOT FOUND
+	INX	H
+	JMP	1$
 
 ;*********************************************************
 ;* EXP_PUSH:  PUSHES DATA AT (H-L) ON EXP STACK
