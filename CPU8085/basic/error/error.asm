@@ -21,7 +21,7 @@ ERR_INVALIDCHAR::
 	JMP	ERR_HANDLER
 	
 ERR_STACKOVERFLOW::
-	LXI	H,ERR_STR_STACKOVERFLOW
+	LXI	H,ERR_STR_OUTOFMEMORY
 	JMP	ERR_HANDLER
 	
 ERR_STACKUNDERFLOW::
@@ -72,6 +72,10 @@ ERR_FORWITHOUTNEXT::
 	LXI	H,ERR_STR_FORWITHOUTNEXT
 	JMP	ERR_HANDLER
 
+ERR_OUTOFMEMORY::
+	LXI	H,ERR_STR_OUTOFMEMORY
+	JMP	ERR_HANDLER
+
 ERR_HANDLER:
 	MVI	A,'?			; PRINT '?'
 	CALL	IO_PUTC
@@ -120,7 +124,6 @@ ERR_STR_ERROR:			.asciz	" error"
 	
 ERR_STR_NOENDSTR:		.asciz	"Unterminated string constant"
 ERR_STR_INVALIDCHAR:		.asciz	"Invalid symbol"
-ERR_STR_STACKOVERFLOW:		.asciz	"Out of memory"
 ERR_STR_STACKUNDERFLOW:		.asciz	"Missing parameter"
 ERR_STR_TYPEMISMATCH:		.asciz	"Type mismatch"
 ERR_STR_OVERFLOW:		.asciz	"Overflow"
@@ -133,6 +136,7 @@ ERR_STR_DIVZERO:		.asciz	"Division by zero"
 ERR_STR_RETURNWITHOUTGOSUB:	.asciz	"RETURN without GOSUB"
 ERR_STR_NEXTWITHOUTFOR:		.asciz	"NEXT without FOR"
 ERR_STR_FORWITHOUTNEXT:		.asciz	"FOR without NEXT"
+ERR_STR_OUTOFMEMORY:		.asciz	"Out of memory"
 ERR_STR_UNKNOWN:		.asciz	"Unknown"
 
 ;*********************************************************
