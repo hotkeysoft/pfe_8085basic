@@ -66,6 +66,22 @@ STR_FREE::
 ;*		SOURCE:	DE
 ;*		DEST: 	HL
 STR_COPY::
+	PUSH	D
+	PUSH	H
+
+1$:
+	LDAX	D				; SOURCE IN ACC
+	ORA	A				; CHECK IS EOS
+	MOV	M,A				; COPY TO DEST
+	JZ	2$				; QUIT IF EOS
+	
+	INX	D				; SOURCE++
+	INX	H				; DEST++
+	JMP	1$				; LOOP
+	
+2$:	
+	POP	H
+	POP	D
 	RET
 
 ;*********************************************************
