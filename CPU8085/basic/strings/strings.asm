@@ -62,7 +62,7 @@ STR_FREE::
 	RET
 	
 ;*********************************************************
-;* STR_COPY:	COPY STRING (NULL TERMINATED)
+;* STR_COPY:	COPY STRING, LENGTH IN B
 ;*		SOURCE:	DE
 ;*		DEST: 	HL
 STR_COPY::
@@ -71,15 +71,13 @@ STR_COPY::
 
 1$:
 	LDAX	D				; SOURCE IN ACC
-	ORA	A				; CHECK IS EOS
 	MOV	M,A				; COPY TO DEST
-	JZ	2$				; QUIT IF EOS
 	
 	INX	D				; SOURCE++
 	INX	H				; DEST++
-	JMP	1$				; LOOP
+	DCR	B				; COUNTER--
+	JNZ	1$				; LOOP
 	
-2$:	
 	POP	H
 	POP	D
 	RET
