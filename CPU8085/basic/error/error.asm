@@ -64,6 +64,10 @@ ERR_RETURNWITHOUTGOSUB::
 	LXI	H,ERR_STR_RETURNWITHOUTGOSUB
 	JMP	ERR_HANDLER
 
+ERR_NEXTWITHOUTFOR::
+	LXI	H,ERR_STR_NEXTWITHOUTFOR
+	JMP	ERR_HANDLER
+
 ERR_HANDLER:
 	MVI	A,'?			; PRINT '?'
 	CALL	IO_PUTC
@@ -123,6 +127,7 @@ ERR_STR_LINENOTFOUND:		.asciz	"Undefined line number"
 ERR_STR_STRTOOLONG:		.asciz	"String too long"
 ERR_STR_DIVZERO:		.asciz	"Division by zero"
 ERR_STR_RETURNWITHOUTGOSUB:	.asciz	"RETURN without GOSUB"
+ERR_STR_NEXTWITHOUTFOR:		.asciz	"NEXT without FOR"
 ERR_STR_UNKNOWN:		.asciz	"Unknown"
 
 ;*********************************************************
