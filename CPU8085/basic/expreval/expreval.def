@@ -2,6 +2,9 @@
 .include	'..\common\common.def'
 
 	.globl	EXP_INIT
+
+	.globl	EXP_READLINE
+	.globl	EXP_INBUFFER
 	
 	.globl	EXP_EXPREVAL
 	.globl	EXP_L0
