@@ -290,7 +290,7 @@ void tokenize2(const char *in, char *out)
 				break;
 
 			default:	// unknown
-				throw CError(E_TOK_INVALIDCHAR, *currIn);
+				throw CError(E_TOK_INVALIDCHAR, (KEYWORDS)*currIn);
 			}
 
 		}
