@@ -47,7 +47,7 @@ ERR_SYNTAX::
 ERR_ELSEWITHOUTIF::
 	LXI	H,ERR_STR_ELSEWITHOUTIF
 	JMP	ERR_HANDLER
-	
+
 ERR_LINENOTFOUND::
 	LXI	H,ERR_STR_LINENOTFOUND
 	JMP	ERR_HANDLER
@@ -60,6 +60,9 @@ ERR_DIVZERO::
 	LXI	H,ERR_STR_DIVZERO
 	JMP	ERR_HANDLER
 
+ERR_RETURNWITHOUTGOSUB::
+	LXI	H,ERR_STR_RETURNWITHOUTGOSUB
+	JMP	ERR_HANDLER
 
 ERR_HANDLER:
 	MVI	A,'?			; PRINT '?'
@@ -109,8 +112,8 @@ ERR_STR_ERROR:			.asciz	" error"
 	
 ERR_STR_NOENDSTR:		.asciz	"Unterminated string constant"
 ERR_STR_INVALIDCHAR:		.asciz	"Invalid symbol"
-ERR_STR_STACKOVERFLOW:		.asciz	"Expression too complex"
-ERR_STR_STACKUNDERFLOW:		.asciz	"Missing parameter"
+ERR_STR_STACKOVERFLOW:		.asciz	"Out of memory (stack overflow)"
+ERR_STR_STACKUNDERFLOW:		.asciz	"Missing parameter (stack underflow)"
 ERR_STR_TYPEMISMATCH:		.asciz	"Type mismatch"
 ERR_STR_OVERFLOW:		.asciz	"Overflow"
 ERR_STR_ILLEGAL:		.asciz	"Illegal argument"
@@ -119,6 +122,7 @@ ERR_STR_ELSEWITHOUTIF:		.asciz	"ELSE without IF"
 ERR_STR_LINENOTFOUND:		.asciz	"Undefined line number"
 ERR_STR_STRTOOLONG:		.asciz	"String too long"
 ERR_STR_DIVZERO:		.asciz	"Division by zero"
+ERR_STR_RETURNWITHOUTGOSUB:	.asciz	"RETURN without GOSUB"
 ERR_STR_UNKNOWN:		.asciz	"Unknown"
 
 ;*********************************************************
