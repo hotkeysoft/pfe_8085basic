@@ -14,4 +14,6 @@ public:
 	static void Dump();
 	static void Empty() {CurrExpStack = LoExpStack;}
 
+	static bool isEmpty() {return CurrExpStack == LoExpStack;}
+
 };
