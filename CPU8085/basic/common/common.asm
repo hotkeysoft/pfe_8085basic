@@ -108,12 +108,13 @@ K_TABLE::
 	.db K_OR		.ascii "OR"	; logical & bitwise OR
 	.db K_XOR		.ascii "XOR"	; logical & bitwise exclusive-OR
 
-	; numeric functions (return int or float)
+	; numeric functions (return int)
 	.db K_ABS		.ascii "ABS"
 	.db K_ASC		.ascii "ASC"
 	.db K_INT		.ascii "INT"
 	.db K_LEN		.ascii "LEN"
 	.db K_PEEK		.ascii "PEEK"
+	.db K_RND		.ascii "RND"
 	.db K_SGN		.ascii "SGN"
 	.db K_VAL		.ascii "VAL"
 
