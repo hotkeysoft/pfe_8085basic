@@ -98,7 +98,8 @@ void tokenize1(char *inout)
 			case K_POWER:
 			case K_NEGATE:
 			case K_MULTIPLY:
-			case K_DIVIDE:		
+			case K_FDIVIDE:		
+			case K_IDIVIDE:		
 			case K_ADD:
 			case K_SUBSTRACT:
 			case K_LESSEQUAL:
@@ -229,30 +230,14 @@ void tokenize2(const char *in, char *out)
 
 			currIn += length;
 
-			if ((short)number == number)		// integer const
-			{
-				short iNumber = (short)number;
+			*currOut = SID_CFLOAT;
+			++currOut;
 
-				*currOut = SID_CINT;
-				++currOut;
+			memcpy(currOut, &number, sizeof(float));
 
-				memcpy(currOut, &iNumber, sizeof(short));
+			currOut += sizeof(float);
 
-				currOut += sizeof(short);
-
-				lastToken = SID_CINT;
-			}
-			else	// float const
-			{
-				*currOut = SID_CFLOAT;
-				++currOut;
-
-				memcpy(currOut, &number, sizeof(float));
-
-				currOut += sizeof(float);
-
-				lastToken = SID_CFLOAT;
-			}
+			lastToken = SID_CFLOAT;
 		}
 		else if (isalpha(*currIn))	// variable name
 		{
