@@ -53,6 +53,7 @@ Keyword keywords[] = {
 	K_CONT,			"CONT",
 	K_DIM,			"DIM",
 	K_END,			"END",
+	K_STOP,			"STOP",
 	K_FOR,			"FOR",
 	K_GOSUB,		"GOSUB",
 	K_GOTO,			"GOTO",

@@ -7,7 +7,7 @@ typedef unsigned char BYTE;
 typedef unsigned short WORD;
 
 enum StackID {	SID_CINT=1, SID_CFLOAT=2, SID_CSTR=4,
-				SID_VAR=8,	SID_GOSUB=16, SID_FOR=32,
+				SID_VAR=8,	SID_GOSUB=16, SID_FOR=32, SID_STOP=64,
 				SID_FBASE=128};
 
 const std::string variableNameStr = " 0123456789"\
@@ -60,6 +60,7 @@ enum KEYWORDS {
 	K_CONT,
 	K_DIM,
 	K_END,
+	K_STOP,
 	K_FOR,
 	K_GOSUB,
 	K_GOTO,
