@@ -23,6 +23,10 @@ int main(int argc, char* argv[])
 	LoAutoVars = Memory+2048;
 	HiAutoVars = Memory+2048;
 
+	tempVar1 = Memory+768;
+	tempVar2 = tempVar1+5;
+	tempVar3 = tempVar2+5;
+
 	char str[256];
 
 	char out[256];
@@ -35,6 +39,8 @@ int main(int argc, char* argv[])
 
 		try
 		{
+			CExprStack::Empty();
+
 			tokenize1((char *)Memory);
 			tokenize2((char *)Memory, (char *)(Memory+256));
 
@@ -43,9 +49,6 @@ int main(int argc, char* argv[])
 			expreval((char *)(Memory+256), out);
 
 			CExprStack::Dump();
-
-			CExprStack::Empty();
-//			std::cout << untokenize(out) << std::endl;
 		}
 		catch (CError e)
 		{
