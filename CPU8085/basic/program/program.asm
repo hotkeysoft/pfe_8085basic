@@ -4,6 +4,8 @@
 .include	'..\common\common.def'
 .include	'..\error\error.def'
 .include	'..\variables\variable.def'
+.include	'..\integer\integer.def'
+.include	'..\io\io.def'
 
 .area	_CODE
 
@@ -37,6 +39,43 @@ PRG_NEW::
 ;*********************************************************
 ;* PRG_LIST:	LISTS PROGRAM
 PRG_LIST::
+	LHLD	PRG_LOPTR			; BEGIN OF PROGRAM
+	
+LOOP:
+	; CHECK IF END OF PROGRAM
+	LDA	PRG_HIPTR			; CHECK LO BYTE
+	CMP	L
+	JNZ	NOEND
+	
+	LDA	PRG_LOPTR+1			; CHECK HI BYTE
+	CMP	H
+	JNZ	NOEND
+	
+NOEND:
+	INX	H				; SKIP LENGTH OF LINE
+	
+	MOV	E,M				; LO BYTE OF LINE NO IN E
+	INX	H
+	MOV	D,M				; HI BYTE OF LINE NO IN D
+	INX	H
+	
+	XCHG					; SWAP DE<->HL
+	SHLD	INT_ACC0			; PUT IN INT_ACC0
+	
+	CALL	INT_ITOA			; CONVERT TO STRING
+	CALL	IO_PUTS				; PRINT IT
+	
+	MVI	A,' 				; PUT SPACE
+	CALL	IO_PUTC				; PRINT IT
+	
+	XCHG					; SWAP DE<->HL
+	
+;	CALL	PRG_PUTLINE
+
+	CALL	IO_PUTCR			; NEW LINE
+	
+	JMP	LOOP
+	
 	RET
 
 ;*********************************************************
