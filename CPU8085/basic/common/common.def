@@ -90,3 +90,7 @@
 	.globl	C_ISALPHA
 		
 	.globl	C_STR2INT
+	
+	.globl	C_MEMSET
+	.globl	C_MEMCPYF
+	.globl	C_MEMCPY

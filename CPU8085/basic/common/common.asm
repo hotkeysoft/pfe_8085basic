@@ -294,7 +294,66 @@ C_ISDIGIT::
 	ORA	A		; CLEAR CARRY
 	RET
 	
+	
+;*********************************************************
+;* C_MEMSET: 	FILLS AREA OF MEMORY BYTE IN 'ACC'
+;*		ADDRESS OF AREA TO FILL IN 'HL'
+;*		SIZE OF AREA TO FILL IN 'DE'
+C_MEMSET::
+1$:	
+	MOV	M,A		; STORE ATTR
+	INX	H		; ADDR++
+	
+	DCX	D		; DECREMENT COUNTER
+	
+	MVI	A,0		; RESET A
+	
+	CMP	E		; LOOP IF LO BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+	
+	CMP	D		; LOOP IF HI BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+	
+	RET
 
+;*********************************************************
+;* C_MEMCPYF:	COPY A BLOCK A MEMORY
+;*		(ALLOWS 'FORWARD' OVERLAP I.E. ALLOWS
+;*		COPY FROM 0x8000 TO 0x9000 EVEN IF BLOCKS
+;*		OVERLAP)
+;*		DESTINATION IN HL
+;*		SOURCE IN BC
+;*		NB OF BYTES TO COPY IN DE
+C_MEMCPYF::
+	
+	RET
+
+;*********************************************************
+;* C_MEMCPY:	COPY A BLOCK A MEMORY
+;*		(ALLOWS 'BACKWARDS' OVERLAP I.E. ALLOWS
+;*		COPY FROM 0x9000 TO 0x8000 EVEN IF BLOCKS
+;*		OVERLAP)
+;*		DESTINATION IN HL
+;*		SOURCE IN BC
+;*		NB OF BYTES TO COPY IN DE
+C_MEMCPY::
+1$:	
+	LDAX	B		; CHAR AT (BC) IN ACC
+	MOV	M,A		; BACK AT (HL)
+	
+	INX	B		; BC++
+	INX	H		; HL++
+	DCX	D		; DE-- (COUNT)
+
+	MVI	A,0		; RESET A
+	
+	CMP	E		; LOOP IF LO BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+	
+	CMP	D		; LOOP IF HI BYTE OF COUNTER IS NON NULL
+	JNZ	1$
+	
+	RET
 
 ;*********************************************************
 ;* RAM VARIABLES
