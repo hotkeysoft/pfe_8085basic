@@ -5,3 +5,5 @@
 	.globl	STR_GARBAGECOLLECTION
 	
 	; TESTS ONLY
+	.globl	STR_LOPTR
+	.globl	STR_HIPTR
