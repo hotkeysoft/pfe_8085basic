@@ -360,7 +360,25 @@ PRG_RUN::
 
 ;*********************************************************
 ;* PRG_GOTO:	GO TO SPECIFIED LINE
+;*		IN: BC = LINE NUMBER
 PRG_GOTO::
+	CALL	PRG_FIND			; SEARCH FOR THE LINE
+	SHLD	PRG_NEWLINEPTR			; STORE AS NEW LINE
+	JNC	ERR_LINENOTFOUND		; LINE NOT FOUND
+
+	; CHECK IF IMMEDIATE MODE
+	LHLD	PRG_CURRLINEPTR
+	MVI	A,0
+	ORA	H
+	ORA	L
+	JNZ	1$
+
+	; IMMEDIATE MODE - RUN DOIT
+	MVI	A,0			
+	STA	PRG_ISEND
+	CALL	PRG_DOIT
+
+1$:
 	RET
 
 ;*********************************************************
