@@ -663,12 +663,32 @@ EXP_DO_FOR::
 	POP	H			; GET BACK POSITION
 	
 1$:
+	PUSH	H
+	
 	MOV	A,C			; CHECK EXECUTE FLAG
 	CPI	FALSE
 	JZ	2$
 	
-;;/////////////////////////////////////////////////////////////////////////	
-		
+	MOV	A,B			; KEEP INIF IN ACC
+	
+	MOV	B,D			; COPY VAR ID TO BC
+	MOV	C,E
+	
+	MOV	D,A			; D = INIF
+
+	; PREPARE BEGIN VALUE TO SET IN VARIABLE
+	MVI	A,SID_CINT
+	STA	VAR_TEMP1	
+	
+	LHLD	INT_ACC0		; READ BEGIN VALUE
+	SHLD	VAR_TEMP1+1		; STORE IN VAR_TEMP1
+	
+	LXI	H,VAR_TEMP1
+	CALL	VAR_SET			; SET VARIABLE = BEGIN VALUE
+	
+	POP	H
+	
+	CALL	PRG_FOR
 	
 2$:
 	POP	D
