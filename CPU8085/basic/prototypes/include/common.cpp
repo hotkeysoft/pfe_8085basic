@@ -89,6 +89,9 @@ BYTE *CurrExpStack = 0;
 BYTE *LoStrStack = 0;
 BYTE *HiStrStack = 0;
 
+BYTE *LoProgram = 0;
+BYTE *HiProgram = 0;
+
 BYTE *LoAutoVars = 0;
 BYTE *HiAutoVars = 0;
 

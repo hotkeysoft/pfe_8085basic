@@ -99,6 +99,9 @@ extern BYTE *CurrExpStack;
 extern BYTE *LoStrStack;
 extern BYTE *HiStrStack;
 
+extern BYTE *LoProgram;
+extern BYTE *HiProgram;
+
 extern BYTE *LoAutoVars;
 extern BYTE *HiAutoVars;
 
