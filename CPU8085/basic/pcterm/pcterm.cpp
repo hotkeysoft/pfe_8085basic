@@ -15,7 +15,7 @@
 #include <fstream.h>
 #include <string.h>
 
-#define PORT1 0x2F8
+#define PORT1 0x3F8
 
   /* Defines Serial Ports Base Address */
   /* COM1 0x3F8                        */
@@ -567,7 +567,7 @@ void main(void)
 	/*         PORT 1 - Communication Settings         */
 
 	outportb(PORT1 + 3 , 0x80);  /* SET DLAB ON */
-	outportb(PORT1 + 0 , 0x0C);  /* Set Baud rate - Divisor Latch Low Byte */
+	outportb(PORT1 + 0 , 0x18);  /* Set Baud rate - Divisor Latch Low Byte */
 					/* Default 0x03 =  38,400 BPS */
 					/*         0x01 = 115,200 BPS */
 					/*         0x02 =  57,600 BPS */
