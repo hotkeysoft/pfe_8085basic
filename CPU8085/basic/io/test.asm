@@ -1,6 +1,8 @@
 .module 	iotest
 .title 		Tests IO Module
 
+.include	'io.def'
+
 STACK	==	0xFFFF			;SYSTEM STACK
 
 .area	BOOT	(ABS)

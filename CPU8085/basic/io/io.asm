@@ -518,7 +518,7 @@ IO_SOUNDOFF::
 ;*********************************************************
 ;* MISC ROUTINES
 ;*********************************************************
-IO_INITMISC::
+IO_INITMISC:
 	MVI	A,0			;ALL OUTPUTS LOW
 	OUT	MISC
 	RET

@@ -1,0 +1,27 @@
+
+	.globl	IO_INIT
+
+	.globl	IO_GETCHAR
+
+	.globl	IO_PUTC
+	.globl	IO_PUTS
+	.globl	IO_PUTCB
+	.globl	IO_PUTCH
+	.globl	IO_PUTHLHEX
+
+	.globl	IO_CLS
+
+	.globl	IO_GOTOXY
+
+	.globl	IO_SETCOLOR
+
+	.globl	IO_SETBG
+	.globl	IO_SETFG
+
+	.globl	IO_BEEP
+
+	.globl	IO_SOUNDON
+	.globl	IO_SOUNDOFF
+
+	.globl	IO_DELAY
+
