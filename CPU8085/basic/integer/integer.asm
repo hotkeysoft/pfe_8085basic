@@ -15,11 +15,8 @@ INT_INIT::
 	SHLD	INT_RNDCONST2			; TO BE IN RAM, SINCE INT_MUL
 	LXI	H,0x0000			; SHIFTS THE NUMBER DURING 
 	SHLD	INT_RNDSEED			; MULTIPLY OPERATION
-						
-
-						
+					
 	RET					
-
 
 
 ;*********************************************************
@@ -1015,7 +1012,6 @@ INT_ACC2::	.ds	2
 INT_ACC3::	.ds 	2
 
 INT_ACCSTR::	.ds	7
-
 
 INT_RNDSEED:	.ds	2
 INT_RNDCONST1:	.ds	2

@@ -1,4 +1,6 @@
 
+	.globl	INT_INIT
+
 	.globl	INT_ACC0
 	.globl	INT_ACC1
 	.globl	INT_ACC2
