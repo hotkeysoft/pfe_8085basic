@@ -1,6 +1,7 @@
 .module 	integer
 .title 		Integer module
 
+.area	_CODE
 
 ;*********************************************************
 ;* INT_INC:  INCREMENTS INTEGER AT [H-L]
@@ -365,13 +366,15 @@ INT_SHR:
 	RET
 
 ;*********************************************************
-;* INT_MUL: MULTIPLIES INT_ACC0 WITH INTEGER AT [H-L]
-;* INT_ACC0 = INT_ACC0 * [H-L]
-;* USES TEMPORARY ACC INT_ACC1
+;* INT_MUL: MULTIPLIES INT_ACC1 WITH INTEGER AT [H-L]
+;* INT_ACC0 = INT_ACC1 * [H-L]
 INT_MUL::
+	PUSH	PSW
 	PUSH	B	
 	PUSH	D
 	PUSH	H
+	
+	MVI	A,0
 	
 ;	CHECK SIGN OF [H-L]
 	PUSH 	H					;KEEP HL
@@ -387,7 +390,7 @@ INT_MUL::
 1$:
 ;	CHECK SIGN OF INT_ACC1
 	LXI	H,INT_ACC1+1
-	MOV	C,M					;HI BYTE OF INT_ACC0 IN C
+	MOV	C,M					;HI BYTE OF INT_ACC1 IN C
 	ORA	C
 	JP	2$
 
@@ -445,7 +448,7 @@ INT_MUL::
 	POP	H
 	POP	D	
 	POP	B
-
+	POP	PSW
 	RET
 
 ;*********************************************************
