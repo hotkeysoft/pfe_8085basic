@@ -17,7 +17,7 @@
 int main(int argc, char* argv[])
 {
 	LoExpStack = Memory+1024;
-	HiExpStack = LoExpStack+80;
+	HiExpStack = LoExpStack+256;
 	CurrExpStack = LoExpStack;
 
 	LoStrStack = Memory+30000;
@@ -78,10 +78,6 @@ int main(int argc, char* argv[])
 		CProgram::Init();
 
 		std::cin.getline((char *)Memory, 255);
-//		if (strcmp((char *)Memory, "") == 0)
-//		{
-//			break;
-//		}
 
 		try
 		{
