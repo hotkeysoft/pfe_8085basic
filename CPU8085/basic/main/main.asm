@@ -21,6 +21,9 @@ RST0:
 	LXI	SP,STACK		;INITALIZE STACK
 	JMP 	START
 
+.org	0x0038
+RST7:	
+	JMP	ERR_UNKNOWN
 
 ;*********************************************************
 ;* MAIN PROGRAM
