@@ -262,6 +262,6 @@ void stringToFloat(const BYTE *currIn, float &number, int &length)
 		number = -number;
 	}
 
-	number *= pow(10, Exp+ExpInt);
+	number *= (float)pow(10, Exp+ExpInt);
 
 }
