@@ -465,6 +465,24 @@ IO_SETCOLOR::
 	RET
 
 ;*********************************************************
+;* IO_SETINPUTMODE:  TOGGLES TO INPUT MODE
+IO_SETINPUTMODE::
+	MVI	A,TERM_ATTN		;TERM:ATTN
+	CALL	IO_PUTC
+	MVI	A,65			;TERM:INPUTMODE
+	CALL	IO_PUTC
+	RET
+
+;*********************************************************
+;* IO_SETINTERACTIVEMODE:  TOGGLES TO INTERACTIVE MODE
+IO_SETINTERACTIVEMODE::
+	MVI	A,TERM_ATTN		;TERM:ATTN
+	CALL	IO_PUTC
+	MVI	A,64			;TERM:INTERACTIVEMODE
+	CALL	IO_PUTC
+	RET
+
+;*********************************************************
 ;* TIMER ROUTINES
 ;*********************************************************
 
