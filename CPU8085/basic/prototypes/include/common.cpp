@@ -152,7 +152,7 @@ void Name2Tag(std::string name, BYTE tag[2])
 		throw CError();		
 	}
 
-	tag[0] = variableNameStr.find(toupper(name[0]));
+	tag[0] = (BYTE)variableNameStr.find(toupper(name[0]));
 	if (tag[0] == std::string::npos)
 	{
 		throw CError();
@@ -173,7 +173,7 @@ void Name2Tag(std::string name, BYTE tag[2])
 			throw CError();
 		}
 
-		tag[1] = variableNameStr.find(toupper(name[1]));
+		tag[1] = (BYTE)variableNameStr.find(toupper(name[1]));
 		if (tag[1] == std::string::npos)
 		{
 			throw CError();
