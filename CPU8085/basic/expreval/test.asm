@@ -4,6 +4,7 @@
 .include	'expreval.def'
 .include	'..\integer\integer.def'
 .include	'..\tokenize\tokenize.def'
+.include	'..\strings\strings.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
@@ -28,6 +29,11 @@ START:
 	SIM
 	EI				;ENABLE INTERRUPTS
 
+	; SET STR PTRS
+	LXI	H,0xA000
+	SHLD	STR_LOPTR
+	SHLD	STR_HIPTR
+
 	CALL	INT_INIT
 	CALL	EXP_INIT
 
@@ -43,7 +49,8 @@ START:
 ;	JMP	TEST_SQR
 ;	JMP	TEST_LEN
 ;	JMP	TEST_ASC
-	JMP	TEST_VAL
+;	JMP	TEST_VAL
+	JMP	TEST_CHR
 	
 TEST_BINCALC:	; TEST OF ARITHMETIC OPERATORS
 	LXI	H,TESTSTR001	; 4+4
@@ -215,6 +222,13 @@ TEST_VAL:	;	TESTS OF VAL
 	LXI	H,TESTSTRB02	; VAL("-666")
 	CALL 	EVAL		; RESULT: -666
 
+
+TEST_CHR:	;	TESTS OF CHR$
+	LXI	H,TESTSTRC01	; CHR$(65)
+	CALL 	EVAL		; RESULT: "A"
+	LXI	H,TESTSTRC02	; CHR$(48)
+	CALL 	EVAL		; RESULT: "0"
+
 LOOP:
 	JMP	LOOP
 
@@ -334,6 +348,9 @@ TESTSTRA02:	.asciz	'ASC(" ")'		; 32
 TESTSTRB01:	.asciz	'VAL("1234")'		; 1234
 TESTSTRB02:	.asciz	'VAL("-666")'		; -666
 
+;	TESTS OF CHR$
+TESTSTRC01:	.asciz	'CHR$(65)'		; "A"
+TESTSTRC02:	.asciz	'CHR$(48)'		; "0"
 
 OUTSTR:		.ds 128
 
