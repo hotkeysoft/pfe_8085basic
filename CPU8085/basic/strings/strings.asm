@@ -4,7 +4,7 @@
 ;* DESCRIPTION:	IMPLEMENTATION OF STRING HANDLING FUNCTIONS
 ;*		SUCH AS ALLOCATE, FREE, COMPARE, ETC
 ;*
-;* $Id: strings.asm,v 1.23 2001-12-03 04:21:01 Dominic Thibodeau Exp $
+;* $Id: strings.asm,v 1.24 2001-12-03 05:06:33 Dominic Thibodeau Exp $
 ;*
 
 .module 	strings
@@ -44,13 +44,12 @@ STR_ALLOCATE::
 	; CALCULATE -ACC
 	CMA					; ACC = ~ACC
 	INR	A				; ACC = ~ACC+1
-2$:	
+
 	LHLD	STR_LOPTR			; LOAD LO STR PTR
 	MVI	D,0xFF	
 	MOV	E,A				; -LEN IN DE
-	
+2$:		
 	DAD	D				; LO STR PTR -= LEN
-
 	
 	; CHECK IF ENOUGH SPACE FOR ALLOCATION
 	; (LO STRPTR) > (HI VARPTR)	
@@ -85,8 +84,11 @@ STR_ALLOCATE::
 	
 4$:	; NOT ENOUGH MEMORY - TRY TO FREE SOME
 	CALL	STR_GARBAGECOLLECTION
-	JC	2$				; TRY AGAIN
-	JMP	ERR_OUTOFMEMORY			; REALLY OUT OF MEMORY
+	JNC	ERR_OUTOFMEMORY			; REALLY OUT OF MEMORY
+	
+	LHLD	STR_LOPTR			; LOAD NEW STR PTR
+	JMP	2$				; TRY AGAIN
+
 
 ;*********************************************************
 ;* STR_FREE:	FREE STR AT (H-L) (SETS 'PARENT' TO 0)
