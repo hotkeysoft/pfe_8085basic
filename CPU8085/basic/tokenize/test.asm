@@ -3,6 +3,8 @@
 
 .include	'tokenize.def'
 .include	'..\common\common.def'
+.include	'..\error\error.def'
+.include	'..\io\io.def'
 
 STACK	==	0xFFFF			;SYSTEM STACK
 
@@ -15,7 +17,6 @@ RST0:
 	LXI	SP,STACK		;INITALIZE STACK
 	JMP 	START
 
-
 ;*********************************************************
 ;* MAIN PROGRAM
 ;*********************************************************
@@ -26,6 +27,10 @@ START:
 	MVI	A,8			;SET INTERRUPT MASK
 	SIM
 	EI				;ENABLE INTERRUPTS
+
+	CALL	IO_INIT
+	LXI	H,0
+	SHLD	ERR_CURRLINE
 
 ;	JMP	TEST_FINDTOKENID
 ;	JMP	TEST_FINDTOKENSTR
@@ -78,9 +83,13 @@ TEST_TOKENIZE:
 	LXI	H,TESTSTR101
 	CALL	TOK_TOKENIZE1
 
-;	LXI	H,TESTSTR102
-;	CALL	TOK_TOKENIZE1
+	LXI	H,CONTINUE1			; SET RESTART POS
+	SHLD	ERR_RESTARTPTR
 
+	LXI	H,TESTSTR102
+	CALL	TOK_TOKENIZE1
+
+CONTINUE1:
 	LXI	H,TESTSTR103
 	CALL	TOK_TOKENIZE1
 
