@@ -12,7 +12,6 @@ SID_CSTR	== 4
 SID_VAR		== 8
 SID_GOSUB	== 16
 SID_FOR		== 32
-SID_STOP	== 64
 SID_FBASE	== 128
 
 ; KEYWORDS DEFINITION (VALUES)
@@ -44,9 +43,7 @@ K_XOR		== K_OR+1
 K_ABS		== 0xA0
 K_ASC		== K_ABS+1
 K_FRE		== K_ASC+1
-K_INT		== K_FRE+1
-K_IN		== K_INT+1
-K_LEN		== K_IN+1
+K_LEN		== K_FRE+1
 K_PEEK		== K_LEN+1
 K_RND		== K_PEEK+1
 K_SGN		== K_RND+1
@@ -60,27 +57,27 @@ K_RIGHT		== K_MID+1
 K_STR		== K_RIGHT+1
 
 K_CLR		== 0xC0
-K_CONT		== K_CLR+1
-K_DIM		== K_CONT+1
-K_END		== K_DIM+1
-K_STOP		== K_END+1
-K_FOR		== K_STOP+1
+K_CLS		== K_CLR+1
+K_ELSE		== K_CLS+1
+K_END		== K_ELSE+1
+K_FOR		== K_END+1
 K_GOSUB		== K_FOR+1
 K_GOTO		== K_GOSUB+1
-K_IF		== K_GOTO+1
-K_ELSE		== K_IF+1
-K_INPUT		== K_ELSE+1
+K_GOTOXY	== K_GOTO+1
+K_IF		== K_GOTOXY+1
+K_INPUT		== K_IF+1
 K_LET		== K_INPUT+1
 K_LIST		== K_LET+1
 K_NEW		== K_LIST+1
 K_NEXT		== K_NEW+1
-K_OUT		== K_NEXT+1
-K_POKE		== K_OUT+1
+K_POKE		== K_NEXT+1
 K_PRINT		== K_POKE+1
 K_REM		== K_PRINT+1
 K_RETURN	== K_REM+1
 K_RUN		== K_RETURN+1
-K_STEP		== K_RUN+1
+K_SLEEP		== K_RUN+1
+K_SOUND		== K_SLEEP+1
+K_STEP		== K_SOUND+1
 K_SYS		== K_STEP+1
 K_THEN		== K_SYS+1
 K_TO		== K_THEN+1
@@ -121,12 +118,11 @@ K_TABLE::
 	.db K_ABS		.ascii "ABS"
 	.db K_ASC		.ascii "ASC"
 	.db K_FRE		.ascii "FRE"
-	.db K_INT		.ascii "INT"
 	.db K_LEN		.ascii "LEN"
 	.db K_PEEK		.ascii "PEEK"
 	.db K_RND		.ascii "RND"
-	.db K_SQR		.ascii "SQR"
 	.db K_SGN		.ascii "SGN"
+	.db K_SQR		.ascii "SQR"
 	.db K_VAL		.ascii "VAL"
 
 	; string functions (return string)
@@ -138,14 +134,14 @@ K_TABLE::
 
 	; methods (doesn't return value)
 	.db K_CLR		.ascii "CLR"
-	.db K_CONT		.ascii "CONT"
+	.db K_CLS		.ascii "CLS"
+	.db K_ELSE		.ascii "ELSE"
 	.db K_END		.ascii "END"
-	.db K_STOP		.ascii "STOP"
 	.db K_FOR		.ascii "FOR"
 	.db K_GOSUB		.ascii "GOSUB"
 	.db K_GOTO		.ascii "GOTO"
+	.db K_GOTOXY		.ascii "GOTOXY"
 	.db K_IF		.ascii "IF"
-	.db K_ELSE		.ascii "ELSE"
 	.db K_INPUT		.ascii "INPUT"
 	.db K_LET		.ascii "LET"
 	.db K_LIST		.ascii "LIST"
@@ -157,6 +153,8 @@ K_TABLE::
 	.db K_REM		.ascii "REM"
 	.db K_RETURN		.ascii "RETURN"
 	.db K_RUN		.ascii "RUN"
+	.db K_SLEEP		.ascii "SLEEP"
+	.db K_SOUND		.ascii "SOUND"
 	.db K_STEP		.ascii "STEP"
 	.db K_SYS		.ascii "SYS"
 	.db K_THEN		.ascii "THEN"

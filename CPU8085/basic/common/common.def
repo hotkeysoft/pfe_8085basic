@@ -11,7 +11,6 @@
 	.globl	SID_VAR
 	.globl	SID_GOSUB
 	.globl	SID_FOR
-	.globl	SID_STOP
 	.globl	SID_FBASE
 
 	; KEYWORDS
@@ -42,8 +41,6 @@
 	.globl	K_ABS
 	.globl	K_ASC
 	.globl	K_FRE
-	.globl	K_INT
-	.globl	K_IN
 	.globl	K_LEN
 	.globl	K_PEEK
 	.globl	K_RND
@@ -58,26 +55,26 @@
 	.globl	K_STR
 
 	.globl	K_CLR
-	.globl	K_CONT
-	.globl	K_DIM
+	.globl	K_CLS
+	.globl	K_ELSE
 	.globl	K_END
-	.globl	K_STOP
 	.globl	K_FOR
 	.globl	K_GOSUB
 	.globl	K_GOTO
+	.globl	K_GOTOXY
 	.globl	K_IF
-	.globl	K_ELSE
 	.globl	K_INPUT
 	.globl	K_LET
 	.globl	K_LIST
 	.globl	K_NEW
 	.globl	K_NEXT
-	.globl	K_OUT
 	.globl	K_POKE
 	.globl	K_PRINT
 	.globl	K_REM
 	.globl	K_RETURN
 	.globl	K_RUN
+	.globl	K_SLEEP
+	.globl	K_SOUND
 	.globl	K_STEP
 	.globl	K_SYS
 	.globl	K_THEN
