@@ -19,6 +19,7 @@ enum ErrorType
 	E_EXP_DIVZERO,			// Division by zero
 	E_EXP_SYNTAX,			// Syntax error (missing parameter)
 	E_EXP_ELSEWITHOUTIF,	// Else without if
+	E_EXP_LINENOTFOUND,		// Line not found
 
 	// variables module errors
 	E_VAR_NOTINIT,			// variables used before being initialized

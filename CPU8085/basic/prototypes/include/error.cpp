@@ -14,6 +14,7 @@ Error errorStr[] = {
 	E_EXP_DIVZERO,			"EXP: Division by zero",
 	E_EXP_SYNTAX,			"EXP: Syntax error",
 	E_EXP_ELSEWITHOUTIF,	"EXP: ELSE without IF",
+	E_EXP_LINENOTFOUND,		"EXP: Undefined line number",
 
 	E_VAR_NOTINIT,			"VAR: Variable used before initialization",
 
