@@ -159,6 +159,9 @@
 			<File
 				RelativePath="..\tokenize\untokenize.cpp">
 			</File>
+			<File
+				RelativePath="..\variables\variables.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -180,6 +183,9 @@
 			</File>
 			<File
 				RelativePath=".\StdAfx.h">
+			</File>
+			<File
+				RelativePath="..\variables\variables.h">
 			</File>
 		</Filter>
 		<Filter
