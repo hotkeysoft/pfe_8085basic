@@ -20,7 +20,3 @@
 
 	.globl	EXP_STACKTEMP
 	.globl	EXP_CLEARSTACK
-
-.if DEBUG
-	.globl	EXP_DUMPSTACK
-.endif
