@@ -1,0 +1,34 @@
+
+	.globl	INT_ACC0
+	.globl	INT_ACC1
+	.globl	INT_ACC2
+	.globl	INT_ACC3
+
+	.globl	INT_ACCSTR
+
+	.globl	INT_ZERO
+
+	.globl	INT_INC
+	.globl	INT_DEC
+	
+	.globl	INT_NEG
+	
+	.globl	INT_ADD
+	.globl	INT_SUB
+	
+	.globl	INT_AND
+	.globl	INT_OR
+	.globl	INT_XOR
+	
+	.globl	INT_NOT
+	
+	.globl	INT_MUL
+	.globl	INT_DIV
+	
+	.globl	INT_ITOA
+	
+	
+	
+	
+	
+	
