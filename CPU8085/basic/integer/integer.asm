@@ -2,6 +2,7 @@
 .title 		Integer module
 
 .include	'..\common\common.def'
+.include	'..\error\error.def'
 
 .area	_CODE
 
@@ -493,16 +494,28 @@ INT_DIVLS:
 ;* INT_DIV: DIVIDES INT_ACC0 WITH INTEGER AT [H-L]
 ;* INT_ACC0 = INT_ACC0 / [H-L]
 INT_DIV::
-;	PUSH	B
-;	PUSH	D
-;	PUSH	H
+	PUSH	B
+	PUSH	D
+	PUSH	H
 
+	MVI	A,0
 	ORA	A					;CLEAR CARRY BIT
 
 	MOV	C,M					;MSB OF DIVISOR
 	INX	H
 	MOV	B,M					;LSB OF DIVISOR
 	DCX 	H
+	
+	; CHECK FOR DIVISOR = 0
+	CMP	B
+	JNZ	NOTZERO
+	
+	CMP	C
+	JNZ	NOTZERO
+	
+	JMP	ERR_INT_DIVZERO
+	
+NOTZERO:
 	
 	CALL 	INT_NEG					;GET -DIVISOR
 	
@@ -586,9 +599,9 @@ INT_DIV::
 		
 5$:
 	
-;	POP	H
-;	POP	D
-;	POP	B
+	POP	H
+	POP	D
+	POP	B
 	RET
 	
 ;*********************************************************
