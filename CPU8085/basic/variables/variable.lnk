@@ -2,6 +2,15 @@
 variable
 test
 ..\common\common
+..\error\error
+..\expreval\evaluate
+..\expreval\expreval
+..\integer\integer
+..\io\io
+..\program\program
+..\strings\strings
+..\tokenize\tokenize
+..\variables\variable
 -b DATA   = 0x8000
 -b _CODE  = 0x0040
 -e
