@@ -16,6 +16,7 @@ enum ErrorType
 	E_EXP_TYPEMISMATCH,		// type mismatch (i.e. int+str, str*str, etc...)
 	E_EXP_OVERFLOW,			// Overflow
 	E_EXP_ILLEGAL,			// Illegal argument (out or range, etc...)
+	E_EXP_DIVZERO,			// Division by zero
 
 	E_UNKNOWN				// general error
 };

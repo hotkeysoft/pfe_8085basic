@@ -11,6 +11,7 @@ Error errorStr[] = {
 	E_EXP_TYPEMISMATCH,		"EXP: Type mismatch",
 	E_EXP_OVERFLOW,			"EXP: Overflow",
 	E_EXP_ILLEGAL,			"EXP: Illegal argument",
+	E_EXP_DIVZERO,			"EXP: Division by zero",
 
 	E_UNKNOWN,			"Unknown Error"
 };
