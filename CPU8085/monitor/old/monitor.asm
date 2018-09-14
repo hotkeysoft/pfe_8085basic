@@ -1,7 +1,7 @@
 .module 	monitor
 .title 		Monitor
 
-.include	'io-150.def'
+.include	'io.def'
 
 STACK		=	0xFFFF		;SYSTEM STACK
 
