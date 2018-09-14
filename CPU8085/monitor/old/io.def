@@ -1,0 +1,12 @@
+
+	.globl	IO_INITMISC
+	.globl	IO_INITTIMER
+	.globl	IO_INITUART
+	.globl	IO_INITKBBUF
+	.globl	IO_BEEP
+	.globl	IO_SOUNDON
+	.globl	IO_DELAY
+	.globl	IO_SOUNDOFF
+	.globl	IO_GETCHAR
+
+	
