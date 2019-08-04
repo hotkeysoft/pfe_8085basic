@@ -11,4 +11,3 @@
 ..\..\bin\AS8085.EXE -lo ..\tokenize\tokenize
 ..\..\bin\AS8085.EXE -lo ..\strings\strings
 ..\..\bin\aslink.exe -f error
-..\..\bin\hexbin error.ihx

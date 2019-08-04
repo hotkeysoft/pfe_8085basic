@@ -11,4 +11,4 @@
 ..\..\bin\AS8085.EXE -lo ..\variables\variable
 ..\..\bin\AS8085.EXE -lo ..\strings\strings
 ..\..\bin\aslink.exe -f tokenize
-..\..\bin\hexbin tokenize.ihx
+

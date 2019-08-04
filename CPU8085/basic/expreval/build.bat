@@ -11,4 +11,4 @@
 ..\..\bin\AS8085.EXE -lo ..\error\error
 ..\..\bin\AS8085.EXE -lo ..\program\program
 ..\..\bin\aslink.exe -f expreval
-..\..\bin\hexbin expreval.ihx
+

@@ -5,4 +5,3 @@
 ..\..\bin\AS8085.EXE -lo ..\error\error
 ..\..\bin\AS8085.EXE -lo ..\io\io
 ..\..\bin\aslink.exe -f integer
-..\..\bin\hexbin integer.ihx
