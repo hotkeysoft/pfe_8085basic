@@ -1,0 +1,34 @@
+
+	.globl	IO_INIT
+	
+	.globl	IO_GETCHAR
+
+	.globl	IO_PUTC
+	.globl	IO_PUTS
+	.globl	IO_PUTSN
+	.globl	IO_PUTCB
+	.globl	IO_PUTCH
+	.globl	IO_PUTHLHEX
+	.globl	IO_PUTCR
+
+	.globl	IO_CLS
+	.globl	IO_HOME	
+
+	.globl	IO_GOTOXY
+
+	.globl	IO_SETFG
+	.globl	IO_SETBG
+	.globl	IO_SETCOLOR
+
+	.globl	IO_SETINTERACTIVEMODE
+	.globl	IO_SETINPUTMODE
+
+	.globl	IO_BEEP
+
+	.globl	IO_SOUNDON
+	.globl	IO_SOUNDOFF
+
+	.globl	IO_DELAY
+
+	.globl	TICNT
+	
