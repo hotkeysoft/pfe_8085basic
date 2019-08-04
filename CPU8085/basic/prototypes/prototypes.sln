@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "variables", "variables\vari
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strings", "strings\strings.vcxproj", "{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cordic", "cordic\cordic.vcxproj", "{071EC208-C544-466F-955A-BF20C5D5143C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -32,6 +34,10 @@ Global
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Debug|x86.Build.0 = Debug|Win32
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Release|x86.ActiveCfg = Release|Win32
 		{BBA37AD6-B9C6-4D97-9FA1-EB97CC65FBB8}.Release|x86.Build.0 = Release|Win32
+		{071EC208-C544-466F-955A-BF20C5D5143C}.Debug|x86.ActiveCfg = Debug|Win32
+		{071EC208-C544-466F-955A-BF20C5D5143C}.Debug|x86.Build.0 = Debug|Win32
+		{071EC208-C544-466F-955A-BF20C5D5143C}.Release|x86.ActiveCfg = Release|Win32
+		{071EC208-C544-466F-955A-BF20C5D5143C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

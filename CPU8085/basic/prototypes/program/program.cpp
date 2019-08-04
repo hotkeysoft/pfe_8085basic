@@ -1,5 +1,4 @@
 #include "stdafx.h"
-
 #include <iostream>
 
 // Basic line:  [Size][Line]Data.......[Size][Line]Data....etc...
