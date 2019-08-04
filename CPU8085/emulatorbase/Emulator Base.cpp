@@ -239,7 +239,7 @@ int main(void)
 //	memory.RegisterLogCallback(LogCallback);
 
 	std::vector<CMemoryBlock> monitorRom;
-	if (readIntelHex("D:\\Projects\\CPU8085\\basic\\main\\main.ihx", monitorRom))
+	if (readIntelHex("../basic/main/main.ihx", monitorRom))
 	{
 		for (int i=0; i<monitorRom.size(); i++)
 			memory.Allocate(&(monitorRom[i]));
@@ -270,7 +270,7 @@ int main(void)
 	time_t startTime, stopTime;
 	time(&startTime);
 
-	while (cpu.Step()/* && !keyboard.IsEscape()*/) {};
+	while (cpu.Step() && !uart.IsEscape()) {};
 
 	time(&stopTime);
 
