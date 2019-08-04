@@ -148,10 +148,10 @@ int main(void)
 
 	time(&stopTime);
 
-	fprintf(stderr, "Time elapsed: %u\n", stopTime-startTime);
+	fprintf(stderr, "Time elapsed: %I64u\n", stopTime-startTime);
 	cpu.getTime();
 	fprintf(stderr, "CPU ticks: %u\n", cpu.getTime());
-	fprintf(stderr, "Avg speed: %u ticks/s", cpu.getTime()/(stopTime-startTime));
+	fprintf(stderr, "Avg speed: %I64u ticks/s", cpu.getTime()/(stopTime-startTime));
 
 	return 0;
 }

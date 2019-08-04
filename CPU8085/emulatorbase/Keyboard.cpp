@@ -23,13 +23,13 @@ CKeyboard::~CKeyboard()
 
 BYTE CKeyboard::In()
 {
-	if (kbhit() == 0)
+	if (_kbhit() == 0)
 	{
 		return 0;		// bit 7 = 1 -> idle
 	}
 	else
 	{
-		currChar = getch();
+		currChar = _getch();
 		return (currChar | 128);
 	}
 }

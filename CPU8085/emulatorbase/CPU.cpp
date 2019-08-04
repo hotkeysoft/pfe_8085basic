@@ -14,7 +14,7 @@ CCPU::CCPU(CMemory &memory) : m_memory(memory)
 {
 	for (int i=0; i<256; i++)
 	{
-		m_opcodesTable[i] = UnknownOpcode;
+		m_opcodesTable[i] = &CCPU::UnknownOpcode;
 	}
 }
 

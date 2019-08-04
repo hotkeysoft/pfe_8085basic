@@ -13,284 +13,284 @@ CCPU8080::CCPU8080(CMemory &memory, CPorts &ports)
 	:	CCPU(memory),
 		m_ports(ports)
 {
-	m_opcodesTable[0XCE] = (OPCodeFunction)ACI;
+	m_opcodesTable[0XCE] = (OPCodeFunction)(&CCPU8080::ACI);
 
-	m_opcodesTable[0210] = (OPCodeFunction)ADCr;	// B
-	m_opcodesTable[0211] = (OPCodeFunction)ADCr;	// C
-	m_opcodesTable[0212] = (OPCodeFunction)ADCr;	// D
-	m_opcodesTable[0213] = (OPCodeFunction)ADCr;	// E
-	m_opcodesTable[0214] = (OPCodeFunction)ADCr;	// H
-	m_opcodesTable[0215] = (OPCodeFunction)ADCr;	// L
-	m_opcodesTable[0216] = (OPCodeFunction)ADCm;	// m
-	m_opcodesTable[0217] = (OPCodeFunction)ADCr;	// A
+	m_opcodesTable[0210] = (OPCodeFunction)(&CCPU8080::ADCr);	// B
+	m_opcodesTable[0211] = (OPCodeFunction)(&CCPU8080::ADCr);	// C
+	m_opcodesTable[0212] = (OPCodeFunction)(&CCPU8080::ADCr);	// D
+	m_opcodesTable[0213] = (OPCodeFunction)(&CCPU8080::ADCr);	// E
+	m_opcodesTable[0214] = (OPCodeFunction)(&CCPU8080::ADCr);	// H
+	m_opcodesTable[0215] = (OPCodeFunction)(&CCPU8080::ADCr);	// L
+	m_opcodesTable[0216] = (OPCodeFunction)(&CCPU8080::ADCm);	// m
+	m_opcodesTable[0217] = (OPCodeFunction)(&CCPU8080::ADCr);	// A
 
-	m_opcodesTable[0200] = (OPCodeFunction)ADDr;	// B
-	m_opcodesTable[0201] = (OPCodeFunction)ADDr;	// C
-	m_opcodesTable[0202] = (OPCodeFunction)ADDr;	// D
-	m_opcodesTable[0203] = (OPCodeFunction)ADDr;	// E
-	m_opcodesTable[0204] = (OPCodeFunction)ADDr;	// H
-	m_opcodesTable[0205] = (OPCodeFunction)ADDr;	// L
-	m_opcodesTable[0206] = (OPCodeFunction)ADDm;	// m
-	m_opcodesTable[0207] = (OPCodeFunction)ADDr;	// A
+	m_opcodesTable[0200] = (OPCodeFunction)(&CCPU8080::ADDr);	// B
+	m_opcodesTable[0201] = (OPCodeFunction)(&CCPU8080::ADDr);	// C
+	m_opcodesTable[0202] = (OPCodeFunction)(&CCPU8080::ADDr);	// D
+	m_opcodesTable[0203] = (OPCodeFunction)(&CCPU8080::ADDr);	// E
+	m_opcodesTable[0204] = (OPCodeFunction)(&CCPU8080::ADDr);	// H
+	m_opcodesTable[0205] = (OPCodeFunction)(&CCPU8080::ADDr);	// L
+	m_opcodesTable[0206] = (OPCodeFunction)(&CCPU8080::ADDm);	// m
+	m_opcodesTable[0207] = (OPCodeFunction)(&CCPU8080::ADDr);	// A
 
-	m_opcodesTable[0XC6] = (OPCodeFunction)ADI;
+	m_opcodesTable[0XC6] = (OPCodeFunction)(&CCPU8080::ADI);
 
-	m_opcodesTable[0240] = (OPCodeFunction)ANAr;	// B
-	m_opcodesTable[0241] = (OPCodeFunction)ANAr;	// C
-	m_opcodesTable[0242] = (OPCodeFunction)ANAr;	// D
-	m_opcodesTable[0243] = (OPCodeFunction)ANAr;	// E
-	m_opcodesTable[0244] = (OPCodeFunction)ANAr;	// H
-	m_opcodesTable[0245] = (OPCodeFunction)ANAr;	// L
-	m_opcodesTable[0246] = (OPCodeFunction)ANAm;	// m
-	m_opcodesTable[0247] = (OPCodeFunction)ANAr;	// A
+	m_opcodesTable[0240] = (OPCodeFunction)(&CCPU8080::ANAr);	// B
+	m_opcodesTable[0241] = (OPCodeFunction)(&CCPU8080::ANAr);	// C
+	m_opcodesTable[0242] = (OPCodeFunction)(&CCPU8080::ANAr);	// D
+	m_opcodesTable[0243] = (OPCodeFunction)(&CCPU8080::ANAr);	// E
+	m_opcodesTable[0244] = (OPCodeFunction)(&CCPU8080::ANAr);	// H
+	m_opcodesTable[0245] = (OPCodeFunction)(&CCPU8080::ANAr);	// L
+	m_opcodesTable[0246] = (OPCodeFunction)(&CCPU8080::ANAm);	// m
+	m_opcodesTable[0247] = (OPCodeFunction)(&CCPU8080::ANAr);	// A
 
-	m_opcodesTable[0XE6] = (OPCodeFunction)ANI;
+	m_opcodesTable[0XE6] = (OPCodeFunction)(&CCPU8080::ANI);
 
-	m_opcodesTable[0XCD] = (OPCodeFunction)CALL;
-	m_opcodesTable[0XDC] = (OPCodeFunction)CC;
-	m_opcodesTable[0XFC] = (OPCodeFunction)CM;
-	m_opcodesTable[0X2F] = (OPCodeFunction)CMA;
-	m_opcodesTable[0X3F] = (OPCodeFunction)CMC;
+	m_opcodesTable[0XCD] = (OPCodeFunction)(&CCPU8080::CALL);
+	m_opcodesTable[0XDC] = (OPCodeFunction)(&CCPU8080::CC);
+	m_opcodesTable[0XFC] = (OPCodeFunction)(&CCPU8080::CM);
+	m_opcodesTable[0X2F] = (OPCodeFunction)(&CCPU8080::CMA);
+	m_opcodesTable[0X3F] = (OPCodeFunction)(&CCPU8080::CMC);
 
-	m_opcodesTable[0270] = (OPCodeFunction)CMPr;	// B
-	m_opcodesTable[0271] = (OPCodeFunction)CMPr;	// C
-	m_opcodesTable[0272] = (OPCodeFunction)CMPr;	// D
-	m_opcodesTable[0273] = (OPCodeFunction)CMPr;	// E
-	m_opcodesTable[0274] = (OPCodeFunction)CMPr;	// H
-	m_opcodesTable[0275] = (OPCodeFunction)CMPr;	// L
-	m_opcodesTable[0276] = (OPCodeFunction)CMPm;	// m
-	m_opcodesTable[0277] = (OPCodeFunction)CMPr;	// A
+	m_opcodesTable[0270] = (OPCodeFunction)(&CCPU8080::CMPr);	// B
+	m_opcodesTable[0271] = (OPCodeFunction)(&CCPU8080::CMPr);	// C
+	m_opcodesTable[0272] = (OPCodeFunction)(&CCPU8080::CMPr);	// D
+	m_opcodesTable[0273] = (OPCodeFunction)(&CCPU8080::CMPr);	// E
+	m_opcodesTable[0274] = (OPCodeFunction)(&CCPU8080::CMPr);	// H
+	m_opcodesTable[0275] = (OPCodeFunction)(&CCPU8080::CMPr);	// L
+	m_opcodesTable[0276] = (OPCodeFunction)(&CCPU8080::CMPm);	// m
+	m_opcodesTable[0277] = (OPCodeFunction)(&CCPU8080::CMPr);	// A
 
-	m_opcodesTable[0XD4] = (OPCodeFunction)CNC;
-	m_opcodesTable[0XC4] = (OPCodeFunction)CNZ;
-	m_opcodesTable[0XE4] = (OPCodeFunction)CP;
-	m_opcodesTable[0XEC] = (OPCodeFunction)CPE;
-	m_opcodesTable[0XFE] = (OPCodeFunction)CPI;
-	m_opcodesTable[0XE4] = (OPCodeFunction)CPO;
-	m_opcodesTable[0XCC] = (OPCodeFunction)CZ;
-//	m_opcodesTable[0X27] = (OPCodeFunction)DAA;
-	m_opcodesTable[0X09] = (OPCodeFunction)DADb;
-	m_opcodesTable[0X19] = (OPCodeFunction)DADd;
-	m_opcodesTable[0X29] = (OPCodeFunction)DADh;
-	m_opcodesTable[0X39] = (OPCodeFunction)DADsp;
+	m_opcodesTable[0XD4] = (OPCodeFunction)(&CCPU8080::CNC);
+	m_opcodesTable[0XC4] = (OPCodeFunction)(&CCPU8080::CNZ);
+	m_opcodesTable[0XE4] = (OPCodeFunction)(&CCPU8080::CP);
+	m_opcodesTable[0XEC] = (OPCodeFunction)(&CCPU8080::CPE);
+	m_opcodesTable[0XFE] = (OPCodeFunction)(&CCPU8080::CPI);
+	m_opcodesTable[0XE4] = (OPCodeFunction)(&CCPU8080::CPO);
+	m_opcodesTable[0XCC] = (OPCodeFunction)(&CCPU8080::CZ);
+//	m_opcodesTable[0X27] = (OPCodeFunction)(&CCPU8080::DAA);
+	m_opcodesTable[0X09] = (OPCodeFunction)(&CCPU8080::DADb);
+	m_opcodesTable[0X19] = (OPCodeFunction)(&CCPU8080::DADd);
+	m_opcodesTable[0X29] = (OPCodeFunction)(&CCPU8080::DADh);
+	m_opcodesTable[0X39] = (OPCodeFunction)(&CCPU8080::DADsp);
 
-	m_opcodesTable[0005] = (OPCodeFunction)DCRr;	// B
-	m_opcodesTable[0015] = (OPCodeFunction)DCRr;	// C
-	m_opcodesTable[0025] = (OPCodeFunction)DCRr;	// D
-	m_opcodesTable[0035] = (OPCodeFunction)DCRr;	// E
-	m_opcodesTable[0045] = (OPCodeFunction)DCRr;	// H
-	m_opcodesTable[0055] = (OPCodeFunction)DCRr;	// L
-	m_opcodesTable[0065] = (OPCodeFunction)DCRm;	// m
-	m_opcodesTable[0075] = (OPCodeFunction)DCRr;	// A
+	m_opcodesTable[0005] = (OPCodeFunction)(&CCPU8080::DCRr);	// B
+	m_opcodesTable[0015] = (OPCodeFunction)(&CCPU8080::DCRr);	// C
+	m_opcodesTable[0025] = (OPCodeFunction)(&CCPU8080::DCRr);	// D
+	m_opcodesTable[0035] = (OPCodeFunction)(&CCPU8080::DCRr);	// E
+	m_opcodesTable[0045] = (OPCodeFunction)(&CCPU8080::DCRr);	// H
+	m_opcodesTable[0055] = (OPCodeFunction)(&CCPU8080::DCRr);	// L
+	m_opcodesTable[0065] = (OPCodeFunction)(&CCPU8080::DCRm);	// m
+	m_opcodesTable[0075] = (OPCodeFunction)(&CCPU8080::DCRr);	// A
 	
-	m_opcodesTable[0X0B] = (OPCodeFunction)DCXb;
-	m_opcodesTable[0X1B] = (OPCodeFunction)DCXd;
-	m_opcodesTable[0X2B] = (OPCodeFunction)DCXh;
-	m_opcodesTable[0X3B] = (OPCodeFunction)DCXsp;
-//	m_opcodesTable[0XF3] = (OPCodeFunction)DI;
-//	m_opcodesTable[0XFB] = (OPCodeFunction)EI;
-	m_opcodesTable[0XDB] = (OPCodeFunction)IN;
+	m_opcodesTable[0X0B] = (OPCodeFunction)(&CCPU8080::DCXb);
+	m_opcodesTable[0X1B] = (OPCodeFunction)(&CCPU8080::DCXd);
+	m_opcodesTable[0X2B] = (OPCodeFunction)(&CCPU8080::DCXh);
+	m_opcodesTable[0X3B] = (OPCodeFunction)(&CCPU8080::DCXsp);
+//	m_opcodesTable[0XF3] = (OPCodeFunction)(&CCPU8080::DI);
+//	m_opcodesTable[0XFB] = (OPCodeFunction)(&CCPU8080::EI);
+	m_opcodesTable[0XDB] = (OPCodeFunction)(&CCPU8080::IN);
 
-	m_opcodesTable[0004] = (OPCodeFunction)INRr;	// B
-	m_opcodesTable[0014] = (OPCodeFunction)INRr;	// C
-	m_opcodesTable[0024] = (OPCodeFunction)INRr;	// D
-	m_opcodesTable[0034] = (OPCodeFunction)INRr;	// E
-	m_opcodesTable[0044] = (OPCodeFunction)INRr;	// H
-	m_opcodesTable[0054] = (OPCodeFunction)INRr;	// L
-	m_opcodesTable[0064] = (OPCodeFunction)INRm;	// m
-	m_opcodesTable[0074] = (OPCodeFunction)INRr;	// A
+	m_opcodesTable[0004] = (OPCodeFunction)(&CCPU8080::INRr);	// B
+	m_opcodesTable[0014] = (OPCodeFunction)(&CCPU8080::INRr);	// C
+	m_opcodesTable[0024] = (OPCodeFunction)(&CCPU8080::INRr);	// D
+	m_opcodesTable[0034] = (OPCodeFunction)(&CCPU8080::INRr);	// E
+	m_opcodesTable[0044] = (OPCodeFunction)(&CCPU8080::INRr);	// H
+	m_opcodesTable[0054] = (OPCodeFunction)(&CCPU8080::INRr);	// L
+	m_opcodesTable[0064] = (OPCodeFunction)(&CCPU8080::INRm);	// m
+	m_opcodesTable[0074] = (OPCodeFunction)(&CCPU8080::INRr);	// A
 
-	m_opcodesTable[0X03] = (OPCodeFunction)INXb;
-	m_opcodesTable[0X13] = (OPCodeFunction)INXd;
-	m_opcodesTable[0X23] = (OPCodeFunction)INXh;
-	m_opcodesTable[0X33] = (OPCodeFunction)INXsp;
-	m_opcodesTable[0XC3] = (OPCodeFunction)JMP;
-	m_opcodesTable[0XDA] = (OPCodeFunction)JC;
-	m_opcodesTable[0XFA] = (OPCodeFunction)JM;
-	m_opcodesTable[0XD2] = (OPCodeFunction)JNC;
-	m_opcodesTable[0XC2] = (OPCodeFunction)JNZ;
-	m_opcodesTable[0XF2] = (OPCodeFunction)JP;
-	m_opcodesTable[0XEA] = (OPCodeFunction)JPE;
-	m_opcodesTable[0XE2] = (OPCodeFunction)JPO;
-	m_opcodesTable[0XCA] = (OPCodeFunction)JZ;
-	m_opcodesTable[0X3A] = (OPCodeFunction)LDA;
-	m_opcodesTable[0X0A] = (OPCodeFunction)LDAXb;
-	m_opcodesTable[0X1A] = (OPCodeFunction)LDAXd;
-	m_opcodesTable[0X2A] = (OPCodeFunction)LHLD;
-	m_opcodesTable[0X01] = (OPCodeFunction)LXIb;
-	m_opcodesTable[0X11] = (OPCodeFunction)LXId;
-	m_opcodesTable[0X21] = (OPCodeFunction)LXIh;
-	m_opcodesTable[0X31] = (OPCodeFunction)LXIsp;
+	m_opcodesTable[0X03] = (OPCodeFunction)(&CCPU8080::INXb);
+	m_opcodesTable[0X13] = (OPCodeFunction)(&CCPU8080::INXd);
+	m_opcodesTable[0X23] = (OPCodeFunction)(&CCPU8080::INXh);
+	m_opcodesTable[0X33] = (OPCodeFunction)(&CCPU8080::INXsp);
+	m_opcodesTable[0XC3] = (OPCodeFunction)(&CCPU8080::JMP);
+	m_opcodesTable[0XDA] = (OPCodeFunction)(&CCPU8080::JC);
+	m_opcodesTable[0XFA] = (OPCodeFunction)(&CCPU8080::JM);
+	m_opcodesTable[0XD2] = (OPCodeFunction)(&CCPU8080::JNC);
+	m_opcodesTable[0XC2] = (OPCodeFunction)(&CCPU8080::JNZ);
+	m_opcodesTable[0XF2] = (OPCodeFunction)(&CCPU8080::JP);
+	m_opcodesTable[0XEA] = (OPCodeFunction)(&CCPU8080::JPE);
+	m_opcodesTable[0XE2] = (OPCodeFunction)(&CCPU8080::JPO);
+	m_opcodesTable[0XCA] = (OPCodeFunction)(&CCPU8080::JZ);
+	m_opcodesTable[0X3A] = (OPCodeFunction)(&CCPU8080::LDA);
+	m_opcodesTable[0X0A] = (OPCodeFunction)(&CCPU8080::LDAXb);
+	m_opcodesTable[0X1A] = (OPCodeFunction)(&CCPU8080::LDAXd);
+	m_opcodesTable[0X2A] = (OPCodeFunction)(&CCPU8080::LHLD);
+	m_opcodesTable[0X01] = (OPCodeFunction)(&CCPU8080::LXIb);
+	m_opcodesTable[0X11] = (OPCodeFunction)(&CCPU8080::LXId);
+	m_opcodesTable[0X21] = (OPCodeFunction)(&CCPU8080::LXIh);
+	m_opcodesTable[0X31] = (OPCodeFunction)(&CCPU8080::LXIsp);
 
-	m_opcodesTable[0100] = (OPCodeFunction)MOVrr;	// B,B
-	m_opcodesTable[0101] = (OPCodeFunction)MOVrr;	// B,C
-	m_opcodesTable[0102] = (OPCodeFunction)MOVrr;	// B,D
-	m_opcodesTable[0103] = (OPCodeFunction)MOVrr;	// B,E
-	m_opcodesTable[0104] = (OPCodeFunction)MOVrr;	// B,H
-	m_opcodesTable[0105] = (OPCodeFunction)MOVrr;	// B,L
-	m_opcodesTable[0106] = (OPCodeFunction)MOVrm;	// B,m
-	m_opcodesTable[0107] = (OPCodeFunction)MOVrr;	// B,A
+	m_opcodesTable[0100] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,B
+	m_opcodesTable[0101] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,C
+	m_opcodesTable[0102] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,D
+	m_opcodesTable[0103] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,E
+	m_opcodesTable[0104] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,H
+	m_opcodesTable[0105] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,L
+	m_opcodesTable[0106] = (OPCodeFunction)(&CCPU8080::MOVrm);	// B,m
+	m_opcodesTable[0107] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,A
 
-	m_opcodesTable[0110] = (OPCodeFunction)MOVrr;	// C,B
-	m_opcodesTable[0111] = (OPCodeFunction)MOVrr;	// C,C
-	m_opcodesTable[0112] = (OPCodeFunction)MOVrr;	// C,D
-	m_opcodesTable[0113] = (OPCodeFunction)MOVrr;	// C,E
-	m_opcodesTable[0114] = (OPCodeFunction)MOVrr;	// C,H
-	m_opcodesTable[0115] = (OPCodeFunction)MOVrr;	// C,L
-	m_opcodesTable[0116] = (OPCodeFunction)MOVrm;	// C,m
-	m_opcodesTable[0117] = (OPCodeFunction)MOVrr;	// C,A
+	m_opcodesTable[0110] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,B
+	m_opcodesTable[0111] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,C
+	m_opcodesTable[0112] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,D
+	m_opcodesTable[0113] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,E
+	m_opcodesTable[0114] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,H
+	m_opcodesTable[0115] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,L
+	m_opcodesTable[0116] = (OPCodeFunction)(&CCPU8080::MOVrm);	// C,m
+	m_opcodesTable[0117] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,A
 
-	m_opcodesTable[0120] = (OPCodeFunction)MOVrr;	// D,B
-	m_opcodesTable[0121] = (OPCodeFunction)MOVrr;	// D,C
-	m_opcodesTable[0122] = (OPCodeFunction)MOVrr;	// D,D
-	m_opcodesTable[0123] = (OPCodeFunction)MOVrr;	// D,E
-	m_opcodesTable[0124] = (OPCodeFunction)MOVrr;	// D,H
-	m_opcodesTable[0125] = (OPCodeFunction)MOVrr;	// D,L
-	m_opcodesTable[0126] = (OPCodeFunction)MOVrm;	// D,m
-	m_opcodesTable[0127] = (OPCodeFunction)MOVrr;	// D,A
+	m_opcodesTable[0120] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,B
+	m_opcodesTable[0121] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,C
+	m_opcodesTable[0122] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,D
+	m_opcodesTable[0123] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,E
+	m_opcodesTable[0124] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,H
+	m_opcodesTable[0125] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,L
+	m_opcodesTable[0126] = (OPCodeFunction)(&CCPU8080::MOVrm);	// D,m
+	m_opcodesTable[0127] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,A
 
-	m_opcodesTable[0130] = (OPCodeFunction)MOVrr;	// E,B
-	m_opcodesTable[0131] = (OPCodeFunction)MOVrr;	// E,C
-	m_opcodesTable[0132] = (OPCodeFunction)MOVrr;	// E,D
-	m_opcodesTable[0133] = (OPCodeFunction)MOVrr;	// E,E
-	m_opcodesTable[0134] = (OPCodeFunction)MOVrr;	// E,H
-	m_opcodesTable[0135] = (OPCodeFunction)MOVrr;	// E,L
-	m_opcodesTable[0136] = (OPCodeFunction)MOVrm;	// E,m
-	m_opcodesTable[0137] = (OPCodeFunction)MOVrr;	// E,A
+	m_opcodesTable[0130] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,B
+	m_opcodesTable[0131] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,C
+	m_opcodesTable[0132] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,D
+	m_opcodesTable[0133] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,E
+	m_opcodesTable[0134] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,H
+	m_opcodesTable[0135] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,L
+	m_opcodesTable[0136] = (OPCodeFunction)(&CCPU8080::MOVrm);	// E,m
+	m_opcodesTable[0137] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,A
 
-	m_opcodesTable[0140] = (OPCodeFunction)MOVrr;	// H,B
-	m_opcodesTable[0141] = (OPCodeFunction)MOVrr;	// H,C
-	m_opcodesTable[0142] = (OPCodeFunction)MOVrr;	// H,D
-	m_opcodesTable[0143] = (OPCodeFunction)MOVrr;	// H,E
-	m_opcodesTable[0144] = (OPCodeFunction)MOVrr;	// H,H
-	m_opcodesTable[0145] = (OPCodeFunction)MOVrr;	// H,L
-	m_opcodesTable[0146] = (OPCodeFunction)MOVrm;	// H,m
-	m_opcodesTable[0147] = (OPCodeFunction)MOVrr;	// H,A
+	m_opcodesTable[0140] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,B
+	m_opcodesTable[0141] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,C
+	m_opcodesTable[0142] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,D
+	m_opcodesTable[0143] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,E
+	m_opcodesTable[0144] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,H
+	m_opcodesTable[0145] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,L
+	m_opcodesTable[0146] = (OPCodeFunction)(&CCPU8080::MOVrm);	// H,m
+	m_opcodesTable[0147] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,A
 
-	m_opcodesTable[0150] = (OPCodeFunction)MOVrr;	// L,B
-	m_opcodesTable[0151] = (OPCodeFunction)MOVrr;	// L,C
-	m_opcodesTable[0152] = (OPCodeFunction)MOVrr;	// L,D
-	m_opcodesTable[0153] = (OPCodeFunction)MOVrr;	// L,E
-	m_opcodesTable[0154] = (OPCodeFunction)MOVrr;	// L,H
-	m_opcodesTable[0155] = (OPCodeFunction)MOVrr;	// L,L
-	m_opcodesTable[0156] = (OPCodeFunction)MOVrm;	// L,m
-	m_opcodesTable[0157] = (OPCodeFunction)MOVrr;	// L,A
+	m_opcodesTable[0150] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,B
+	m_opcodesTable[0151] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,C
+	m_opcodesTable[0152] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,D
+	m_opcodesTable[0153] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,E
+	m_opcodesTable[0154] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,H
+	m_opcodesTable[0155] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,L
+	m_opcodesTable[0156] = (OPCodeFunction)(&CCPU8080::MOVrm);	// L,m
+	m_opcodesTable[0157] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,A
 
-	m_opcodesTable[0160] = (OPCodeFunction)MOVmr;	// m,B
-	m_opcodesTable[0161] = (OPCodeFunction)MOVmr;	// m,C
-	m_opcodesTable[0162] = (OPCodeFunction)MOVmr;	// m,D
-	m_opcodesTable[0163] = (OPCodeFunction)MOVmr;	// m,E
-	m_opcodesTable[0164] = (OPCodeFunction)MOVmr;	// m,H
-	m_opcodesTable[0165] = (OPCodeFunction)MOVmr;	// m,L
-	m_opcodesTable[0166] = (OPCodeFunction)HLT;		// HLT
-	m_opcodesTable[0167] = (OPCodeFunction)MOVmr;	// m,A
+	m_opcodesTable[0160] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,B
+	m_opcodesTable[0161] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,C
+	m_opcodesTable[0162] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,D
+	m_opcodesTable[0163] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,E
+	m_opcodesTable[0164] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,H
+	m_opcodesTable[0165] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,L
+	m_opcodesTable[0166] = (OPCodeFunction)(&CCPU8080::HLT);		// HLT
+	m_opcodesTable[0167] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,A
 
-	m_opcodesTable[0170] = (OPCodeFunction)MOVrr;	// A,B
-	m_opcodesTable[0171] = (OPCodeFunction)MOVrr;	// A,C
-	m_opcodesTable[0172] = (OPCodeFunction)MOVrr;	// A,D
-	m_opcodesTable[0173] = (OPCodeFunction)MOVrr;	// A,E
-	m_opcodesTable[0174] = (OPCodeFunction)MOVrr;	// A,H
-	m_opcodesTable[0175] = (OPCodeFunction)MOVrr;	// A,L
-	m_opcodesTable[0176] = (OPCodeFunction)MOVrm;	// A,m
-	m_opcodesTable[0177] = (OPCodeFunction)MOVrr;	// A,A
+	m_opcodesTable[0170] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,B
+	m_opcodesTable[0171] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,C
+	m_opcodesTable[0172] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,D
+	m_opcodesTable[0173] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,E
+	m_opcodesTable[0174] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,H
+	m_opcodesTable[0175] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,L
+	m_opcodesTable[0176] = (OPCodeFunction)(&CCPU8080::MOVrm);	// A,m
+	m_opcodesTable[0177] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,A
 
-	m_opcodesTable[0006] = (OPCodeFunction)MVIr;	// B
-	m_opcodesTable[0016] = (OPCodeFunction)MVIr;	// C
-	m_opcodesTable[0026] = (OPCodeFunction)MVIr;	// D
-	m_opcodesTable[0036] = (OPCodeFunction)MVIr;	// E
-	m_opcodesTable[0046] = (OPCodeFunction)MVIr;	// H
-	m_opcodesTable[0056] = (OPCodeFunction)MVIr;	// L
-	m_opcodesTable[0066] = (OPCodeFunction)MVIm;	// m
-	m_opcodesTable[0076] = (OPCodeFunction)MVIr;	// A
+	m_opcodesTable[0006] = (OPCodeFunction)(&CCPU8080::MVIr);	// B
+	m_opcodesTable[0016] = (OPCodeFunction)(&CCPU8080::MVIr);	// C
+	m_opcodesTable[0026] = (OPCodeFunction)(&CCPU8080::MVIr);	// D
+	m_opcodesTable[0036] = (OPCodeFunction)(&CCPU8080::MVIr);	// E
+	m_opcodesTable[0046] = (OPCodeFunction)(&CCPU8080::MVIr);	// H
+	m_opcodesTable[0056] = (OPCodeFunction)(&CCPU8080::MVIr);	// L
+	m_opcodesTable[0066] = (OPCodeFunction)(&CCPU8080::MVIm);	// m
+	m_opcodesTable[0076] = (OPCodeFunction)(&CCPU8080::MVIr);	// A
 
-	m_opcodesTable[0X00] = (OPCodeFunction)NOP;
+	m_opcodesTable[0X00] = (OPCodeFunction)(&CCPU8080::NOP);
 
-	m_opcodesTable[0260] = (OPCodeFunction)ORAr;	// B
-	m_opcodesTable[0261] = (OPCodeFunction)ORAr;	// C
-	m_opcodesTable[0262] = (OPCodeFunction)ORAr;	// D
-	m_opcodesTable[0263] = (OPCodeFunction)ORAr;	// E
-	m_opcodesTable[0264] = (OPCodeFunction)ORAr;	// H
-	m_opcodesTable[0265] = (OPCodeFunction)ORAr;	// L
-	m_opcodesTable[0266] = (OPCodeFunction)ORAm;	// m
-	m_opcodesTable[0267] = (OPCodeFunction)ORAr;	// A
+	m_opcodesTable[0260] = (OPCodeFunction)(&CCPU8080::ORAr);	// B
+	m_opcodesTable[0261] = (OPCodeFunction)(&CCPU8080::ORAr);	// C
+	m_opcodesTable[0262] = (OPCodeFunction)(&CCPU8080::ORAr);	// D
+	m_opcodesTable[0263] = (OPCodeFunction)(&CCPU8080::ORAr);	// E
+	m_opcodesTable[0264] = (OPCodeFunction)(&CCPU8080::ORAr);	// H
+	m_opcodesTable[0265] = (OPCodeFunction)(&CCPU8080::ORAr);	// L
+	m_opcodesTable[0266] = (OPCodeFunction)(&CCPU8080::ORAm);	// m
+	m_opcodesTable[0267] = (OPCodeFunction)(&CCPU8080::ORAr);	// A
 
-	m_opcodesTable[0XF6] = (OPCodeFunction)ORI;
-	m_opcodesTable[0XD3] = (OPCodeFunction)OUT;
-	m_opcodesTable[0XE9] = (OPCodeFunction)PCHL;
-	m_opcodesTable[0XC1] = (OPCodeFunction)POPb;
-	m_opcodesTable[0XD1] = (OPCodeFunction)POPd;
-	m_opcodesTable[0XE1] = (OPCodeFunction)POPh;
-	m_opcodesTable[0XF1] = (OPCodeFunction)POPpsw;
-	m_opcodesTable[0XC5] = (OPCodeFunction)PUSHb;
-	m_opcodesTable[0XD5] = (OPCodeFunction)PUSHd;
-	m_opcodesTable[0XE5] = (OPCodeFunction)PUSHh;
-	m_opcodesTable[0XF5] = (OPCodeFunction)PUSHpsw;
+	m_opcodesTable[0XF6] = (OPCodeFunction)(&CCPU8080::ORI);
+	m_opcodesTable[0XD3] = (OPCodeFunction)(&CCPU8080::OUT);
+	m_opcodesTable[0XE9] = (OPCodeFunction)(&CCPU8080::PCHL);
+	m_opcodesTable[0XC1] = (OPCodeFunction)(&CCPU8080::POPb);
+	m_opcodesTable[0XD1] = (OPCodeFunction)(&CCPU8080::POPd);
+	m_opcodesTable[0XE1] = (OPCodeFunction)(&CCPU8080::POPh);
+	m_opcodesTable[0XF1] = (OPCodeFunction)(&CCPU8080::POPpsw);
+	m_opcodesTable[0XC5] = (OPCodeFunction)(&CCPU8080::PUSHb);
+	m_opcodesTable[0XD5] = (OPCodeFunction)(&CCPU8080::PUSHd);
+	m_opcodesTable[0XE5] = (OPCodeFunction)(&CCPU8080::PUSHh);
+	m_opcodesTable[0XF5] = (OPCodeFunction)(&CCPU8080::PUSHpsw);
 
-	m_opcodesTable[0X17] = (OPCodeFunction)RAL;
-	m_opcodesTable[0X1F] = (OPCodeFunction)RAR;
-	m_opcodesTable[0XC9] = (OPCodeFunction)RET;
-	m_opcodesTable[0XD8] = (OPCodeFunction)RC;
-//	m_opcodesTable[0X20] = (OPCodeFunction)RIM;		//8085
-	m_opcodesTable[0XF8] = (OPCodeFunction)RM;
-	m_opcodesTable[0XD0] = (OPCodeFunction)RNC;
-	m_opcodesTable[0XC0] = (OPCodeFunction)RNZ;
-	m_opcodesTable[0XF0] = (OPCodeFunction)RP;
-	m_opcodesTable[0XE8] = (OPCodeFunction)RPE;
-	m_opcodesTable[0XE0] = (OPCodeFunction)RPO;
-	m_opcodesTable[0XC8] = (OPCodeFunction)RZ;
-	m_opcodesTable[0X07] = (OPCodeFunction)RLC;
-	m_opcodesTable[0X0F] = (OPCodeFunction)RRC;
+	m_opcodesTable[0X17] = (OPCodeFunction)(&CCPU8080::RAL);
+	m_opcodesTable[0X1F] = (OPCodeFunction)(&CCPU8080::RAR);
+	m_opcodesTable[0XC9] = (OPCodeFunction)(&CCPU8080::RET);
+	m_opcodesTable[0XD8] = (OPCodeFunction)(&CCPU8080::RC);
+//	m_opcodesTable[0X20] = (OPCodeFunction)(&CCPU8080::RIM);		//8085
+	m_opcodesTable[0XF8] = (OPCodeFunction)(&CCPU8080::RM);
+	m_opcodesTable[0XD0] = (OPCodeFunction)(&CCPU8080::RNC);
+	m_opcodesTable[0XC0] = (OPCodeFunction)(&CCPU8080::RNZ);
+	m_opcodesTable[0XF0] = (OPCodeFunction)(&CCPU8080::RP);
+	m_opcodesTable[0XE8] = (OPCodeFunction)(&CCPU8080::RPE);
+	m_opcodesTable[0XE0] = (OPCodeFunction)(&CCPU8080::RPO);
+	m_opcodesTable[0XC8] = (OPCodeFunction)(&CCPU8080::RZ);
+	m_opcodesTable[0X07] = (OPCodeFunction)(&CCPU8080::RLC);
+	m_opcodesTable[0X0F] = (OPCodeFunction)(&CCPU8080::RRC);
 
-	m_opcodesTable[0307] = (OPCodeFunction)RST;
-	m_opcodesTable[0317] = (OPCodeFunction)RST;
-	m_opcodesTable[0327] = (OPCodeFunction)RST;
-	m_opcodesTable[0337] = (OPCodeFunction)RST;
-	m_opcodesTable[0347] = (OPCodeFunction)RST;
-	m_opcodesTable[0357] = (OPCodeFunction)RST;
-	m_opcodesTable[0367] = (OPCodeFunction)RST;
-	m_opcodesTable[0377] = (OPCodeFunction)RST;
+	m_opcodesTable[0307] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0317] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0327] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0337] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0347] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0357] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0367] = (OPCodeFunction)(&CCPU8080::RST);
+	m_opcodesTable[0377] = (OPCodeFunction)(&CCPU8080::RST);
 
-	m_opcodesTable[0230] = (OPCodeFunction)SBBr;	// B
-	m_opcodesTable[0231] = (OPCodeFunction)SBBr;	// C
-	m_opcodesTable[0232] = (OPCodeFunction)SBBr;	// D
-	m_opcodesTable[0233] = (OPCodeFunction)SBBr;	// E
-	m_opcodesTable[0234] = (OPCodeFunction)SBBr;	// H
-	m_opcodesTable[0235] = (OPCodeFunction)SBBr;	// L
-	m_opcodesTable[0236] = (OPCodeFunction)SBBm;	// m
-	m_opcodesTable[0237] = (OPCodeFunction)SBBr;	// A
+	m_opcodesTable[0230] = (OPCodeFunction)(&CCPU8080::SBBr);	// B
+	m_opcodesTable[0231] = (OPCodeFunction)(&CCPU8080::SBBr);	// C
+	m_opcodesTable[0232] = (OPCodeFunction)(&CCPU8080::SBBr);	// D
+	m_opcodesTable[0233] = (OPCodeFunction)(&CCPU8080::SBBr);	// E
+	m_opcodesTable[0234] = (OPCodeFunction)(&CCPU8080::SBBr);	// H
+	m_opcodesTable[0235] = (OPCodeFunction)(&CCPU8080::SBBr);	// L
+	m_opcodesTable[0236] = (OPCodeFunction)(&CCPU8080::SBBm);	// m
+	m_opcodesTable[0237] = (OPCodeFunction)(&CCPU8080::SBBr);	// A
 
-	m_opcodesTable[0XDE] = (OPCodeFunction)SBI;
-	m_opcodesTable[0X22] = (OPCodeFunction)SHLD;
-//	m_opcodesTable[0X30] = (OPCodeFunction)SIM;		// 8085
-	m_opcodesTable[0XF9] = (OPCodeFunction)SPHL;
-	m_opcodesTable[0X32] = (OPCodeFunction)STA;
-	m_opcodesTable[0X02] = (OPCodeFunction)STAXb;
-	m_opcodesTable[0X12] = (OPCodeFunction)STAXd;
-	m_opcodesTable[0X37] = (OPCodeFunction)STC;
+	m_opcodesTable[0XDE] = (OPCodeFunction)(&CCPU8080::SBI);
+	m_opcodesTable[0X22] = (OPCodeFunction)(&CCPU8080::SHLD);
+//	m_opcodesTable[0X30] = (OPCodeFunction)(&CCPU8080::SIM);		// 8085
+	m_opcodesTable[0XF9] = (OPCodeFunction)(&CCPU8080::SPHL);
+	m_opcodesTable[0X32] = (OPCodeFunction)(&CCPU8080::STA);
+	m_opcodesTable[0X02] = (OPCodeFunction)(&CCPU8080::STAXb);
+	m_opcodesTable[0X12] = (OPCodeFunction)(&CCPU8080::STAXd);
+	m_opcodesTable[0X37] = (OPCodeFunction)(&CCPU8080::STC);
 
-	m_opcodesTable[0220] = (OPCodeFunction)SUBr;	// B
-	m_opcodesTable[0221] = (OPCodeFunction)SUBr;	// C
-	m_opcodesTable[0222] = (OPCodeFunction)SUBr;	// D
-	m_opcodesTable[0223] = (OPCodeFunction)SUBr;	// E
-	m_opcodesTable[0224] = (OPCodeFunction)SUBr;	// H
-	m_opcodesTable[0225] = (OPCodeFunction)SUBr;	// L
-	m_opcodesTable[0226] = (OPCodeFunction)SUBm;	// m
-	m_opcodesTable[0227] = (OPCodeFunction)SUBr;	// A
+	m_opcodesTable[0220] = (OPCodeFunction)(&CCPU8080::SUBr);	// B
+	m_opcodesTable[0221] = (OPCodeFunction)(&CCPU8080::SUBr);	// C
+	m_opcodesTable[0222] = (OPCodeFunction)(&CCPU8080::SUBr);	// D
+	m_opcodesTable[0223] = (OPCodeFunction)(&CCPU8080::SUBr);	// E
+	m_opcodesTable[0224] = (OPCodeFunction)(&CCPU8080::SUBr);	// H
+	m_opcodesTable[0225] = (OPCodeFunction)(&CCPU8080::SUBr);	// L
+	m_opcodesTable[0226] = (OPCodeFunction)(&CCPU8080::SUBm);	// m
+	m_opcodesTable[0227] = (OPCodeFunction)(&CCPU8080::SUBr);	// A
 
-	m_opcodesTable[0XD6] = (OPCodeFunction)SUI;
-	m_opcodesTable[0XEB] = (OPCodeFunction)XCHG;
+	m_opcodesTable[0XD6] = (OPCodeFunction)(&CCPU8080::SUI);
+	m_opcodesTable[0XEB] = (OPCodeFunction)(&CCPU8080::XCHG);
 
-	m_opcodesTable[0250] = (OPCodeFunction)XRAr;	// B
-	m_opcodesTable[0251] = (OPCodeFunction)XRAr;	// C
-	m_opcodesTable[0252] = (OPCodeFunction)XRAr;	// D
-	m_opcodesTable[0253] = (OPCodeFunction)XRAr;	// E
-	m_opcodesTable[0254] = (OPCodeFunction)XRAr;	// H
-	m_opcodesTable[0255] = (OPCodeFunction)XRAr;	// L
-	m_opcodesTable[0256] = (OPCodeFunction)XRAm;	// m
-	m_opcodesTable[0257] = (OPCodeFunction)XRAr;	// A
+	m_opcodesTable[0250] = (OPCodeFunction)(&CCPU8080::XRAr);	// B
+	m_opcodesTable[0251] = (OPCodeFunction)(&CCPU8080::XRAr);	// C
+	m_opcodesTable[0252] = (OPCodeFunction)(&CCPU8080::XRAr);	// D
+	m_opcodesTable[0253] = (OPCodeFunction)(&CCPU8080::XRAr);	// E
+	m_opcodesTable[0254] = (OPCodeFunction)(&CCPU8080::XRAr);	// H
+	m_opcodesTable[0255] = (OPCodeFunction)(&CCPU8080::XRAr);	// L
+	m_opcodesTable[0256] = (OPCodeFunction)(&CCPU8080::XRAm);	// m
+	m_opcodesTable[0257] = (OPCodeFunction)(&CCPU8080::XRAr);	// A
 
-	m_opcodesTable[0XEE] = (OPCodeFunction)XRI;
-	m_opcodesTable[0XE3] = (OPCodeFunction)XTHL;
+	m_opcodesTable[0XEE] = (OPCodeFunction)(&CCPU8080::XRI);
+	m_opcodesTable[0XE3] = (OPCodeFunction)(&CCPU8080::XTHL);
 }
 
 CCPU8080::~CCPU8080()
@@ -1112,8 +1112,8 @@ void CCPU8080::dad(WORD value)
 
 	setFlag(CY_FLAG, hl>0xFFFF);
 
-	regH = getHByte(hl);
-	regL = getLByte(hl);
+	regH = getHByte((WORD)hl);
+	regL = getLByte((WORD)hl);
 
 	m_timeTicks += 10;
 	m_programCounter++;
@@ -1151,7 +1151,7 @@ void CCPU8080::sub(BYTE src, bool borrow)
 		loNibble--;
 	}
 
-	regA = (WORD)temp;
+	regA = (BYTE)temp;
 
 	setFlag(CY_FLAG, (temp<0));
 	setFlag(AC_FLAG, !(loNibble<0));
@@ -1272,9 +1272,9 @@ void CCPU8080::cmp(BYTE src)
 
 	setFlag(CY_FLAG, (temp<0));
 	setFlag(AC_FLAG, !(loNibble<0));
-	adjustSign((WORD)temp);
-	adjustZero((WORD)temp);
-	adjustParity((WORD)temp);
+	adjustSign((BYTE)temp);
+	adjustZero((BYTE)temp);
+	adjustParity((BYTE)temp);
 }
 
 void CCPU8080::CMPr(BYTE opcode)
