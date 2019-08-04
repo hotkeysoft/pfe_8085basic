@@ -1,13 +1,7 @@
 // Ports.h: interface for the CPorts class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_PORTS_H__B598A830_AD36_4003_8470_B2E03B1D6871__INCLUDED_)
-#define AFX_PORTS_H__B598A830_AD36_4003_8470_B2E03B1D6871__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "Common.h"
 #include "InputPort.h"
@@ -42,5 +36,3 @@ private:
 
 	void (*m_logCallbackFunc)(const char *str);
 };
-
-#endif // !defined(AFX_PORTS_H__B598A830_AD36_4003_8470_B2E03B1D6871__INCLUDED_)

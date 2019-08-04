@@ -40,20 +40,22 @@ bool CCPU::Step()
 {
 	// Fetch opcode
 	unsigned char opcode;
+	m_state = RUN;
 	if (m_memory.Read(m_programCounter, opcode) == true)
 	{
 		// Execute instruction
 		(this->*m_opcodesTable[opcode])(opcode);
-		return true;
 	}
 	else
 	{
+		fprintf(stderr, "CPU: Reading invalid address %X! Stopping CPU.\n", m_programCounter);
 		m_state = STOP;
-		return false;
 	}
+
+	return (m_state == RUN);
 }
 
-void CCPU::UnknownOpcode(unsigned char opcode)
+void CCPU::UnknownOpcode(BYTE opcode)
 {
 	fprintf(stderr, "CPU: Unknown Opcode (%X) at address %X! Stopping CPU.\n", opcode, m_programCounter);
 	m_state = STOP;

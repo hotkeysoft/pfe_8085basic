@@ -26,7 +26,9 @@ CMemoryBlock::CMemoryBlock(WORD baseAddress, const std::vector<BYTE>data, Memory
 	:	m_baseAddress(baseAddress),
 		m_type(type)
 {
-	m_size = data.size();
+	if (data.size() ==0 || data.size() > 0xFFFF)
+		throw std::exception("Invalid block size");
+	m_size = (WORD)data.size();
 
 	m_invalid = 0xFA;
 

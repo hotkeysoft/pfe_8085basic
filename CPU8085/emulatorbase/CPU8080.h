@@ -1,31 +1,33 @@
 // CPU8080.h: interface for the CCPU8080 class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_CPU8080_H__BCEDD239_9A35_4B20_A4E2_3B8B527E1E34__INCLUDED_)
-#define AFX_CPU8080_H__BCEDD239_9A35_4B20_A4E2_3B8B527E1E34__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "CPU.h"
 #include "Ports.h"
+#include "Interrupts.h"
 
 class CCPU8080 : public CCPU  
 {
 public:
-	CCPU8080(CMemory &memory, CPorts &ports);
+	enum InterruptSource {TRAP = 0, RST75, RST65, RST55 /*TODO INTR/INTA not implemented*/ };
+	
+	CCPU8080(CMemory &memory, CPorts &ports, CInterrupts &interrupts);
 	virtual ~CCPU8080();
 
 	void Dump();
 
 	virtual void Reset();
 
+	virtual bool Step();
+
 protected:
 	CPorts &m_ports;
+	CInterrupts &m_interrupts;
 
 	enum FLAG {S_FLAG=128, Z_FLAG=64, AC_FLAG=16, P_FLAG=4, CY_FLAG=1};
+
+	bool m_interruptsEnabled;
 
 	BYTE regA;
 	BYTE regB, regC;
@@ -41,7 +43,8 @@ protected:
 	BYTE dummy;
 
 	// Helper functions
-
+	void interrupt(InterruptSource source);
+	
 	BYTE &getRegL(BYTE opcode);
 	BYTE &getRegR(BYTE opcode);
 
@@ -203,4 +206,3 @@ protected:
 	void HLT(BYTE opcode);
 };
 
-#endif // !defined(AFX_CPU8080_H__BCEDD239_9A35_4B20_A4E2_3B8B527E1E34__INCLUDED_)

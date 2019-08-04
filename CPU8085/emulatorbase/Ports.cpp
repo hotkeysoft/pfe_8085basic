@@ -110,7 +110,7 @@ bool CPorts::In(BYTE port,BYTE &value)
 {
 	if (m_inputPorts[port] == NULL)
 	{
-		LogPrintf("ERROR: CPorts::In: port not found");
+		LogPrintf("ERROR: CPorts::In: port %x not allocated", port);
 		return false;
 	}
 
@@ -122,7 +122,7 @@ bool CPorts::Out(BYTE port,BYTE value)
 {
 	if (m_outputPorts[port] == NULL)
 	{
-		LogPrintf("ERROR: CPorts::Out: port not found");
+		LogPrintf("ERROR: CPorts::Out: port %x not allocated", port);
 		return false;
 	}
 

@@ -87,6 +87,9 @@
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -116,6 +119,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -123,11 +127,10 @@
     <ClCompile Include="CPU8080.cpp" />
     <ClCompile Include="Emulator Base.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
-    <ClCompile Include="InputPort.cpp" />
+    <ClCompile Include="Interrupts.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryBlock.cpp" />
-    <ClCompile Include="OutputPort.cpp" />
     <ClCompile Include="Ports.cpp" />
     <ClCompile Include="StdAfx.cpp" />
   </ItemGroup>
@@ -137,6 +140,8 @@
     <ClInclude Include="CPU8080.h" />
     <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="InputPort.h" />
+    <ClInclude Include="Interrupts.h" />
+    <ClInclude Include="InterruptSource.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryBlock.h" />

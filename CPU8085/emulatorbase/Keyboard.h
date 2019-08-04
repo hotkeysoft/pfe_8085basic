@@ -1,28 +1,26 @@
 // Keyboard.h: interface for the CKeyboard class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_KEYBOARD_H__CDDF00BE_98E2_46CD_B483_E8AA26663F11__INCLUDED_)
-#define AFX_KEYBOARD_H__CDDF00BE_98E2_46CD_B483_E8AA26663F11__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "Common.h"
 #include "InputPort.h"
+#include "InterruptSource.h"
 
-class CKeyboard : public CInputPort  
+class CKeyboard : public CInputPort, public CInterruptSource
 {
 public:
 	CKeyboard();
 	virtual ~CKeyboard();
 
-	virtual BYTE In();
-
-	BYTE currChar;
+	bool IsEscape() { return m_currChar == 27; }
 
 protected:
-};
+	// Inherited via CInterruptSource
+	virtual bool IsInterrupting() override;
 
-#endif // !defined(AFX_KEYBOARD_H__CDDF00BE_98E2_46CD_B483_E8AA26663F11__INCLUDED_)
+	// Inherited via CInputPort
+	virtual BYTE In() override;
+
+	BYTE m_currChar;
+};

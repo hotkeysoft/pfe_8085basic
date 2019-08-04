@@ -4,7 +4,6 @@
 
 #include "stdafx.h"
 #include "Keyboard.h"
-
 #include <conio.h>
 
 //////////////////////////////////////////////////////////////////////
@@ -13,7 +12,6 @@
 
 CKeyboard::CKeyboard()
 {
-	currChar = 0;
 }
 
 CKeyboard::~CKeyboard()
@@ -29,7 +27,13 @@ BYTE CKeyboard::In()
 	}
 	else
 	{
-		currChar = _getch();
-		return (currChar | 128);
+		m_currChar = _getch();
+		while (_kbhit()) _getch();
+		return m_currChar;
 	}
+}
+
+bool CKeyboard::IsInterrupting()
+{
+	return _kbhit();
 }

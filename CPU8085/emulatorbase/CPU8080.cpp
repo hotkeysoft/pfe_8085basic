@@ -9,9 +9,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CCPU8080::CCPU8080(CMemory &memory, CPorts &ports) 
-	:	CCPU(memory),
-		m_ports(ports)
+CCPU8080::CCPU8080(CMemory & memory, CPorts & ports, CInterrupts & interrupts)
+	:	CCPU(memory), m_ports(ports), m_interrupts(interrupts), m_interruptsEnabled(false)
 {
 	m_opcodesTable[0XCE] = (OPCodeFunction)(&CCPU8080::ACI);
 
@@ -87,8 +86,8 @@ CCPU8080::CCPU8080(CMemory &memory, CPorts &ports)
 	m_opcodesTable[0X1B] = (OPCodeFunction)(&CCPU8080::DCXd);
 	m_opcodesTable[0X2B] = (OPCodeFunction)(&CCPU8080::DCXh);
 	m_opcodesTable[0X3B] = (OPCodeFunction)(&CCPU8080::DCXsp);
-//	m_opcodesTable[0XF3] = (OPCodeFunction)(&CCPU8080::DI);
-//	m_opcodesTable[0XFB] = (OPCodeFunction)(&CCPU8080::EI);
+	m_opcodesTable[0XF3] = (OPCodeFunction)(&CCPU8080::DI);
+	m_opcodesTable[0XFB] = (OPCodeFunction)(&CCPU8080::EI);
 	m_opcodesTable[0XDB] = (OPCodeFunction)(&CCPU8080::IN);
 
 	m_opcodesTable[0004] = (OPCodeFunction)(&CCPU8080::INRr);	// B
@@ -182,7 +181,7 @@ CCPU8080::CCPU8080(CMemory &memory, CPorts &ports)
 	m_opcodesTable[0163] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,E
 	m_opcodesTable[0164] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,H
 	m_opcodesTable[0165] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,L
-	m_opcodesTable[0166] = (OPCodeFunction)(&CCPU8080::HLT);		// HLT
+	m_opcodesTable[0166] = (OPCodeFunction)(&CCPU8080::HLT);	// HLT
 	m_opcodesTable[0167] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,A
 
 	m_opcodesTable[0170] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,B
@@ -230,7 +229,7 @@ CCPU8080::CCPU8080(CMemory &memory, CPorts &ports)
 	m_opcodesTable[0X1F] = (OPCodeFunction)(&CCPU8080::RAR);
 	m_opcodesTable[0XC9] = (OPCodeFunction)(&CCPU8080::RET);
 	m_opcodesTable[0XD8] = (OPCodeFunction)(&CCPU8080::RC);
-//	m_opcodesTable[0X20] = (OPCodeFunction)(&CCPU8080::RIM);		//8085
+	m_opcodesTable[0X20] = (OPCodeFunction)(&CCPU8080::NOP);		//8085 TODO: RIM
 	m_opcodesTable[0XF8] = (OPCodeFunction)(&CCPU8080::RM);
 	m_opcodesTable[0XD0] = (OPCodeFunction)(&CCPU8080::RNC);
 	m_opcodesTable[0XC0] = (OPCodeFunction)(&CCPU8080::RNZ);
@@ -261,7 +260,7 @@ CCPU8080::CCPU8080(CMemory &memory, CPorts &ports)
 
 	m_opcodesTable[0XDE] = (OPCodeFunction)(&CCPU8080::SBI);
 	m_opcodesTable[0X22] = (OPCodeFunction)(&CCPU8080::SHLD);
-//	m_opcodesTable[0X30] = (OPCodeFunction)(&CCPU8080::SIM);		// 8085
+	m_opcodesTable[0X30] = (OPCodeFunction)(&CCPU8080::NOP);		// 8085 TODO: SIM
 	m_opcodesTable[0XF9] = (OPCodeFunction)(&CCPU8080::SPHL);
 	m_opcodesTable[0X32] = (OPCodeFunction)(&CCPU8080::STA);
 	m_opcodesTable[0X02] = (OPCodeFunction)(&CCPU8080::STAXb);
@@ -314,6 +313,24 @@ void CCPU8080::Reset()
 	flags = 0;
 }
 
+bool CCPU8080::Step()
+{
+	if (!CCPU::Step())
+		return false;
+
+	// Check for interrupts
+	// TODO: No Timing, no latching, no masking... 
+	if (m_interruptsEnabled)
+	{
+		interrupt(TRAP);
+		interrupt(RST75);
+		interrupt(RST65);
+		interrupt(RST55);
+	}
+
+	return true;
+}
+
 void CCPU8080::Dump()
 {
 	fprintf(stderr, "AF = %X %X\tCY = %c\n", regA, flags, getFlag(CY_FLAG)?'1':'0');
@@ -325,6 +342,34 @@ void CCPU8080::Dump()
 	fprintf(stderr, "\n");
 }
 
+
+void CCPU8080::interrupt(InterruptSource source)
+{
+	if (m_interrupts.IsInterrupting(source))
+	{
+		m_interruptsEnabled = false;
+
+		regSP--;
+		m_memory.Write(regSP, getHByte(m_programCounter));
+		regSP--;
+		m_memory.Write(regSP, getLByte(m_programCounter));
+
+		WORD vector;
+
+		switch (source)
+		{
+		case TRAP:	vector = 0x24; break;
+		case RST75:	vector = 0x3C; break;
+		case RST65:	vector = 0x34; break;
+		case RST55:	vector = 0x2C; break;
+		default:
+			fprintf(stderr, "FATAL: invalid interrupt source\n");
+		}
+
+		m_timeTicks += 12;
+		m_programCounter = vector;
+	}
+}
 
 BYTE &CCPU8080::getRegL(BYTE opcode)
 {
@@ -883,14 +928,14 @@ void CCPU8080::RST(BYTE opcode)
 
 	switch(opcode)
 	{
-	case 000:	vector = 0x0;
-	case 010:	vector = 0x8;
-	case 020:	vector = 0x10;
-	case 030:	vector = 0x18;
-	case 040:	vector = 0x20;
-	case 050:	vector = 0x28;
-	case 060:	vector = 0x30;
-	case 070:	vector = 0x38;
+	case 000:	vector = 0x0; break;
+	case 010:	vector = 0x8; break;
+	case 020:	vector = 0x10; break;
+	case 030:	vector = 0x18; break;
+	case 040:	vector = 0x20; break;
+	case 050:	vector = 0x28; break;
+	case 060:	vector = 0x30; break;
+	case 070:	vector = 0x38; break;
 	}
 
 	m_timeTicks += 12;
@@ -1515,11 +1560,13 @@ void CCPU8080::OUT(BYTE opcode)
 
 void CCPU8080::EI(BYTE opcode)
 {
+	m_interruptsEnabled = true; // TODO: Should happen after next instruction execution
 	m_programCounter++;
 }
 
 void CCPU8080::DI(BYTE opcode)
 {
+	m_interruptsEnabled = false;
 	m_programCounter++;
 }
 

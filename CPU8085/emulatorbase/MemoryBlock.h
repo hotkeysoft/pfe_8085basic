@@ -1,13 +1,7 @@
 // MemoryBlock.h: interface for the CMemoryBlock class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_MEMORYBLOCK_H__5E4DCC3F_4033_44EA_AF88_FD2E38AC2FD1__INCLUDED_)
-#define AFX_MEMORYBLOCK_H__5E4DCC3F_4033_44EA_AF88_FD2E38AC2FD1__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "Common.h"
 #include <vector>
@@ -41,5 +35,3 @@ protected:
 
 	BYTE m_invalid;
 };
-
-#endif // !defined(AFX_MEMORYBLOCK_H__5E4DCC3F_4033_44EA_AF88_FD2E38AC2FD1__INCLUDED_)

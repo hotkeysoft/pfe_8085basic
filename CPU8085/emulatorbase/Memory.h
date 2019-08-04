@@ -1,13 +1,7 @@
 // Memory.h: interface for the CMemory class.
 //
 //////////////////////////////////////////////////////////////////////
-
-#if !defined(AFX_MEMORY_H__60FF0DB0_3E09_4674_AB6E_4A0158B56F77__INCLUDED_)
-#define AFX_MEMORY_H__60FF0DB0_3E09_4674_AB6E_4A0158B56F77__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 #include "MemoryBlock.h"
 #include "Common.h"
@@ -43,5 +37,3 @@ private:
 
 	void (*m_logCallbackFunc)(const char *str);
 };
-
-#endif // !defined(AFX_MEMORY_H__60FF0DB0_3E09_4674_AB6E_4A0158B56F77__INCLUDED_)

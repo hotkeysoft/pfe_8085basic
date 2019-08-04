@@ -10,8 +10,101 @@
 #include <conio.h>
 #include <vector>
 #include <string>
+#include <iostream>
 #include <fstream>
 #include <time.h>
+
+#include <Windows.h>
+
+class Timer : public CInterruptSource
+{
+	virtual bool IsInterrupting() override
+	{
+		DWORD ticks = GetTickCount();
+		if (m_start == 0)
+		{
+			m_start = ticks;
+			return false;
+		}
+
+		DWORD delta = ticks - m_start;
+		if (delta > 100) 
+		{
+			m_start = ticks;
+			return true;
+		}
+		return false;
+	}
+
+	DWORD m_start = 0;
+};
+
+class UART_LSR : public CInputPort
+{
+	// Inherited via CInputPort
+	virtual BYTE In() override
+	{
+		// Always ready
+		return 0x20;
+	}
+};
+
+class UART_THR : public COutputPort
+{
+	// Inherited via COutputPort
+	virtual void Out(BYTE value) override
+	{
+		if (isprint(value)) 
+		{
+			fprintf(stdout, "%c", value);
+		}
+		else if (value == 0x0D)
+		{
+			fprintf(stdout, "\n");
+		}
+		else
+		{
+			fprintf(stdout, "[0x%X]", value);
+		}
+	}
+};
+
+class UART_MCR : public CInputPort, public COutputPort
+{
+public:
+	UART_MCR() { m_value = 0; }
+	// Inherited via CInputPort
+	virtual BYTE In() override
+	{
+		return m_value;
+	}
+
+	// Inherited via COutputPort
+	virtual void Out(BYTE value) override
+	{
+		if (!(m_value & 0x1) && (value & 0x01))
+		{
+			fprintf(stdout, "[XON]");
+		}
+		else if ((m_value & 0x1) && !(value & 0x01))
+		{
+			fprintf(stdout, "[XOFF]");
+		}
+
+		if (!(m_value & 0x04) && (value & 0x04))
+		{
+			fprintf(stdout, "[SOUNDON]");
+		}
+		else if ((m_value & 0x04) && !(value & 0x04))
+		{
+			fprintf(stdout, "[SOUNDOFF]");
+		}
+		m_value = value;
+	}
+
+	BYTE m_value;
+};
+
 
 void LogCallback(const char *str)
 {
@@ -25,8 +118,13 @@ BYTE hexToByte(const std::string &hexStr)
 	if (hexStr.length() < 2)
 		return 0;
 
-	return (strchr(HexNumbers, toupper(hexStr[0]))-HexNumbers)*16 +
-		(strchr(HexNumbers, toupper(hexStr[1]))-HexNumbers);
+	const char* n1 = strchr(HexNumbers, toupper(hexStr[0]));
+	const char* n2 = strchr(HexNumbers, toupper(hexStr[1]));
+
+	if (!n1 || !n2)
+		throw std::exception("Invalid hex digit");
+
+	return BYTE(n1-HexNumbers)*16 + BYTE(n2-HexNumbers);
 }
 
 WORD hexToWord(const std::string &hexStr)
@@ -38,9 +136,107 @@ WORD hexToWord(const std::string &hexStr)
 		hexToByte(hexStr.substr(2, 2));
 }
 
+bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
+{
+	std::ifstream file(fileName.c_str(), std::ios::in);
+
+	if (!file)
+	{
+		std::cerr << "Error opening file: " << fileName << std::endl;
+		return false;
+	}
+
+	int lastAddr = -1;
+	std::vector<BYTE> currBuffer;
+
+	while (file)
+	{
+		std::string line;
+		std::getline(file, line);
+
+		if (!file)
+			break;
+
+		std::cout << line << std::endl;
+
+		if (line[0] != ':')	// Lines should begin with S
+			goto abort;
+
+		BYTE nbBytes = hexToByte(line.substr(1, 2));
+
+		if (line.length() - 11 < nbBytes * 2)
+		{
+			std::cerr << "Unexpected record length" << std::endl;
+			goto abort;
+		}
+
+		WORD blockAddr = hexToWord(line.substr(3, 4));
+		BYTE type = hexToByte(line.substr(7, 1));
+		BYTE checksum = hexToByte(line.substr((nbBytes*2)+9, 2));
+
+		if (type == 1) // record type = eof
+		{
+			if (lastAddr != -1) // save last block, if any
+			{
+				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+			}
+			break;
+		}
+
+		if (type != 0) // record type should be 'data'
+		{
+			std::cerr << "Unexpected record type" << std::endl;
+			goto abort;
+		}	
+
+		if (lastAddr + currBuffer.size() != blockAddr)	// new block
+		{
+			if (lastAddr != -1) // save last block
+			{
+				std::cout << "Saving block at: " << lastAddr << ", size: " << currBuffer.size() << std::endl;
+				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+			}
+			lastAddr = blockAddr;
+			currBuffer.clear();
+		}
+		
+		BYTE sum = 0;
+		for (int i = 0; i<nbBytes + 4; i++)
+		{
+			BYTE currByte = hexToByte(line.substr(i * 2 + 1, 2));
+			sum += currByte;
+
+			if (i >= 4) {
+				currBuffer.push_back(currByte);
+			}
+		}
+
+		sum += checksum;
+		if (sum != 0)
+		{
+			std::cerr << "Checksum error" << std::endl;
+			goto abort;
+		}
+	}
+
+	file.close();
+	return true;
+
+abort:
+	file.close();
+	std::cerr << "Abort." << std::endl;
+	return false;
+}
+
 bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
 {
 	std::ifstream file(fileName.c_str(), std::ios::in);
+
+	if (!file)
+	{
+		std::cerr << "Error opening file: " << fileName << std::endl;
+		return false;
+	}
 
 	int lastAddr = -1;
 	std::vector<BYTE> currBuffer;
@@ -50,7 +246,7 @@ bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
 		std::string temp;
 		std::getline(file, temp);
 
-		if (!file)
+		if (!file) 
 			break;
 
 		if (temp[0] != 'S')	// Lines should begin with S
@@ -98,6 +294,7 @@ bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
 
 abort:
 	file.close();
+	std::cerr << "Error reading data" << std::endl;
 	return false;
 }
 
@@ -107,51 +304,57 @@ int main(void)
 //	memory.RegisterLogCallback(LogCallback);
 
 	std::vector<CMemoryBlock> monitorRom;
-	if (readSRecord("D:\\monitor.hex", monitorRom))
+	if (readIntelHex("D:\\Projects\\CPU8085\\basic\\main\\main.ihx", monitorRom))
 	{
 		for (int i=0; i<monitorRom.size(); i++)
 			memory.Allocate(&(monitorRom[i]));
 	}
 
-	std::vector<CMemoryBlock> basicRom;
-	if (readSRecord("D:\\basic.hex", basicRom))
-	{
-		for (int i=0; i<basicRom.size(); i++)
-			memory.Allocate(&(basicRom[i]));
-	}
+//	CFrameBuffer video_memory(0x1000, 1024);
 
+	CMemoryBlock buffer_memory(0x8000, 0x8000, RAM);
 
-	CFrameBuffer video_memory(0x1000, 1024);
-
-	CMemoryBlock buffer_memory(0x1400, 0xFFFF-0x1400, RAM);
-
-	memory.Allocate(&video_memory);
+//	memory.Allocate(&video_memory);
 	memory.Allocate(&buffer_memory);
 
 	CPorts ports;
+	ports.RegisterLogCallback(LogCallback);
 
 	CKeyboard keyboard;
-	ports.Allocate(0, &keyboard);
+	ports.Allocate(0x60, &keyboard);
 
-	CCPU8080 cpu(memory, ports);
+	//TODO: Port allocation is really dumb
+	UART_THR thr;
+	UART_MCR mcr;
+	UART_LSR lsr;	
+	ports.Allocate(0x60, &thr);
+	ports.Allocate(0x64, &(CInputPort&)mcr); // Especially this
+	ports.Allocate(0x64, &(COutputPort&)mcr); 
+	ports.Allocate(0x65, &lsr);
+
+	Timer timer;
+
+	CInterrupts interrupts;
+	interrupts.Allocate(CCPU8080::RST65, &keyboard);
+	interrupts.Allocate(CCPU8080::TRAP, &timer);
+
+	CCPU8080 cpu(memory, ports, interrupts);
 	cpu.Reset();
 
 	time_t startTime, stopTime;
 	time(&startTime);
 
-	do
-	{
-		if (cpu.Step() == false)
-			break;
-	} 
-	while (keyboard.currChar != 27);
+	while (cpu.Step()/* && !keyboard.IsEscape()*/) {};
 
 	time(&stopTime);
 
 	fprintf(stderr, "Time elapsed: %I64u\n", stopTime-startTime);
 	cpu.getTime();
 	fprintf(stderr, "CPU ticks: %u\n", cpu.getTime());
-	fprintf(stderr, "Avg speed: %I64u ticks/s", cpu.getTime()/(stopTime-startTime));
+	if (stopTime - startTime > 1)
+	{
+		fprintf(stderr, "Avg speed: %I64u ticks/s\n", cpu.getTime() / (stopTime - startTime));
+	}
 
 	return 0;
 }
