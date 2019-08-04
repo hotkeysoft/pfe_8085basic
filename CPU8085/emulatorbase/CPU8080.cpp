@@ -9,8 +9,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CCPU8080::CCPU8080(CMemory & memory, CPorts & ports, CInterrupts & interrupts)
-	:	CCPU(memory), m_ports(ports), m_interrupts(interrupts), m_interruptsEnabled(false)
+CCPU8080::CCPU8080(CMemory & memory, CInterrupts & interrupts)
+	:	CCPU(memory), m_interrupts(interrupts), m_interruptsEnabled(false)
 {
 	m_opcodesTable[0XCE] = (OPCodeFunction)(&CCPU8080::ACI);
 
@@ -295,6 +295,11 @@ CCPU8080::CCPU8080(CMemory & memory, CPorts & ports, CInterrupts & interrupts)
 CCPU8080::~CCPU8080()
 {
 
+}
+
+bool CCPU8080::AddDevice(PortConnector & ports)
+{
+	return m_ports.Connect(ports);
 }
 
 void CCPU8080::Reset()

@@ -123,31 +123,34 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="PortAggregator.cpp" />
+    <ClCompile Include="PortConnector.cpp" />
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="CPU8080.cpp" />
     <ClCompile Include="Emulator Base.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Interrupts.cpp" />
-    <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryBlock.cpp" />
-    <ClCompile Include="Ports.cpp" />
     <ClCompile Include="StdAfx.cpp" />
+    <ClCompile Include="UART.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
+    <ClInclude Include="Logger.h" />
+    <ClInclude Include="PortAggregator.h" />
+    <ClInclude Include="PortConnector.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="CPU8080.h" />
+    <ClInclude Include="Emulator Base.h" />
     <ClInclude Include="FrameBuffer.h" />
-    <ClInclude Include="InputPort.h" />
     <ClInclude Include="Interrupts.h" />
     <ClInclude Include="InterruptSource.h" />
-    <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Memory.h" />
     <ClInclude Include="MemoryBlock.h" />
-    <ClInclude Include="OutputPort.h" />
-    <ClInclude Include="Ports.h" />
     <ClInclude Include="StdAfx.h" />
+    <ClInclude Include="UART.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,8 @@
 #pragma once
 
 #include "CPU.h"
-#include "Ports.h"
+#include "PortConnector.h"
+#include "PortAggregator.h"
 #include "Interrupts.h"
 
 class CCPU8080 : public CCPU  
@@ -12,8 +13,10 @@ class CCPU8080 : public CCPU
 public:
 	enum InterruptSource {TRAP = 0, RST75, RST65, RST55 /*TODO INTR/INTA not implemented*/ };
 	
-	CCPU8080(CMemory &memory, CPorts &ports, CInterrupts &interrupts);
+	CCPU8080(CMemory &memory, CInterrupts &interrupts);
 	virtual ~CCPU8080();
+
+	bool AddDevice(PortConnector& ports);
 
 	void Dump();
 
@@ -22,7 +25,7 @@ public:
 	virtual bool Step();
 
 protected:
-	CPorts &m_ports;
+	PortAggregator m_ports;
 	CInterrupts &m_interrupts;
 
 	enum FLAG {S_FLAG=128, Z_FLAG=64, AC_FLAG=16, P_FLAG=4, CY_FLAG=1};

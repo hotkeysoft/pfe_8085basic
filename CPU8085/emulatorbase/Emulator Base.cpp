@@ -4,9 +4,8 @@
 #include "Memory.h"
 #include "MemoryBlock.h"
 #include "FrameBuffer.h"
-#include "Keyboard.h"
-#include "Ports.h"
 #include "CPU8080.h"
+#include "UART.h"
 #include <conio.h>
 #include <vector>
 #include <string>
@@ -39,73 +38,6 @@ class Timer : public CInterruptSource
 	DWORD m_start = 0;
 };
 
-class UART_LSR : public CInputPort
-{
-	// Inherited via CInputPort
-	virtual BYTE In() override
-	{
-		// Always ready
-		return 0x20;
-	}
-};
-
-class UART_THR : public COutputPort
-{
-	// Inherited via COutputPort
-	virtual void Out(BYTE value) override
-	{
-		if (isprint(value)) 
-		{
-			fprintf(stdout, "%c", value);
-		}
-		else if (value == 0x0D)
-		{
-			fprintf(stdout, "\n");
-		}
-		else
-		{
-			fprintf(stdout, "[0x%X]", value);
-		}
-	}
-};
-
-class UART_MCR : public CInputPort, public COutputPort
-{
-public:
-	UART_MCR() { m_value = 0; }
-	// Inherited via CInputPort
-	virtual BYTE In() override
-	{
-		return m_value;
-	}
-
-	// Inherited via COutputPort
-	virtual void Out(BYTE value) override
-	{
-		if (!(m_value & 0x1) && (value & 0x01))
-		{
-			fprintf(stdout, "[XON]");
-		}
-		else if ((m_value & 0x1) && !(value & 0x01))
-		{
-			fprintf(stdout, "[XOFF]");
-		}
-
-		if (!(m_value & 0x04) && (value & 0x04))
-		{
-			fprintf(stdout, "[SOUNDON]");
-		}
-		else if ((m_value & 0x04) && !(value & 0x04))
-		{
-			fprintf(stdout, "[SOUNDOFF]");
-		}
-		m_value = value;
-	}
-
-	BYTE m_value;
-};
-
-
 void LogCallback(const char *str)
 {
 	fprintf(stderr, str);
@@ -136,6 +68,12 @@ WORD hexToWord(const std::string &hexStr)
 		hexToByte(hexStr.substr(2, 2));
 }
 
+void SaveROMBlock(std::vector<CMemoryBlock> &out, int addr, std::vector<BYTE> &buffer)
+{
+	fprintf(stdout, "Saving block 0x%04X-0x%04X, size: %d\n", addr, addr + (int)buffer.size() - 1, (int)buffer.size());
+	out.push_back(CMemoryBlock(addr, buffer, ROM));
+}
+
 bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
 {
 	std::ifstream file(fileName.c_str(), std::ios::in);
@@ -157,8 +95,6 @@ bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
 		if (!file)
 			break;
 
-		std::cout << line << std::endl;
-
 		if (line[0] != ':')	// Lines should begin with S
 			goto abort;
 
@@ -176,9 +112,9 @@ bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
 
 		if (type == 1) // record type = eof
 		{
-			if (lastAddr != -1) // save last block, if any
+			if (lastAddr != -1) // save previous block, if any
 			{
-				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+				SaveROMBlock(data, lastAddr, currBuffer);
 			}
 			break;
 		}
@@ -191,10 +127,9 @@ bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
 
 		if (lastAddr + currBuffer.size() != blockAddr)	// new block
 		{
-			if (lastAddr != -1) // save last block
+			if (lastAddr != -1) // save previous block
 			{
-				std::cout << "Saving block at: " << lastAddr << ", size: " << currBuffer.size() << std::endl;
-				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+				SaveROMBlock(data, lastAddr, currBuffer);
 			}
 			lastAddr = blockAddr;
 			currBuffer.clear();
@@ -254,9 +189,9 @@ bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
 
 		if (temp[1] == '9') // record type = eof
 		{
-			if (lastAddr != -1) // save last block, if any
+			if (lastAddr != -1) // save previous block, if any
 			{
-				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+				SaveROMBlock(data, lastAddr, currBuffer);
 			}
 			break;
 		}
@@ -275,9 +210,9 @@ bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
 
 		if (lastAddr+currBuffer.size() != blockAddr)	// new block
 		{
-			if (lastAddr != -1) // save last block
+			if (lastAddr != -1) // save previous block
 			{
-				data.push_back(CMemoryBlock(lastAddr, currBuffer, ROM));
+				SaveROMBlock(data, lastAddr, currBuffer);
 			}
 			lastAddr = blockAddr;
 			currBuffer.clear();
@@ -317,28 +252,19 @@ int main(void)
 //	memory.Allocate(&video_memory);
 	memory.Allocate(&buffer_memory);
 
-	CPorts ports;
-	ports.RegisterLogCallback(LogCallback);
-
-	CKeyboard keyboard;
-	ports.Allocate(0x60, &keyboard);
-
-	//TODO: Port allocation is really dumb
-	UART_THR thr;
-	UART_MCR mcr;
-	UART_LSR lsr;	
-	ports.Allocate(0x60, &thr);
-	ports.Allocate(0x64, &(CInputPort&)mcr); // Especially this
-	ports.Allocate(0x64, &(COutputPort&)mcr); 
-	ports.Allocate(0x65, &lsr);
-
 	Timer timer;
 
+	UART uart(0x60);
+	uart.RegisterLogCallback(LogCallback);
+	uart.Init();
+
 	CInterrupts interrupts;
-	interrupts.Allocate(CCPU8080::RST65, &keyboard);
+	interrupts.Allocate(CCPU8080::RST65, &uart);
 	interrupts.Allocate(CCPU8080::TRAP, &timer);
 
-	CCPU8080 cpu(memory, ports, interrupts);
+	//TODO: Add logger
+	CCPU8080 cpu(memory, interrupts);
+	cpu.AddDevice(uart);
 	cpu.Reset();
 
 	time_t startTime, stopTime;
