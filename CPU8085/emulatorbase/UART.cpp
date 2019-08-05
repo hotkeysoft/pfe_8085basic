@@ -102,18 +102,7 @@ void UART::THR_OUT(BYTE value)
 		return;
 	}
 
-	if (isprint(value))
-	{
-		fprintf(stdout, "%c", value);
-	}
-	else if (value == 0x0D)
-	{
-		fprintf(stdout, "\n");
-	}
-	else
-	{
-		fprintf(stdout, "[0x%X]", value);
-	}
+	m_console.OutChar(value);
 }
 
 BYTE UART::IER_IN()
@@ -186,20 +175,20 @@ void UART::MCR_OUT(BYTE value)
 {
 	if (!(m_mcr & 0x1) && (value & 0x01))
 	{
-		fprintf(stdout, "[XON]");
+//		fprintf(stdout, "[XON]");
 	}
 	else if ((m_mcr & 0x1) && !(value & 0x01))
 	{
-		fprintf(stdout, "[XOFF]");
+//		fprintf(stdout, "[XOFF]");
 	}
 
 	if (!(m_mcr & 0x04) && (value & 0x04))
 	{
-		fprintf(stdout, "[SOUNDON]");
+//		fprintf(stdout, "[SOUNDON]");
 	}
 	else if ((m_mcr & 0x04) && !(value & 0x04))
 	{
-		fprintf(stdout, "[SOUNDOFF]");
+//		fprintf(stdout, "[SOUNDOFF]");
 	}
 	m_mcr = value;
 }

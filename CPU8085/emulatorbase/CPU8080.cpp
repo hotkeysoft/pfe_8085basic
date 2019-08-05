@@ -12,284 +12,622 @@
 CCPU8080::CCPU8080(CMemory & memory, CInterrupts & interrupts)
 	:	CCPU(memory), m_interrupts(interrupts), m_interruptsEnabled(false)
 {
-	m_opcodesTable[0XCE] = (OPCodeFunction)(&CCPU8080::ACI);
+	// -------------------
+	// 1. Data Transfer Group
 
-	m_opcodesTable[0210] = (OPCodeFunction)(&CCPU8080::ADCr);	// B
-	m_opcodesTable[0211] = (OPCodeFunction)(&CCPU8080::ADCr);	// C
-	m_opcodesTable[0212] = (OPCodeFunction)(&CCPU8080::ADCr);	// D
-	m_opcodesTable[0213] = (OPCodeFunction)(&CCPU8080::ADCr);	// E
-	m_opcodesTable[0214] = (OPCodeFunction)(&CCPU8080::ADCr);	// H
-	m_opcodesTable[0215] = (OPCodeFunction)(&CCPU8080::ADCr);	// L
-	m_opcodesTable[0216] = (OPCodeFunction)(&CCPU8080::ADCm);	// m
-	m_opcodesTable[0217] = (OPCodeFunction)(&CCPU8080::ADCr);	// A
+	// MOV r1,r2 (Move Register)
+	// (r1) <- (r2)
 
-	m_opcodesTable[0200] = (OPCodeFunction)(&CCPU8080::ADDr);	// B
-	m_opcodesTable[0201] = (OPCodeFunction)(&CCPU8080::ADDr);	// C
-	m_opcodesTable[0202] = (OPCodeFunction)(&CCPU8080::ADDr);	// D
-	m_opcodesTable[0203] = (OPCodeFunction)(&CCPU8080::ADDr);	// E
-	m_opcodesTable[0204] = (OPCodeFunction)(&CCPU8080::ADDr);	// H
-	m_opcodesTable[0205] = (OPCodeFunction)(&CCPU8080::ADDr);	// L
-	m_opcodesTable[0206] = (OPCodeFunction)(&CCPU8080::ADDm);	// m
-	m_opcodesTable[0207] = (OPCodeFunction)(&CCPU8080::ADDr);	// A
+	// Destination B
+	AddOpcode(0100, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,B
+	AddOpcode(0101, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,C
+	AddOpcode(0102, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,D
+	AddOpcode(0103, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,E
+	AddOpcode(0104, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,H
+	AddOpcode(0105, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,L
+	AddOpcode(0107, (OPCodeFunction)(&CCPU8080::MOVrr));	// B,A
 
-	m_opcodesTable[0XC6] = (OPCodeFunction)(&CCPU8080::ADI);
+	// Destination C
+	AddOpcode(0110, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,B
+	AddOpcode(0111, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,C
+	AddOpcode(0112, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,D
+	AddOpcode(0113, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,E
+	AddOpcode(0114, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,H
+	AddOpcode(0115, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,L
+	AddOpcode(0117, (OPCodeFunction)(&CCPU8080::MOVrr));	// C,A
 
-	m_opcodesTable[0240] = (OPCodeFunction)(&CCPU8080::ANAr);	// B
-	m_opcodesTable[0241] = (OPCodeFunction)(&CCPU8080::ANAr);	// C
-	m_opcodesTable[0242] = (OPCodeFunction)(&CCPU8080::ANAr);	// D
-	m_opcodesTable[0243] = (OPCodeFunction)(&CCPU8080::ANAr);	// E
-	m_opcodesTable[0244] = (OPCodeFunction)(&CCPU8080::ANAr);	// H
-	m_opcodesTable[0245] = (OPCodeFunction)(&CCPU8080::ANAr);	// L
-	m_opcodesTable[0246] = (OPCodeFunction)(&CCPU8080::ANAm);	// m
-	m_opcodesTable[0247] = (OPCodeFunction)(&CCPU8080::ANAr);	// A
+	// Destination D
+	AddOpcode(0120, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,B
+	AddOpcode(0121, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,C
+	AddOpcode(0122, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,D
+	AddOpcode(0123, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,E
+	AddOpcode(0124, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,H
+	AddOpcode(0125, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,L
+	AddOpcode(0127, (OPCodeFunction)(&CCPU8080::MOVrr));	// D,A
 
-	m_opcodesTable[0XE6] = (OPCodeFunction)(&CCPU8080::ANI);
-
-	m_opcodesTable[0XCD] = (OPCodeFunction)(&CCPU8080::CALL);
-	m_opcodesTable[0XDC] = (OPCodeFunction)(&CCPU8080::CC);
-	m_opcodesTable[0XFC] = (OPCodeFunction)(&CCPU8080::CM);
-	m_opcodesTable[0X2F] = (OPCodeFunction)(&CCPU8080::CMA);
-	m_opcodesTable[0X3F] = (OPCodeFunction)(&CCPU8080::CMC);
-
-	m_opcodesTable[0270] = (OPCodeFunction)(&CCPU8080::CMPr);	// B
-	m_opcodesTable[0271] = (OPCodeFunction)(&CCPU8080::CMPr);	// C
-	m_opcodesTable[0272] = (OPCodeFunction)(&CCPU8080::CMPr);	// D
-	m_opcodesTable[0273] = (OPCodeFunction)(&CCPU8080::CMPr);	// E
-	m_opcodesTable[0274] = (OPCodeFunction)(&CCPU8080::CMPr);	// H
-	m_opcodesTable[0275] = (OPCodeFunction)(&CCPU8080::CMPr);	// L
-	m_opcodesTable[0276] = (OPCodeFunction)(&CCPU8080::CMPm);	// m
-	m_opcodesTable[0277] = (OPCodeFunction)(&CCPU8080::CMPr);	// A
-
-	m_opcodesTable[0XD4] = (OPCodeFunction)(&CCPU8080::CNC);
-	m_opcodesTable[0XC4] = (OPCodeFunction)(&CCPU8080::CNZ);
-	m_opcodesTable[0XE4] = (OPCodeFunction)(&CCPU8080::CP);
-	m_opcodesTable[0XEC] = (OPCodeFunction)(&CCPU8080::CPE);
-	m_opcodesTable[0XFE] = (OPCodeFunction)(&CCPU8080::CPI);
-	m_opcodesTable[0XE4] = (OPCodeFunction)(&CCPU8080::CPO);
-	m_opcodesTable[0XCC] = (OPCodeFunction)(&CCPU8080::CZ);
-//	m_opcodesTable[0X27] = (OPCodeFunction)(&CCPU8080::DAA);
-	m_opcodesTable[0X09] = (OPCodeFunction)(&CCPU8080::DADb);
-	m_opcodesTable[0X19] = (OPCodeFunction)(&CCPU8080::DADd);
-	m_opcodesTable[0X29] = (OPCodeFunction)(&CCPU8080::DADh);
-	m_opcodesTable[0X39] = (OPCodeFunction)(&CCPU8080::DADsp);
-
-	m_opcodesTable[0005] = (OPCodeFunction)(&CCPU8080::DCRr);	// B
-	m_opcodesTable[0015] = (OPCodeFunction)(&CCPU8080::DCRr);	// C
-	m_opcodesTable[0025] = (OPCodeFunction)(&CCPU8080::DCRr);	// D
-	m_opcodesTable[0035] = (OPCodeFunction)(&CCPU8080::DCRr);	// E
-	m_opcodesTable[0045] = (OPCodeFunction)(&CCPU8080::DCRr);	// H
-	m_opcodesTable[0055] = (OPCodeFunction)(&CCPU8080::DCRr);	// L
-	m_opcodesTable[0065] = (OPCodeFunction)(&CCPU8080::DCRm);	// m
-	m_opcodesTable[0075] = (OPCodeFunction)(&CCPU8080::DCRr);	// A
+	// Destination E	
+	AddOpcode(0130, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,B
+	AddOpcode(0131, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,C
+	AddOpcode(0132, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,D
+	AddOpcode(0133, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,E
+	AddOpcode(0134, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,H
+	AddOpcode(0135, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,L
+	AddOpcode(0137, (OPCodeFunction)(&CCPU8080::MOVrr));	// E,A
 	
-	m_opcodesTable[0X0B] = (OPCodeFunction)(&CCPU8080::DCXb);
-	m_opcodesTable[0X1B] = (OPCodeFunction)(&CCPU8080::DCXd);
-	m_opcodesTable[0X2B] = (OPCodeFunction)(&CCPU8080::DCXh);
-	m_opcodesTable[0X3B] = (OPCodeFunction)(&CCPU8080::DCXsp);
-	m_opcodesTable[0XF3] = (OPCodeFunction)(&CCPU8080::DI);
-	m_opcodesTable[0XFB] = (OPCodeFunction)(&CCPU8080::EI);
-	m_opcodesTable[0XDB] = (OPCodeFunction)(&CCPU8080::IN);
+	// Destination H
+	AddOpcode(0140, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,B
+	AddOpcode(0141, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,C
+	AddOpcode(0142, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,D
+	AddOpcode(0143, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,E
+	AddOpcode(0144, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,H
+	AddOpcode(0145, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,L
+	AddOpcode(0147, (OPCodeFunction)(&CCPU8080::MOVrr));	// H,A
 
-	m_opcodesTable[0004] = (OPCodeFunction)(&CCPU8080::INRr);	// B
-	m_opcodesTable[0014] = (OPCodeFunction)(&CCPU8080::INRr);	// C
-	m_opcodesTable[0024] = (OPCodeFunction)(&CCPU8080::INRr);	// D
-	m_opcodesTable[0034] = (OPCodeFunction)(&CCPU8080::INRr);	// E
-	m_opcodesTable[0044] = (OPCodeFunction)(&CCPU8080::INRr);	// H
-	m_opcodesTable[0054] = (OPCodeFunction)(&CCPU8080::INRr);	// L
-	m_opcodesTable[0064] = (OPCodeFunction)(&CCPU8080::INRm);	// m
-	m_opcodesTable[0074] = (OPCodeFunction)(&CCPU8080::INRr);	// A
+	// Destination L
+	AddOpcode(0150, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,B
+	AddOpcode(0151, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,C
+	AddOpcode(0152, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,D
+	AddOpcode(0153, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,E
+	AddOpcode(0154, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,H
+	AddOpcode(0155, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,L
+	AddOpcode(0157, (OPCodeFunction)(&CCPU8080::MOVrr));	// L,A
 
-	m_opcodesTable[0X03] = (OPCodeFunction)(&CCPU8080::INXb);
-	m_opcodesTable[0X13] = (OPCodeFunction)(&CCPU8080::INXd);
-	m_opcodesTable[0X23] = (OPCodeFunction)(&CCPU8080::INXh);
-	m_opcodesTable[0X33] = (OPCodeFunction)(&CCPU8080::INXsp);
-	m_opcodesTable[0XC3] = (OPCodeFunction)(&CCPU8080::JMP);
-	m_opcodesTable[0XDA] = (OPCodeFunction)(&CCPU8080::JC);
-	m_opcodesTable[0XFA] = (OPCodeFunction)(&CCPU8080::JM);
-	m_opcodesTable[0XD2] = (OPCodeFunction)(&CCPU8080::JNC);
-	m_opcodesTable[0XC2] = (OPCodeFunction)(&CCPU8080::JNZ);
-	m_opcodesTable[0XF2] = (OPCodeFunction)(&CCPU8080::JP);
-	m_opcodesTable[0XEA] = (OPCodeFunction)(&CCPU8080::JPE);
-	m_opcodesTable[0XE2] = (OPCodeFunction)(&CCPU8080::JPO);
-	m_opcodesTable[0XCA] = (OPCodeFunction)(&CCPU8080::JZ);
-	m_opcodesTable[0X3A] = (OPCodeFunction)(&CCPU8080::LDA);
-	m_opcodesTable[0X0A] = (OPCodeFunction)(&CCPU8080::LDAXb);
-	m_opcodesTable[0X1A] = (OPCodeFunction)(&CCPU8080::LDAXd);
-	m_opcodesTable[0X2A] = (OPCodeFunction)(&CCPU8080::LHLD);
-	m_opcodesTable[0X01] = (OPCodeFunction)(&CCPU8080::LXIb);
-	m_opcodesTable[0X11] = (OPCodeFunction)(&CCPU8080::LXId);
-	m_opcodesTable[0X21] = (OPCodeFunction)(&CCPU8080::LXIh);
-	m_opcodesTable[0X31] = (OPCodeFunction)(&CCPU8080::LXIsp);
+	// Destination A
+	AddOpcode(0170, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,B
+	AddOpcode(0171, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,C
+	AddOpcode(0172, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,D
+	AddOpcode(0173, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,E
+	AddOpcode(0174, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,H
+	AddOpcode(0175, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,L
+	AddOpcode(0177, (OPCodeFunction)(&CCPU8080::MOVrr));	// A,A
 
-	m_opcodesTable[0100] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,B
-	m_opcodesTable[0101] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,C
-	m_opcodesTable[0102] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,D
-	m_opcodesTable[0103] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,E
-	m_opcodesTable[0104] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,H
-	m_opcodesTable[0105] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,L
-	m_opcodesTable[0106] = (OPCodeFunction)(&CCPU8080::MOVrm);	// B,m
-	m_opcodesTable[0107] = (OPCodeFunction)(&CCPU8080::MOVrr);	// B,A
+	// MOV r, M (Move from memory)
+	// (r) <- ((H)(L))
+	AddOpcode(0106, (OPCodeFunction)(&CCPU8080::MOVrm));	// B,m
+	AddOpcode(0116, (OPCodeFunction)(&CCPU8080::MOVrm));	// C,m
+	AddOpcode(0126, (OPCodeFunction)(&CCPU8080::MOVrm));	// D,m
+	AddOpcode(0136, (OPCodeFunction)(&CCPU8080::MOVrm));	// E,m
+	AddOpcode(0146, (OPCodeFunction)(&CCPU8080::MOVrm));	// H,m
+	AddOpcode(0156, (OPCodeFunction)(&CCPU8080::MOVrm));	// L,m
+	AddOpcode(0176, (OPCodeFunction)(&CCPU8080::MOVrm));	// A,m
 
-	m_opcodesTable[0110] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,B
-	m_opcodesTable[0111] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,C
-	m_opcodesTable[0112] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,D
-	m_opcodesTable[0113] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,E
-	m_opcodesTable[0114] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,H
-	m_opcodesTable[0115] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,L
-	m_opcodesTable[0116] = (OPCodeFunction)(&CCPU8080::MOVrm);	// C,m
-	m_opcodesTable[0117] = (OPCodeFunction)(&CCPU8080::MOVrr);	// C,A
+	// MOV M, r (Move to memory)
+	// ((H)(L) <- (r)
+	AddOpcode(0160, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,B
+	AddOpcode(0161, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,C
+	AddOpcode(0162, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,D
+	AddOpcode(0163, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,E
+	AddOpcode(0164, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,H
+	AddOpcode(0165, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,L
+	AddOpcode(0167, (OPCodeFunction)(&CCPU8080::MOVmr));	// m,A
 
-	m_opcodesTable[0120] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,B
-	m_opcodesTable[0121] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,C
-	m_opcodesTable[0122] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,D
-	m_opcodesTable[0123] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,E
-	m_opcodesTable[0124] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,H
-	m_opcodesTable[0125] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,L
-	m_opcodesTable[0126] = (OPCodeFunction)(&CCPU8080::MOVrm);	// D,m
-	m_opcodesTable[0127] = (OPCodeFunction)(&CCPU8080::MOVrr);	// D,A
+	// MVI r, data (Move immediate)
+	// (r) <- (byte 2)
+	AddOpcode(0006, (OPCodeFunction)(&CCPU8080::MVIr));	// B
+	AddOpcode(0016, (OPCodeFunction)(&CCPU8080::MVIr));	// C
+	AddOpcode(0026, (OPCodeFunction)(&CCPU8080::MVIr));	// D
+	AddOpcode(0036, (OPCodeFunction)(&CCPU8080::MVIr));	// E
+	AddOpcode(0046, (OPCodeFunction)(&CCPU8080::MVIr));	// H
+	AddOpcode(0056, (OPCodeFunction)(&CCPU8080::MVIr));	// L
+	AddOpcode(0076, (OPCodeFunction)(&CCPU8080::MVIr));	// A
 
-	m_opcodesTable[0130] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,B
-	m_opcodesTable[0131] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,C
-	m_opcodesTable[0132] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,D
-	m_opcodesTable[0133] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,E
-	m_opcodesTable[0134] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,H
-	m_opcodesTable[0135] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,L
-	m_opcodesTable[0136] = (OPCodeFunction)(&CCPU8080::MOVrm);	// E,m
-	m_opcodesTable[0137] = (OPCodeFunction)(&CCPU8080::MOVrr);	// E,A
+	// MVI M, data (Move to memory immediate)
+	// ((H)(L) <- (byte 2)
+	AddOpcode(0066, (OPCodeFunction)(&CCPU8080::MVIm));	// m
 
-	m_opcodesTable[0140] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,B
-	m_opcodesTable[0141] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,C
-	m_opcodesTable[0142] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,D
-	m_opcodesTable[0143] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,E
-	m_opcodesTable[0144] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,H
-	m_opcodesTable[0145] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,L
-	m_opcodesTable[0146] = (OPCodeFunction)(&CCPU8080::MOVrm);	// H,m
-	m_opcodesTable[0147] = (OPCodeFunction)(&CCPU8080::MOVrr);	// H,A
+	// LXI rp, data 16 (Load register pair immediate)
+	// (rh) <- (byte3)
+	// (lh) <- (byte2)
+	AddOpcode(0001, (OPCodeFunction)(&CCPU8080::LXIb));	// BC
+	AddOpcode(0021, (OPCodeFunction)(&CCPU8080::LXId));	// DE
+	AddOpcode(0041, (OPCodeFunction)(&CCPU8080::LXIh));	// HL
+	AddOpcode(0061, (OPCodeFunction)(&CCPU8080::LXIsp));	// SP
 
-	m_opcodesTable[0150] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,B
-	m_opcodesTable[0151] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,C
-	m_opcodesTable[0152] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,D
-	m_opcodesTable[0153] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,E
-	m_opcodesTable[0154] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,H
-	m_opcodesTable[0155] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,L
-	m_opcodesTable[0156] = (OPCodeFunction)(&CCPU8080::MOVrm);	// L,m
-	m_opcodesTable[0157] = (OPCodeFunction)(&CCPU8080::MOVrr);	// L,A
+	// LDA addr (Load Accumulator direct)
+	// (A) <- ((byte2)(byte3))
+	AddOpcode(0072, (OPCodeFunction)(&CCPU8080::LDA));
 
-	m_opcodesTable[0160] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,B
-	m_opcodesTable[0161] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,C
-	m_opcodesTable[0162] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,D
-	m_opcodesTable[0163] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,E
-	m_opcodesTable[0164] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,H
-	m_opcodesTable[0165] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,L
-	m_opcodesTable[0166] = (OPCodeFunction)(&CCPU8080::HLT);	// HLT
-	m_opcodesTable[0167] = (OPCodeFunction)(&CCPU8080::MOVmr);	// m,A
+	// STA addr (Store Accumulator direct)
+	// ((byte2)(byte3)) <- (A)
+	AddOpcode(0062, (OPCodeFunction)(&CCPU8080::STA));
 
-	m_opcodesTable[0170] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,B
-	m_opcodesTable[0171] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,C
-	m_opcodesTable[0172] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,D
-	m_opcodesTable[0173] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,E
-	m_opcodesTable[0174] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,H
-	m_opcodesTable[0175] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,L
-	m_opcodesTable[0176] = (OPCodeFunction)(&CCPU8080::MOVrm);	// A,m
-	m_opcodesTable[0177] = (OPCodeFunction)(&CCPU8080::MOVrr);	// A,A
+	// LHLD addr (Load H and L direct)
+	// (H)<-((byte2)(byte3))
+	// (L)<-((byte2)(byte3)+1)
+	AddOpcode(0052, (OPCodeFunction)(&CCPU8080::LHLD));
 
-	m_opcodesTable[0006] = (OPCodeFunction)(&CCPU8080::MVIr);	// B
-	m_opcodesTable[0016] = (OPCodeFunction)(&CCPU8080::MVIr);	// C
-	m_opcodesTable[0026] = (OPCodeFunction)(&CCPU8080::MVIr);	// D
-	m_opcodesTable[0036] = (OPCodeFunction)(&CCPU8080::MVIr);	// E
-	m_opcodesTable[0046] = (OPCodeFunction)(&CCPU8080::MVIr);	// H
-	m_opcodesTable[0056] = (OPCodeFunction)(&CCPU8080::MVIr);	// L
-	m_opcodesTable[0066] = (OPCodeFunction)(&CCPU8080::MVIm);	// m
-	m_opcodesTable[0076] = (OPCodeFunction)(&CCPU8080::MVIr);	// A
+	// SHLD addr (Store H and L direct)
+	// ((byte2)(byte3))<-(H)
+	// ((byte2)(byte3)+1)<-(L)
+	AddOpcode(0042, (OPCodeFunction)(&CCPU8080::SHLD));
 
-	m_opcodesTable[0X00] = (OPCodeFunction)(&CCPU8080::NOP);
+	// LDAX rp (Load accumulator indirect)
+	// (A) <- ((rp))
+	// Note: only register pairs rp=B (B and C) or rp=D (D and E) 
+	// may be specified.
+	AddOpcode(0012, (OPCodeFunction)(&CCPU8080::LDAXb));
+	AddOpcode(0032, (OPCodeFunction)(&CCPU8080::LDAXd));
 
-	m_opcodesTable[0260] = (OPCodeFunction)(&CCPU8080::ORAr);	// B
-	m_opcodesTable[0261] = (OPCodeFunction)(&CCPU8080::ORAr);	// C
-	m_opcodesTable[0262] = (OPCodeFunction)(&CCPU8080::ORAr);	// D
-	m_opcodesTable[0263] = (OPCodeFunction)(&CCPU8080::ORAr);	// E
-	m_opcodesTable[0264] = (OPCodeFunction)(&CCPU8080::ORAr);	// H
-	m_opcodesTable[0265] = (OPCodeFunction)(&CCPU8080::ORAr);	// L
-	m_opcodesTable[0266] = (OPCodeFunction)(&CCPU8080::ORAm);	// m
-	m_opcodesTable[0267] = (OPCodeFunction)(&CCPU8080::ORAr);	// A
+	// STAX rp (Store accumulator indirect)
+	// ((rp) <- (A)
+	// Note: only register pairs rp=B (B and C) or rp=D (D and E) 
+	// may be specified.
+	AddOpcode(0002, (OPCodeFunction)(&CCPU8080::STAXb));
+	AddOpcode(0022, (OPCodeFunction)(&CCPU8080::STAXd));
 
-	m_opcodesTable[0XF6] = (OPCodeFunction)(&CCPU8080::ORI);
-	m_opcodesTable[0XD3] = (OPCodeFunction)(&CCPU8080::OUT);
-	m_opcodesTable[0XE9] = (OPCodeFunction)(&CCPU8080::PCHL);
-	m_opcodesTable[0XC1] = (OPCodeFunction)(&CCPU8080::POPb);
-	m_opcodesTable[0XD1] = (OPCodeFunction)(&CCPU8080::POPd);
-	m_opcodesTable[0XE1] = (OPCodeFunction)(&CCPU8080::POPh);
-	m_opcodesTable[0XF1] = (OPCodeFunction)(&CCPU8080::POPpsw);
-	m_opcodesTable[0XC5] = (OPCodeFunction)(&CCPU8080::PUSHb);
-	m_opcodesTable[0XD5] = (OPCodeFunction)(&CCPU8080::PUSHd);
-	m_opcodesTable[0XE5] = (OPCodeFunction)(&CCPU8080::PUSHh);
-	m_opcodesTable[0XF5] = (OPCodeFunction)(&CCPU8080::PUSHpsw);
+	// XCHG (Exchange H and L with D and E)
+	// (H) <- (D)
+	// (L) <- (E)
+	AddOpcode(0353, (OPCodeFunction)(&CCPU8080::XCHG));
+	
+	// -------------------
+	// 2. Arithmetic group
 
-	m_opcodesTable[0X17] = (OPCodeFunction)(&CCPU8080::RAL);
-	m_opcodesTable[0X1F] = (OPCodeFunction)(&CCPU8080::RAR);
-	m_opcodesTable[0XC9] = (OPCodeFunction)(&CCPU8080::RET);
-	m_opcodesTable[0XD8] = (OPCodeFunction)(&CCPU8080::RC);
-	m_opcodesTable[0X20] = (OPCodeFunction)(&CCPU8080::NOP);		//8085 TODO: RIM
-	m_opcodesTable[0XF8] = (OPCodeFunction)(&CCPU8080::RM);
-	m_opcodesTable[0XD0] = (OPCodeFunction)(&CCPU8080::RNC);
-	m_opcodesTable[0XC0] = (OPCodeFunction)(&CCPU8080::RNZ);
-	m_opcodesTable[0XF0] = (OPCodeFunction)(&CCPU8080::RP);
-	m_opcodesTable[0XE8] = (OPCodeFunction)(&CCPU8080::RPE);
-	m_opcodesTable[0XE0] = (OPCodeFunction)(&CCPU8080::RPO);
-	m_opcodesTable[0XC8] = (OPCodeFunction)(&CCPU8080::RZ);
-	m_opcodesTable[0X07] = (OPCodeFunction)(&CCPU8080::RLC);
-	m_opcodesTable[0X0F] = (OPCodeFunction)(&CCPU8080::RRC);
+	// Unless indicated otherwise, all instructions in this group
+	// affect the Zero, Sign, Parity, Carry and Auxiliary Carry
+	// flags according to the standard rules.
+	// All substraction operations are performed via two's complement
+	// arithmetic and set the carry flag to one to indicate a borrow
+	// and clear it to indicate no borrow
 
-	m_opcodesTable[0307] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0317] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0327] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0337] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0347] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0357] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0367] = (OPCodeFunction)(&CCPU8080::RST);
-	m_opcodesTable[0377] = (OPCodeFunction)(&CCPU8080::RST);
+	// ADD r (Add Register)
+	// (A) <- (A) + (r)
+	AddOpcode(0200, (OPCodeFunction)(&CCPU8080::ADDr));	// B
+	AddOpcode(0201, (OPCodeFunction)(&CCPU8080::ADDr));	// C
+	AddOpcode(0202, (OPCodeFunction)(&CCPU8080::ADDr));	// D
+	AddOpcode(0203, (OPCodeFunction)(&CCPU8080::ADDr));	// E
+	AddOpcode(0204, (OPCodeFunction)(&CCPU8080::ADDr));	// H
+	AddOpcode(0205, (OPCodeFunction)(&CCPU8080::ADDr));	// L
+	AddOpcode(0207, (OPCodeFunction)(&CCPU8080::ADDr));	// A
 
-	m_opcodesTable[0230] = (OPCodeFunction)(&CCPU8080::SBBr);	// B
-	m_opcodesTable[0231] = (OPCodeFunction)(&CCPU8080::SBBr);	// C
-	m_opcodesTable[0232] = (OPCodeFunction)(&CCPU8080::SBBr);	// D
-	m_opcodesTable[0233] = (OPCodeFunction)(&CCPU8080::SBBr);	// E
-	m_opcodesTable[0234] = (OPCodeFunction)(&CCPU8080::SBBr);	// H
-	m_opcodesTable[0235] = (OPCodeFunction)(&CCPU8080::SBBr);	// L
-	m_opcodesTable[0236] = (OPCodeFunction)(&CCPU8080::SBBm);	// m
-	m_opcodesTable[0237] = (OPCodeFunction)(&CCPU8080::SBBr);	// A
+	// ADD M (Add memory)
+	// (A) <- (A) + ((H)(L))
+	AddOpcode(0206, (OPCodeFunction)(&CCPU8080::ADDm));	// m
 
-	m_opcodesTable[0XDE] = (OPCodeFunction)(&CCPU8080::SBI);
-	m_opcodesTable[0X22] = (OPCodeFunction)(&CCPU8080::SHLD);
-	m_opcodesTable[0X30] = (OPCodeFunction)(&CCPU8080::NOP);		// 8085 TODO: SIM
-	m_opcodesTable[0XF9] = (OPCodeFunction)(&CCPU8080::SPHL);
-	m_opcodesTable[0X32] = (OPCodeFunction)(&CCPU8080::STA);
-	m_opcodesTable[0X02] = (OPCodeFunction)(&CCPU8080::STAXb);
-	m_opcodesTable[0X12] = (OPCodeFunction)(&CCPU8080::STAXd);
-	m_opcodesTable[0X37] = (OPCodeFunction)(&CCPU8080::STC);
+	// ADI data (Add immediate)
+	// (A) <- (A) + (byte2)
+	AddOpcode(0306, (OPCodeFunction)(&CCPU8080::ADI));
 
-	m_opcodesTable[0220] = (OPCodeFunction)(&CCPU8080::SUBr);	// B
-	m_opcodesTable[0221] = (OPCodeFunction)(&CCPU8080::SUBr);	// C
-	m_opcodesTable[0222] = (OPCodeFunction)(&CCPU8080::SUBr);	// D
-	m_opcodesTable[0223] = (OPCodeFunction)(&CCPU8080::SUBr);	// E
-	m_opcodesTable[0224] = (OPCodeFunction)(&CCPU8080::SUBr);	// H
-	m_opcodesTable[0225] = (OPCodeFunction)(&CCPU8080::SUBr);	// L
-	m_opcodesTable[0226] = (OPCodeFunction)(&CCPU8080::SUBm);	// m
-	m_opcodesTable[0227] = (OPCodeFunction)(&CCPU8080::SUBr);	// A
+	// ADC r (Add Register with Carry)
+	// (A) <- (A) + (r) + (CY)
+	AddOpcode(0210, (OPCodeFunction)(&CCPU8080::ADCr));	// B
+	AddOpcode(0211, (OPCodeFunction)(&CCPU8080::ADCr));	// C
+	AddOpcode(0212, (OPCodeFunction)(&CCPU8080::ADCr));	// D
+	AddOpcode(0213, (OPCodeFunction)(&CCPU8080::ADCr));	// E
+	AddOpcode(0214, (OPCodeFunction)(&CCPU8080::ADCr));	// H
+	AddOpcode(0215, (OPCodeFunction)(&CCPU8080::ADCr));	// L
+	AddOpcode(0217, (OPCodeFunction)(&CCPU8080::ADCr));	// A
 
-	m_opcodesTable[0XD6] = (OPCodeFunction)(&CCPU8080::SUI);
-	m_opcodesTable[0XEB] = (OPCodeFunction)(&CCPU8080::XCHG);
+	// ADC M (Add Memory with Carry)
+	// (A) <- (A) + ((H)(L)) + (CY)
+	AddOpcode(0216, (OPCodeFunction)(&CCPU8080::ADCm));	// m
 
-	m_opcodesTable[0250] = (OPCodeFunction)(&CCPU8080::XRAr);	// B
-	m_opcodesTable[0251] = (OPCodeFunction)(&CCPU8080::XRAr);	// C
-	m_opcodesTable[0252] = (OPCodeFunction)(&CCPU8080::XRAr);	// D
-	m_opcodesTable[0253] = (OPCodeFunction)(&CCPU8080::XRAr);	// E
-	m_opcodesTable[0254] = (OPCodeFunction)(&CCPU8080::XRAr);	// H
-	m_opcodesTable[0255] = (OPCodeFunction)(&CCPU8080::XRAr);	// L
-	m_opcodesTable[0256] = (OPCodeFunction)(&CCPU8080::XRAm);	// m
-	m_opcodesTable[0257] = (OPCodeFunction)(&CCPU8080::XRAr);	// A
+	// ACI data (Add immediate with Carry)
+	// (A) <- (A) + (byte2) + (CY)
+	AddOpcode(0316, (OPCodeFunction)(&CCPU8080::ACI));
 
-	m_opcodesTable[0XEE] = (OPCodeFunction)(&CCPU8080::XRI);
-	m_opcodesTable[0XE3] = (OPCodeFunction)(&CCPU8080::XTHL);
+	// SUB r (Substract Register)
+	// (A) <- (A) - (r)
+	AddOpcode(0220, (OPCodeFunction)(&CCPU8080::SUBr));	// B
+	AddOpcode(0221, (OPCodeFunction)(&CCPU8080::SUBr));	// C
+	AddOpcode(0222, (OPCodeFunction)(&CCPU8080::SUBr));	// D
+	AddOpcode(0223, (OPCodeFunction)(&CCPU8080::SUBr));	// E
+	AddOpcode(0224, (OPCodeFunction)(&CCPU8080::SUBr));	// H
+	AddOpcode(0225, (OPCodeFunction)(&CCPU8080::SUBr));	// L
+	AddOpcode(0227, (OPCodeFunction)(&CCPU8080::SUBr));	// A
+
+	// SUB M (Substract memory)
+	// (A) <- (A) - ((H)(L))
+	AddOpcode(0226, (OPCodeFunction)(&CCPU8080::SUBm));	// m
+
+	// SUI data (Substract immediate)
+	// (A) <- (A) - (byte2)
+	AddOpcode(0326, (OPCodeFunction)(&CCPU8080::SUI));
+
+	// SBB r (Substract Register with Borrow)
+	// (A) <- (A) - (r) - (CY)
+	AddOpcode(0230, (OPCodeFunction)(&CCPU8080::SBBr));	// B
+	AddOpcode(0231, (OPCodeFunction)(&CCPU8080::SBBr));	// C
+	AddOpcode(0232, (OPCodeFunction)(&CCPU8080::SBBr));	// D
+	AddOpcode(0233, (OPCodeFunction)(&CCPU8080::SBBr));	// E
+	AddOpcode(0234, (OPCodeFunction)(&CCPU8080::SBBr));	// H
+	AddOpcode(0235, (OPCodeFunction)(&CCPU8080::SBBr));	// L
+	AddOpcode(0237, (OPCodeFunction)(&CCPU8080::SBBr));	// A
+
+	// SBB M (Substract Memory with Borrow)
+	// (A) <- (A) - ((H)(L)) - (CY)
+	AddOpcode(0236, (OPCodeFunction)(&CCPU8080::SBBm));	// m
+
+	// SBI data (Substract immediate with Borrow)
+	// (A) <- (A) - (byte2) - (CY)
+	AddOpcode(0336, (OPCodeFunction)(&CCPU8080::SBI));
+
+	// INR r (Increment Register)
+	// (r) <- (r) + 1
+	// Note: CY not affected
+	AddOpcode(0004, (OPCodeFunction)(&CCPU8080::INRr));	// B
+	AddOpcode(0014, (OPCodeFunction)(&CCPU8080::INRr));	// C
+	AddOpcode(0024, (OPCodeFunction)(&CCPU8080::INRr));	// D
+	AddOpcode(0034, (OPCodeFunction)(&CCPU8080::INRr));	// E
+	AddOpcode(0044, (OPCodeFunction)(&CCPU8080::INRr));	// H
+	AddOpcode(0054, (OPCodeFunction)(&CCPU8080::INRr));	// L
+	AddOpcode(0074, (OPCodeFunction)(&CCPU8080::INRr));	// A
+
+	// INR M (Increment Memory)
+	// ((H)(L)) <- ((H)(L)) + 1
+	// Note: CY not affected
+	AddOpcode(0064, (OPCodeFunction)(&CCPU8080::INRm));	// m
+
+	// DCR r (Decrement Register)
+	// (r) <- (r) - 1
+	// Note: CY not affected
+	AddOpcode(0005, (OPCodeFunction)(&CCPU8080::DCRr));	// B
+	AddOpcode(0015, (OPCodeFunction)(&CCPU8080::DCRr));	// C
+	AddOpcode(0025, (OPCodeFunction)(&CCPU8080::DCRr));	// D
+	AddOpcode(0035, (OPCodeFunction)(&CCPU8080::DCRr));	// E
+	AddOpcode(0045, (OPCodeFunction)(&CCPU8080::DCRr));	// H
+	AddOpcode(0055, (OPCodeFunction)(&CCPU8080::DCRr));	// L
+	AddOpcode(0075, (OPCodeFunction)(&CCPU8080::DCRr));	// A
+	
+	// DCR M (Decrement Memory)
+	// ((H)(L)) <- ((H)(L)) - 1
+	// Note: CY not affected
+	AddOpcode(0065, (OPCodeFunction)(&CCPU8080::DCRm));	// m
+
+	// INX rp (Increment Register Pair)
+	// (rh)(rl) <- (rh)(rl) + 1
+	// Note: No condition flags are affected
+	AddOpcode(0003, (OPCodeFunction)(&CCPU8080::INXb));
+	AddOpcode(0023, (OPCodeFunction)(&CCPU8080::INXd));
+	AddOpcode(0043, (OPCodeFunction)(&CCPU8080::INXh));
+	AddOpcode(0063, (OPCodeFunction)(&CCPU8080::INXsp));
+
+	// DCX rp (Decrement Register Pair)
+	// (rh)(rl) <- (rh)(rl) - 1
+	// Note: No condition flags are affected
+	AddOpcode(0013, (OPCodeFunction)(&CCPU8080::DCXb));
+	AddOpcode(0033, (OPCodeFunction)(&CCPU8080::DCXd));
+	AddOpcode(0053, (OPCodeFunction)(&CCPU8080::DCXh));
+	AddOpcode(0073, (OPCodeFunction)(&CCPU8080::DCXsp));
+
+	// DAD rp (Add register pair to H and L)
+	// (H)(L) <- (H)(L) + (rh)(rl)
+	// Note: Only the CY flag is affected
+	AddOpcode(0011, (OPCodeFunction)(&CCPU8080::DADb));
+	AddOpcode(0031, (OPCodeFunction)(&CCPU8080::DADd));
+	AddOpcode(0051, (OPCodeFunction)(&CCPU8080::DADh));
+	AddOpcode(0071, (OPCodeFunction)(&CCPU8080::DADsp));
+
+	// DAA (Decimal Adjust Accumulator)
+	// The eight-bit number in the accumulator is adjusted to
+	// form two four-bit Binary-Coded-Decimal digits by the 
+	// following process:
+	//
+	// 1. If the value of the least significant 4 bits of the 
+	//    accumulator is greater than 9 or if the AC flag is set,
+	//    6 is added to the accumulator.
+	// 2. If the value of the most significant 4 bits of the 
+	//    accumulator is now greater than 9, *or* if the CY flag
+	//    is set, 6 is added to the most significant 4 bits of
+	//    the accumulator.
+	// Note: All flags are adjusted
+	//	AddOpcode(0047, (OPCodeFunction)(&CCPU8080::DAA)); // TODO: Not implemented
+
+	// -------------------
+	// 3. Logical Group
+
+	// Unless indicated otherwise, all instructions in this group
+	// affect the Zero, Sign, Parity, Carry and Auxiliary Carry
+	// flags according to the standard rules.
+
+	// ANA r (AND Register)
+	// (A) <- (A) and (r)
+	// Note: The CY flag is cleared and the AC is set (8085)
+	// The CY flag is cleared and AC is set to the ORing of 
+	// bits 3 of the operands (8080)
+	AddOpcode(0240, (OPCodeFunction)(&CCPU8080::ANAr));	// B
+	AddOpcode(0241, (OPCodeFunction)(&CCPU8080::ANAr));	// C
+	AddOpcode(0242, (OPCodeFunction)(&CCPU8080::ANAr));	// D
+	AddOpcode(0243, (OPCodeFunction)(&CCPU8080::ANAr));	// E
+	AddOpcode(0244, (OPCodeFunction)(&CCPU8080::ANAr));	// H
+	AddOpcode(0245, (OPCodeFunction)(&CCPU8080::ANAr));	// L
+	AddOpcode(0247, (OPCodeFunction)(&CCPU8080::ANAr));	// A
+
+	// ANA M (AND Memory)
+	// (A) <- (A) and ((H)(L))
+	// Note: same CY rules as ANA
+	AddOpcode(0246, (OPCodeFunction)(&CCPU8080::ANAm));	// m
+
+	// ANI data (AND Immediate)
+	// Note: same CY rules as ANA
+	// (A) <- (A) and (byte 2)
+	AddOpcode(0346, (OPCodeFunction)(&CCPU8080::ANI));
+
+	// XRA r (XOR Register)
+	// (A) <- (A) xor (r)
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0250, (OPCodeFunction)(&CCPU8080::XRAr));	// B
+	AddOpcode(0251, (OPCodeFunction)(&CCPU8080::XRAr));	// C
+	AddOpcode(0252, (OPCodeFunction)(&CCPU8080::XRAr));	// D
+	AddOpcode(0253, (OPCodeFunction)(&CCPU8080::XRAr));	// E
+	AddOpcode(0254, (OPCodeFunction)(&CCPU8080::XRAr));	// H
+	AddOpcode(0255, (OPCodeFunction)(&CCPU8080::XRAr));	// L
+	AddOpcode(0257, (OPCodeFunction)(&CCPU8080::XRAr));	// A
+
+	// XRA M (XOR Memory)
+	// (A) <- (A) xor ((H)(L))
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0256, (OPCodeFunction)(&CCPU8080::XRAm));	// m
+
+	// XRI data (XOR Immediate)
+	// (A) <- (A) xor (byte 2)
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0356, (OPCodeFunction)(&CCPU8080::XRI));
+
+	// ORA r (OR Register)
+	// (A) <- (A) or (r)
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0260, (OPCodeFunction)(&CCPU8080::ORAr));	// B
+	AddOpcode(0261, (OPCodeFunction)(&CCPU8080::ORAr));	// C
+	AddOpcode(0262, (OPCodeFunction)(&CCPU8080::ORAr));	// D
+	AddOpcode(0263, (OPCodeFunction)(&CCPU8080::ORAr));	// E
+	AddOpcode(0264, (OPCodeFunction)(&CCPU8080::ORAr));	// H
+	AddOpcode(0265, (OPCodeFunction)(&CCPU8080::ORAr));	// L
+	AddOpcode(0267, (OPCodeFunction)(&CCPU8080::ORAr));	// A
+
+	// ORA M (OR Memory)
+	// (A) <- (A) or ((H)(L))
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0266, (OPCodeFunction)(&CCPU8080::ORAm));	// m
+
+	// ORI data (OR Immediate)
+	// (A) <- (A) oor (byte 2)
+	// Note: The CY  and AC flags are cleared
+	AddOpcode(0366, (OPCodeFunction)(&CCPU8080::ORI));
+
+	// CMP r (Compare Register)
+	// (A) - (r)
+	// Note: The accumulator remains unchanged.
+	// The condition flags are set are set as
+	// the result of the substraction.  The Z flag
+	// is set to 1 if (A) = (r).  The CY flag is set
+	// to 1 if (A) < (r)
+	AddOpcode(0270, (OPCodeFunction)(&CCPU8080::CMPr));	// B
+	AddOpcode(0271, (OPCodeFunction)(&CCPU8080::CMPr));	// C
+	AddOpcode(0272, (OPCodeFunction)(&CCPU8080::CMPr));	// D
+	AddOpcode(0273, (OPCodeFunction)(&CCPU8080::CMPr));	// E
+	AddOpcode(0274, (OPCodeFunction)(&CCPU8080::CMPr));	// H
+	AddOpcode(0275, (OPCodeFunction)(&CCPU8080::CMPr));	// L
+	AddOpcode(0277, (OPCodeFunction)(&CCPU8080::CMPr));	// A
+
+	// CMP M (Compare Memory)
+	// (A) - ((H)(L))
+	// Note: Same rules as CMP r
+	AddOpcode(0276, (OPCodeFunction)(&CCPU8080::CMPm));	// m
+
+	// CPI data (Compare immediate)
+	// (A) - (byte2)
+	// Note Same rules as CMP r
+	AddOpcode(0376, (OPCodeFunction)(&CCPU8080::CPI));
+
+	// RLC (Rotate left)
+	// (An+1) <- (An)
+	// (A0) <- (A7)
+	// (CY) <- (A7)
+	// Note: Only the CY flag is affected
+	AddOpcode(0007, (OPCodeFunction)(&CCPU8080::RLC));
+
+	// RRC (Rotate right)
+	// (An) <- (An+1)
+	// (A7) <- (A0)
+	// (CY) <- (A0)
+	// Note: Only the CY flag is affected
+	AddOpcode(0017, (OPCodeFunction)(&CCPU8080::RRC));
+
+	// RAL (Rotate left through carry)
+	// (An+1) <- (An)
+	// (CY) <- (A7)
+	// (A0) <- (CY)
+	// Note: Only the CY flag is affected
+	AddOpcode(0027, (OPCodeFunction)(&CCPU8080::RAL));
+
+	// RAL (Rotate right through carry)
+	// (An) <- (An+1)
+	// (CY) <- (A0)
+	// (A7) <- (CY)
+	// Note: Only the CY flag is affected
+	AddOpcode(0037, (OPCodeFunction)(&CCPU8080::RAR));
+
+	// CMA (Complement accumulator)
+	// (A) <- /(A)
+	// Note: No flags are affected
+	AddOpcode(0057, (OPCodeFunction)(&CCPU8080::CMA));
+
+	// CMC (Complement carry)
+	// (CY) <- /(CY)
+	// Note: No other flags are affected
+	AddOpcode(0077, (OPCodeFunction)(&CCPU8080::CMC));
+	
+	// STC (Set Carry)
+	// (CY) <- 1
+	// Note: No other flags are affected
+	AddOpcode(0067, (OPCodeFunction)(&CCPU8080::STC));
+
+	// -------------------
+	// 4. Branch Group
+
+	// Condition flags are not affected by any instruction in this group
+	//
+	// CONDITION                 CCC
+	// NZ - Not Zero    ( Z = 0) 000
+	//  Z - Zero        ( Z = 1) 001
+	// NC - No Carry    (CY = 0) 010
+	//  C - Carry       (CY = 1) 011
+	// PO - Parity odd  ( P = 0) 100
+	// PE - Parity even ( P = 1) 101
+	//  P - Plus        ( S = 0) 110
+	//  M - Minus       ( S = 1) 111
+
+	// JMP addr (Jump)
+	// (PC) <- (byte3)(byte2)
+	AddOpcode(0303, (OPCodeFunction)(&CCPU8080::JMP));
+
+	// Jcondition addr (Conditional Jump)
+	// If (CCC),
+	// (PC) <- (byte3)(byte2)
+	AddOpcode(0302, (OPCodeFunction)(&CCPU8080::JNZ));
+	AddOpcode(0312, (OPCodeFunction)(&CCPU8080::JZ));
+	AddOpcode(0322, (OPCodeFunction)(&CCPU8080::JNC));
+	AddOpcode(0332, (OPCodeFunction)(&CCPU8080::JC));
+	AddOpcode(0342, (OPCodeFunction)(&CCPU8080::JPO));
+	AddOpcode(0352, (OPCodeFunction)(&CCPU8080::JPE));
+	AddOpcode(0362, (OPCodeFunction)(&CCPU8080::JP));
+	AddOpcode(0372, (OPCodeFunction)(&CCPU8080::JM));
+
+	// CALL addr (Call)
+	// ((SP) - 1) <- (PCH)
+	// ((SP) - 2) <- (PCL)
+	// (SP) <- (SP) - 2
+	// (PC) <- (byte3)(byte2)
+	AddOpcode(0315, (OPCodeFunction)(&CCPU8080::CALL));
+
+	// Ccondition addr (Conditional Call)
+	// If (CCC),
+	// ((SP) - 1) <- (PCH)
+	// ((SP) - 2) <- (PCL)
+	// (SP) <- (SP) - 2
+	// (PC) <- (byte3)(byte2)
+	AddOpcode(0304, (OPCodeFunction)(&CCPU8080::CNZ));
+	AddOpcode(0314, (OPCodeFunction)(&CCPU8080::CZ));
+	AddOpcode(0324, (OPCodeFunction)(&CCPU8080::CNC));
+	AddOpcode(0334, (OPCodeFunction)(&CCPU8080::CC));
+	AddOpcode(0344, (OPCodeFunction)(&CCPU8080::CPO));
+	AddOpcode(0354, (OPCodeFunction)(&CCPU8080::CPE));
+	AddOpcode(0364, (OPCodeFunction)(&CCPU8080::CP));
+	AddOpcode(0374, (OPCodeFunction)(&CCPU8080::CM));
+
+	// RET (Return)
+	// (PCL) <- ((SP))
+	// (PCH) <- ((SP) + 1)
+	// (SP) <- (SP) + 2
+	AddOpcode(0311, (OPCodeFunction)(&CCPU8080::RET));
+
+	// Rcondition (Conditional Return)
+	// If (CCC),
+	// (PCL) <- ((SP))
+	// (PCH) <- ((SP) + 1)
+	// (SP) <- (SP) + 2
+	AddOpcode(0300, (OPCodeFunction)(&CCPU8080::RNZ));
+	AddOpcode(0310, (OPCodeFunction)(&CCPU8080::RZ));
+	AddOpcode(0320, (OPCodeFunction)(&CCPU8080::RNC));
+	AddOpcode(0330, (OPCodeFunction)(&CCPU8080::RC));
+	AddOpcode(0340, (OPCodeFunction)(&CCPU8080::RPO));
+	AddOpcode(0350, (OPCodeFunction)(&CCPU8080::RPE));
+	AddOpcode(0360, (OPCodeFunction)(&CCPU8080::RP));
+	AddOpcode(0370, (OPCodeFunction)(&CCPU8080::RM));
+
+	// RST n (Restart)
+	// ((SP) - 1) <- (PCH)
+	// ((SP) - 2) <- (PCL)
+	// (SP) <- (SP) - 2
+	// (PC) <- 8 * NNN
+	AddOpcode(0307, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0317, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0327, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0337, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0347, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0357, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0367, (OPCodeFunction)(&CCPU8080::RST));
+	AddOpcode(0377, (OPCodeFunction)(&CCPU8080::RST));
+
+	// PCHL (Jump H and L indirect - move H and L to PC)
+	// (PCH)<-(H)
+	// (PCL)<-(L)
+	AddOpcode(0351, (OPCodeFunction)(&CCPU8080::PCHL));
+
+	// -------------------
+	// 5. Stack, I/O and Machine Control Group
+
+	// PUSH rp (Push)
+	// ((SP) - 1)<-(rh)
+	// ((SP) - 2)<-(rl)
+	// (SP)<-(SP)-2
+	// Note: Register pair rp=SP may not be specified
+	AddOpcode(0305, (OPCodeFunction)(&CCPU8080::PUSHb));
+	AddOpcode(0325, (OPCodeFunction)(&CCPU8080::PUSHd));
+	AddOpcode(0345, (OPCodeFunction)(&CCPU8080::PUSHh));
+
+	// PUSH PSW (Push processor status word)
+	// ((SP) - 1)  <- (A)
+	// ((SP) - 2)0 <- (CY)
+	// ((SP) - 2)1 <- (Undefined)
+	// ((SP) - 2)2 <- (P)
+	// ((SP) - 2)3 <- (Undefined)
+	// ((SP) - 2)4 <- (AC)
+	// ((SP) - 2)5 <- (Undefined)
+	// ((SP) - 2)6 <- (Z)
+	// ((SP) - 2)7 <- (S)
+	// (SP)<-(SP)-2
+	AddOpcode(0365, (OPCodeFunction)(&CCPU8080::PUSHpsw));
+
+	// POP rp (Pop)
+	// (rl) <- ((SP))
+	// (rh) <- ((SP) + 1)
+	// (SP) <- (SP)+2
+	// Note: Register pair rp=SP may not be specified
+	AddOpcode(0301, (OPCodeFunction)(&CCPU8080::POPb));
+	AddOpcode(0321, (OPCodeFunction)(&CCPU8080::POPd));
+	AddOpcode(0341, (OPCodeFunction)(&CCPU8080::POPh));
+
+	// POP PSW (Pop processor status word)
+	// (CY) <- ((SP))0
+	// (P)  <- ((SP))2
+	// (AC) <- ((SP))4
+	// (Z)  <- ((SP))6
+	// (S)  <- ((SP))7
+	// (A)  <- ((SP)+1)
+	// (SP) <- (SP)+2
+	AddOpcode(0361, (OPCodeFunction)(&CCPU8080::POPpsw));
+
+	//XTHL (Exchange stack top with H and L)
+	// (L) <- ((SP))
+	// (H) <- ((SP) + 1)
+	AddOpcode(0343, (OPCodeFunction)(&CCPU8080::XTHL));
+
+	// SPHL (Move HL to SP)
+	// (SP) <- (H)(L)
+	AddOpcode(0371, (OPCodeFunction)(&CCPU8080::SPHL));
+
+	// IN port (Input)
+	// (A) <- (data)
+	AddOpcode(0333, (OPCodeFunction)(&CCPU8080::IN));
+
+	// OUT port (Output)
+	// (data) <- (A)
+	AddOpcode(0323, (OPCodeFunction)(&CCPU8080::OUT));
+
+	// EI (Enable Interrupts)
+	// The interrupt system is enabled following the execution
+	// of the next instruction. 
+	AddOpcode(0373, (OPCodeFunction)(&CCPU8080::EI));
+
+	// DI (Disable Interrupts)
+	// The interrupt ststem is disabled immediately following
+	// the execution of the DI instruction.  Interrupts are
+	// not recognized during the DI instruction
+	AddOpcode(0363, (OPCodeFunction)(&CCPU8080::DI));
+
+	// HLT (Halt)
+	AddOpcode(0166, (OPCodeFunction)(&CCPU8080::HLT));
+
+	// NOP (No op)
+	AddOpcode(0000, (OPCodeFunction)(&CCPU8080::NOP));
+
+	// RIM (Read Interrupt Mask) (8085)
+	AddOpcode(0040, (OPCodeFunction)(&CCPU8080::NOP));		//8085 TODO: RIM
+
+	// SIM (Set Interrupt Mask) (8085)
+	AddOpcode(0060, (OPCodeFunction)(&CCPU8080::NOP));		// 8085 TODO: SIM
 }
 
 CCPU8080::~CCPU8080()
@@ -338,12 +676,12 @@ bool CCPU8080::Step()
 
 void CCPU8080::Dump()
 {
-	fprintf(stderr, "AF = %X %X\tCY = %c\n", regA, flags, getFlag(CY_FLAG)?'1':'0');
-	fprintf(stderr, "BC = %X %X\tP  = %c\n", regB, regC, getFlag(P_FLAG)?'1':'0');
-	fprintf(stderr, "DE = %X %X\tAC = %c\n", regD, regE, getFlag(AC_FLAG)?'1':'0');
-	fprintf(stderr, "HL = %X %X\tZ  = %c\n", regH, regL, getFlag(Z_FLAG)?'1':'0');
-	fprintf(stderr, "SP = %X   \tS  = %c\n", regSP, getFlag(S_FLAG)?'1':'0');
-	fprintf(stderr, "PC = %X\n", m_programCounter);
+	fprintf(stderr, "AF = %02X %02X\tCY = %c\n", regA, flags, getFlag(CY_FLAG)?'1':'0');
+	fprintf(stderr, "BC = %02X %02X\tP  = %c\n", regB, regC, getFlag(P_FLAG)?'1':'0');
+	fprintf(stderr, "DE = %02X %02X\tAC = %c\n", regD, regE, getFlag(AC_FLAG)?'1':'0');
+	fprintf(stderr, "HL = %02X %02X\tZ  = %c\n", regH, regL, getFlag(Z_FLAG)?'1':'0');
+	fprintf(stderr, "SP = %04X   \tS  = %c\n", regSP, getFlag(S_FLAG)?'1':'0');
+	fprintf(stderr, "PC = %04X\n", m_programCounter);
 	fprintf(stderr, "\n");
 }
 
@@ -927,24 +1265,10 @@ void CCPU8080::RST(BYTE opcode)
 	regSP--;
 	m_memory.Write(regSP, getLByte(m_programCounter));
 
-	WORD vector;
-
 	opcode &= 070;
 
-	switch(opcode)
-	{
-	case 000:	vector = 0x0; break;
-	case 010:	vector = 0x8; break;
-	case 020:	vector = 0x10; break;
-	case 030:	vector = 0x18; break;
-	case 040:	vector = 0x20; break;
-	case 050:	vector = 0x28; break;
-	case 060:	vector = 0x30; break;
-	case 070:	vector = 0x38; break;
-	}
-
 	m_timeTicks += 12;
-	m_programCounter = vector;
+	m_programCounter = opcode;
 }
 
 void CCPU8080::INRr(BYTE opcode)

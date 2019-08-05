@@ -239,7 +239,8 @@ int main(void)
 //	memory.RegisterLogCallback(LogCallback);
 
 	std::vector<CMemoryBlock> monitorRom;
-	if (readIntelHex("../basic/main/main.ihx", monitorRom))
+	//if (readIntelHex("../basic/main/main.ihx", monitorRom))
+	if (readIntelHex("../basic/integer/integer.ihx", monitorRom))
 	{
 		for (int i=0; i<monitorRom.size(); i++)
 			memory.Allocate(&(monitorRom[i]));
@@ -264,6 +265,7 @@ int main(void)
 
 	//TODO: Add logger
 	CCPU8080 cpu(memory, interrupts);
+
 	cpu.AddDevice(uart);
 	cpu.Reset();
 

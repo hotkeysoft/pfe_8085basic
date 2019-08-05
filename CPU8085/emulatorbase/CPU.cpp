@@ -48,16 +48,38 @@ bool CCPU::Step()
 	}
 	else
 	{
-		fprintf(stderr, "CPU: Reading invalid address %X! Stopping CPU.\n", m_programCounter);
+		fprintf(stderr, "CPU: Reading invalid address 0x%04X! Stopping CPU.\n", m_programCounter);
 		m_state = STOP;
 	}
 
 	return (m_state == RUN);
 }
 
+void CCPU::DumpUnassignedOpcodes()
+{
+	for (int i = 0; i < 256; ++i)
+	{
+		if (m_opcodesTable[i] == &CCPU::UnknownOpcode) 
+		{
+			fprintf(stderr, "Unassigned: 0x%02X\t0%03o\n", i, i);
+		}
+	}
+}
+
+void CCPU::AddOpcode(BYTE opcode, OPCodeFunction f)
+{
+	if (m_opcodesTable[opcode] != &CCPU::UnknownOpcode)
+	{
+		fprintf(stderr, "CPU: Opcode (0x%02X) already defined!\n", opcode);
+		throw std::exception("Opcode Already defined");
+	}
+
+	m_opcodesTable[opcode] = f;
+}
+
 void CCPU::UnknownOpcode(BYTE opcode)
 {
-	fprintf(stderr, "CPU: Unknown Opcode (%X) at address %X! Stopping CPU.\n", opcode, m_programCounter);
+	fprintf(stderr, "CPU: Unknown Opcode (0x%02X) at address 0x%04X! Stopping CPU.\n", opcode, m_programCounter);
 	m_state = STOP;
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common.h"
+#include "Console.h"
 #include "PortConnector.h"
 #include "InterruptSource.h"
 
@@ -59,6 +60,7 @@ private:
 
 	void printDivisor();
 
+	Console m_console;
 	BYTE m_currChar;
 
 	// Internal Registers

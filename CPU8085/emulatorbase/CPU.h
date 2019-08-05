@@ -17,9 +17,12 @@ public:
 
 	unsigned long getTime() { return m_timeTicks; };
 
+	void DumpUnassignedOpcodes();
+
 protected:
 	typedef void (CCPU::*OPCodeFunction)(BYTE);
-	OPCodeFunction m_opcodesTable[256];
+
+	void AddOpcode(BYTE, OPCodeFunction);
 
 	enum CPUState {STOP, RUN, STEP};
 
@@ -38,5 +41,6 @@ protected:
 	bool isParityEven(BYTE b) { return !isParityOdd(b); };
 
 private:
+	OPCodeFunction m_opcodesTable[256];
 	void UnknownOpcode(BYTE);
 };

@@ -11,3 +11,4 @@
 ..\..\bin\AS8085.EXE -lo ..\tokenize\tokenize
 ..\..\bin\AS8085.EXE -lo ..\variables\variable
 ..\..\bin\aslink.exe -f main
+
