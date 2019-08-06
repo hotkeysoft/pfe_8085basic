@@ -657,29 +657,14 @@ INT_ITOA::
 
 ;	CHECK FOR ZERO
 	MOV	A,H
-	CPI	0
-	JNZ	NONZERO
+	ORA	H					; 8 bits positive?
+	MOV 	A,L
+	JZ	INT_ITOA_U8				; Use simpler function
 	
-	MOV	A,L
-	CPI	0
-	JNZ	NONZERO
-	
-;	SPECIAL CASE: ZERO
-	MVI	A,'0
-	STA	INT_ACCSTR
-
-	MVI	A,0
-	STA	INT_ACCSTR+1
-	
-	LXI	H,INT_ACCSTR
-	MVI	A,1
-	RET
-	
-NONZERO:
 	PUSH	B
 	PUSH	D
 
-	PUSH	H					;PUSH ON THE STACK
+	PUSH	H					;PUSH INT_ACC0 ON THE STACK
 
 	MOV	A,H
 	ORA	A					;UPDATES THE SIGN FLAG
@@ -934,6 +919,121 @@ ISNEG:
 	
 FOUND:
 	MOV	A,B					;COPY LEN TO ACC
+	POP	D
+	POP	B
+	
+	RET
+
+;*********************************************************
+;* INT_ITOA_U8:	CONVERTS BYTE IN ACC TO ASCII STRING
+;*		RETURNS PTR TO BEGIN OF STRING (HL)
+;*		PLUS LENGTH OF STRING (ACC)
+;*
+;*	Uses the double dabble algorithm to convert binary 
+;*	numbers into binary-coded decimal (BCD) notation
+;*
+INT_ITOA_U8::
+;	SPECIAL CASE: ZERO
+	ORA	A
+	JNZ	NONZERO
+	LXI	H,"0\0					; null terminated "0"
+	SHLD	INT_ACCSTR
+	
+	LXI	H,INT_ACCSTR
+	MVI	A,1
+	RET
+NONZERO:
+	; D Value to convert
+	; C[nnnn nnnn] x10 x1
+	; B[0000 nnnn] x100
+	PUSH B
+	PUSH D
+
+	MOV	D,A
+	LXI	B,0			; Clear BC
+	
+	MVI	L,8			; 8 shifts for 8 bits
+1$:	
+	; Shift D LEFT
+	ORA	A			; Clear carry
+
+	MOV	A,D
+	RAL
+	MOV	D,A
+	; Shift C LEFT
+	MOV	A,C
+	RAL
+	MOV	C,A
+	; Shift B LEFT
+	MOV	A,B
+	RAL
+	MOV	B,A
+
+	; Shift done
+	DCR	L
+	JZ	4$			; Done all the shifts?
+
+	; Adjust x1
+	MOV	A,C
+	ANI	0x0F			; Clear hi nibble
+	CPI	0x05			; More than 4?
+	MOV	A,C			; Reload whole byte	
+	JC	2$			; More than 4??	
+	ADI	0x03			; Yes, add 3	
+	MOV	C,A			; Back in C, C still in Acc
+2$:	
+	; Adjust x10
+	CPI	0x50			; Check hi nibble > 4?
+	JC	1$
+	ADI	0x30			; Yes, add 3
+	MOV	C,A			; Back in C
+	
+	; x100 is max 2 so we're done
+3$:	JMP 	1$
+	
+4$: ; DONE
+
+;	N * 100
+	LXI	H, INT_ACCSTR
+	
+	MOV	A,B
+	ORA	A
+	JZ	5$
+	ADI	#'0					;CONVERT TO CHAR
+	MOV	M,A
+	INX	H
+
+5$:	
+;	N * 10
+	MOV	A,C
+	ANI	0xF0					;CLEAR LOW NIBBLE
+	ORA	B					;ADD 100x VALUE IN LOW NIBBLE
+	JZ	6$
+	ANI	0xF0					;RE-CLEAR LOW NIBBLE
+	RRC
+	RRC						;DIVIDE BY 16 
+	RRC						;(HI NIBBLE -> LOW)
+	RRC						
+	ADI	#'0					;CONVERT TO CHAR
+	MOV	M,A
+	INX	H
+6$:	
+;	N * 1
+	MOV	A,C
+	ANI	0x0F					;CLEAR HI NIBBLE		
+	ADI	#'0					;CONVERT TO CHAR
+	MOV	M,A
+	INX	H
+	
+	MVI	M,0
+
+	; Compute string length in ACC
+	MOV	A,L					;LOW BYTE OF CURRENT POS
+	SUI	<INT_ACCSTR				;-LOW BYTE OF BEGIN STR PTR
+
+	; Put Address in HL
+	LXI	H,INT_ACCSTR
+	
 	POP	D
 	POP	B
 	

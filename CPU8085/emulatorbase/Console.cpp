@@ -185,7 +185,27 @@ void Console::SetColor(BYTE color)
 }
 void Console::ScrollUp()
 {
-	fprintf(stderr, "CON: ScrollUp\n");
+	SMALL_RECT srctScrollRect;
+	COORD coordDest;
+	CHAR_INFO chiFill;
+
+	srctScrollRect.Top = 1;
+	srctScrollRect.Left = 0;
+	srctScrollRect.Right = 79;
+	srctScrollRect.Bottom = 25;
+
+	coordDest.X = 0;
+	coordDest.Y = 0;
+
+	chiFill.Attributes = m_currAttr;
+	chiFill.Char.AsciiChar = (char)' ';
+
+	ScrollConsoleScreenBuffer(
+		m_hConsole,
+		&srctScrollRect, // scrolling rectangle 
+		NULL,   // clipping rectangle 
+		coordDest,       // top left destination cell 
+		&chiFill);
 }
 void Console::MoveUp()
 {
@@ -289,7 +309,22 @@ void Console::Delete()
 }
 void Console::Tab()
 {
-//	fprintf(stderr, "CON: Tab\n");
+	m_currPos.X = (m_currPos.X / 8 + 1) * 8;
+	if (m_currPos.X > 79)
+	{
+		m_currPos.X = 0;
+		m_currPos.Y += 1;
+	}
+
+	if (m_currPos.Y > 24)
+	{
+		ScrollUp();
+		m_currPos.Y -= 1;
+	}
+	else 
+	{
+		SetConsoleCursorPosition(m_hConsole, m_currPos);
+	}
 }
 void Console::InsertLine()
 {

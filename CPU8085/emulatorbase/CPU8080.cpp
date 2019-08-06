@@ -312,6 +312,7 @@ CCPU8080::CCPU8080(CMemory & memory, CInterrupts & interrupts)
 	//    the accumulator.
 	// Note: All flags are adjusted
 	//	AddOpcode(0047, (OPCodeFunction)(&CCPU8080::DAA)); // TODO: Not implemented
+	AddOpcode(0047, (OPCodeFunction)(&CCPU8080::DAA)); // TODO: Currently used to dump regs
 
 	// -------------------
 	// 3. Logical Group
@@ -1863,7 +1864,9 @@ void CCPU8080::CMC(BYTE opcode)
 
 void CCPU8080::DAA(BYTE opcode)
 {
-	m_timeTicks += 4;
+	Dump();
+
+//	m_timeTicks += 4;
 	m_programCounter++;
 }
 

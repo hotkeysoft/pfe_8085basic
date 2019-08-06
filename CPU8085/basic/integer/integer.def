@@ -28,6 +28,7 @@
 	.globl	INT_DIV
 	
 	.globl	INT_ITOA
+	.globl	INT_ITOA_U8
 	.globl	INT_ATOI
 	
 	.globl	INT_ABS
