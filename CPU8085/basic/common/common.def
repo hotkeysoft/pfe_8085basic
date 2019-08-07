@@ -1,5 +1,5 @@
 
-	DEBUG 	== 0
+	DEBUG 	== 1
 	
 	FALSE 	== 0
 	TRUE	== ~0
@@ -96,9 +96,7 @@
 
 	.globl	C_ISDIGIT
 	.globl	C_ISALPHA
-		
-	.globl	C_STR2INT
-	
+
 	.globl	C_MEMSET
 	.globl	C_MEMCPYF
 	.globl	C_MEMCPY

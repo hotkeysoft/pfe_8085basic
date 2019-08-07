@@ -4,8 +4,6 @@
 ;* DESCRIPTION:	HANDLES TOKENIZATION OF BASIC STATEMENTS
 ;*		(CONVERSION FROM TEXT TO TOKENS)
 ;*
-;* $Id: tokenize.asm,v 1.20 2001-12-03 00:28:05 Dominic Thibodeau Exp $
-;*
 
 .module 	tokenize
 .title 		Tokenization of basic statements

@@ -5,8 +5,6 @@
 ;*		ARITHMETIC, BINARY, RELATIONS, LOGICAL, 
 ;*		FUNCTIONS
 ;*
-;* $Id: evaluate.asm,v 1.39 2001-12-06 16:53:25 Dominic Thibodeau Exp $
-;*
 
 .module 	evaluate
 .title 		Expression evaluation

@@ -4,8 +4,6 @@
 ;* DESCRIPTION:	IMPLEMENTATION OF STRING HANDLING FUNCTIONS
 ;*		SUCH AS ALLOCATE, FREE, COMPARE, ETC
 ;*
-;* $Id: strings.asm,v 1.24 2001-12-03 05:06:33 Dominic Thibodeau Exp $
-;*
 
 .module 	strings
 .title 		Strings module

@@ -5,8 +5,6 @@
 ;*		UART CONTROL, TIMER CONTROL, SOUND FUNCTIONS,
 ;*		KEYBOARD FUNCTIONS, TERMINAL OUTPUT FUNCTIONS
 ;*
-;* $Id: io.asm,v 1.23 2002-01-26 23:37:25 Dominic Thibodeau Exp $
-;*
 
 .module 	io
 .title 		Input/Output module (term+sound)
@@ -82,7 +80,7 @@ IO_INITUART:
 	MVI	A,0xA0			;SET DLA MODE
 	OUT	U_LCR		
 	
-	MVI	A,0x0D		;BAUD RATE SETUP
+	MVI	A,0x0D			;BAUD RATE SETUP
 	OUT	U_DLL			;9600 BAUDS (SOURCE 2MHz)
 	MVI	A,0x00		
 	OUT	U_DLM

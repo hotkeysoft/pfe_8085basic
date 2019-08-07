@@ -3,8 +3,6 @@
 ;* 
 ;* DESCRIPTION:	ERROR HANDLING FUNCTIONS
 ;*
-;* $Id: error.asm,v 1.18 2002-01-26 23:38:42 Dominic Thibodeau Exp $
-;*
 
 .module 	error
 .title 		Error handling

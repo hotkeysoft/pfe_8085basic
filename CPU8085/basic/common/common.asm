@@ -5,8 +5,6 @@
 ;*		PLUS COMMON FUNCTIONS (NAME2TAG, TAG2NAME, 
 ;*		ISDIGIT, ISALPHA, MEMSET, MEMCPY...)
 ;*		
-;* $Id: common.asm,v 1.22 2001-12-03 00:20:20 Dominic Thibodeau Exp $
-;*
 
 .module 	common
 .title 		Common functions
@@ -270,13 +268,6 @@ C_NAME2TAG::
 	RET
 
 ;*********************************************************
-;* NAME2TAG:  	CONVERTS STRING AT (X-Y)
-;*		TO INTEGER (IN B-C)
-C_STR2INT::	
-
-	RET
-
-;*********************************************************
 ;* C_ISALPHA:  	CF=1 IF ACC IN [a..zA..Z]
 C_ISALPHA::
 	CPI	'A		; ACC < 'A'
@@ -451,5 +442,3 @@ C_MEMCPY::
 ;*********************************************************
 
 .area	DATA	(REL,CON)
-
-;TICNT:		.ds	2			;TIMER - COUNTER

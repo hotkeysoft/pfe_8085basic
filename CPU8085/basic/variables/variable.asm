@@ -3,8 +3,6 @@
 ;* 
 ;* DESCRIPTION:	HANDLING OF VARIABLES: CREATION, SET AND GET
 ;*		
-;* $Id: variable.asm,v 1.16 2001-12-03 05:07:09 Dominic Thibodeau Exp $
-;*
 
 .module 	variable
 .title 		Variable module

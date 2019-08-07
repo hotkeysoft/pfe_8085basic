@@ -3,8 +3,6 @@
 ;* 
 ;* DESCRIPTION:	EVALUATES EXPRESSIONS, EXECUTES FUNCTIONS
 ;*
-;* $Id: expreval.asm,v 1.55 2001-12-03 00:22:44 Dominic Thibodeau Exp $
-;*
 
 .module 	expreval
 .title 		Expression evaluation
@@ -1878,4 +1876,3 @@ EXP_STACKCURR:		.ds	2		; CURRENT POS IN STACK
 EXP_STACKTEMP::		.ds	5		; USED BY EXP_DO_FOR AND 
 
 EXP_INSNEWLINE:		.ds	1		; USED BY DO_PRINT
-

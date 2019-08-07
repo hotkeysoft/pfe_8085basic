@@ -3,8 +3,6 @@
 ;* 
 ;* DESCRIPTION:	SETUP OF MODULES, MAIN LOOP
 ;*
-;* $Id: main.asm,v 1.11 2002-01-26 23:38:05 Dominic Thibodeau Exp $
-;*
 
 .module 	main
 .title 		Main Module
@@ -201,13 +199,10 @@ IMMEDIATE:
 	
 	RET	
 
-BEGINSTR:	.ascii '8085 BASIC Version 1.0 (PFE Edition)' .db 13
-		.ascii '(C) Copyright 2001 Dominic Thibodeau' .db 13
-		.db 13,0
+BEGINSTR:	.ascii '8085 BASIC Version 1.1\r'
+		.asciz '(C) Copyright 2001-2019 Dominic Thibodeau\r\r'
 
 READYSTR:	.asciz	'Ready.'
 
 .area	DATA	(REL,CON)
 
-
-	
