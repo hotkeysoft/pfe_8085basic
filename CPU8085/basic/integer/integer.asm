@@ -651,6 +651,9 @@ NOTZERO:
 ;* INT_ITOA: CONVERTS INTEGER IN INT_ACC0 TO ASCII STRING
 ;*	     RETURNS PTR TO BEGIN OF STRING (HL)
 ;*	     PLUS LENGTH OF STRING (ACC)
+;*
+;*	Uses the double dabble algorithm to convert binary 
+;*	numbers into binary-coded decimal (BCD) notation
 INT_ITOA::
 ;	LOAD VALUE IN HL
 	LHLD	INT_ACC0
@@ -660,192 +663,114 @@ INT_ITOA::
 	ORA	H					; 8 bits positive?
 	MOV 	A,L
 	JZ	INT_ITOA_U8				; Use simpler function
-	
-	PUSH	B
-	PUSH	D
 
-	PUSH	H					;PUSH INT_ACC0 ON THE STACK
+	PUSH B
+	PUSH D
 
 	MOV	A,H
 	ORA	A					;UPDATES THE SIGN FLAG
 	PUSH	PSW					;WE HAVE TO REMEMBER THE SIGN FLAG
 	
-	JP	1$
+	JP	0$
 	
 	LXI	H,INT_ACC0					
 	CALL	INT_NEG					;NEGATES INT_ACC0
-	
-1$:
+	LHLD	INT_ACC0
+0$:
+	; HL Value to convert
+	; E[nnnn nnnn] x10 x1
+	; D[nnnn nnnn] x1000 x100
+	; C[0000 nnnn] x10000
+	; B nb shifts
 
-;	CLEAR EVERYTHING
+	LXI	D,0			; Clear DE
 	LXI	B,0
-	LXI	D,0
-	LXI	H,0
-
-	MVI	L,17
-
-2$:	
-	DCR	L					;CHECK EXIT CONDITION
-	JZ 	14$
-
-	MOV	A,L					;TIME TO SWAP BYTES?
-	CPI	8
-	JNZ 	3$
 	
-	LDA	INT_ACC0				;REPLACE HI BYTE WITH LOW
-	STA	INT_ACC0+1
-	
-3$:
-	LDA	INT_ACC0+1				;LOAD ACC0 LOW BYTE IN A
-	ORA	A
-	RAL						;ROTATE LEFT THRU CARRY
-	STA	INT_ACC0+1				;STORE BACK
+	MVI	B,16			; 16 shifts for 16 bits
+1$:	
+	; Shift L LEFT
+	ORA	A			; Clear carry
 
-	PUSH	PSW
-
-;******************************************************
-;	BIN2BCD - REG B
-	MOV	A,B
-	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
-	JM	4$
-	ADI	0x30					;IF HI NIBBLE >5, ADD 3
-4$:
-	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
-	
-	MOV	B,A					;PUT BACK IN B
-	
-;******************************************************
-;	BIN2BCD - REG C
-	MOV	A,C
-	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
-	JM	5$
-	ADI	0x30					;IF HI NIBBLE >5, ADD 3
-5$:
-	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
-	
-	MOV	C,A					;PUT BACK IN C
-
-;******************************************************
-;	BIN2BCD - REG D
-	MOV	A,D
-	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
-	JM	6$
-	ADI	0x30					;IF HI NIBBLE >5, ADD 3
-6$:
-	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
-	
-	MOV	D,A					;PUT BACK IN B
-
-;******************************************************
-;	BIN2BCD - REG E
-	MOV	A,E
-	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
-	JM	7$
-	ADI	0x30					;IF HI NIBBLE >5, ADD 3
-7$:
-	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
-	
-	MOV	E,A					;PUT BACK IN B
-
-;******************************************************
-;	BIN2BCD - REG H
+	MOV	A,L
+	RAL
+	MOV	L,A
+	; Shift H LEFT
 	MOV	A,H
-	SUI	0x50					;SUBSTRACTS 4 FROM HI NIBBLE
-	JM	8$
-	ADI	0x30					;IF HI NIBBLE >5, ADD 3
-8$:
-	ADI	0x50					;PUT BACK 4 REMOVED BEFORE
+	RAL
+	MOV	H,A
+	; Shift E LEFT
+	MOV	A,E
+	RAL
+	MOV	E,A
+	; Shift D LEFT
+	MOV	A,D
+	RAL
+	MOV	D,A
+	; Shift C LEFT
+	MOV	A,C
+	RAL
+	MOV	C,A
+
+	; Shift done
+	DCR	B
+	JZ	5$			; Done all the shifts?
 	
-	MOV	H,A					;PUT BACK IN B
+	; Adjust x1
+	MOV	A,E
+	ANI	0x0F			; Clear hi nibble
+	CPI	0x05			; More than 4?
+	MOV	A,E			; Reload whole byte	
+	JC	2$			; More than 4??	
+	ADI	0x03			; Yes, add 3	
+	MOV	E,A			; Back in E, E still in Acc
+2$:	
+	; Adjust x10
+	CPI	0x50			; Check hi nibble > 4?
+	JC	3$
+	ADI	0x30			; Yes, add 3
+	MOV	E,A			; Back in E
+3$:	
+	; Adjust x100
+	MOV	A,D
+	ANI	0x0F			; Clear hi nibble
+	CPI	0x05			; More than 4?
+	MOV	A,D			; Reload whole byte	
+	JC	4$			; More than 4??	
+	ADI	0x03			; Yes, add 3	
+	MOV	D,A			; Back in D, D still in Acc
+4$:	
+	; Adjust x1000
+	CPI	0x50			; Check hi nibble > 4?
+	JC	1$
+	ADI	0x30			; Yes, add 3
+	MOV	D,A			; Back in D
 
-	POP	PSW
+	; x10000 is max 3 so we're done
+	JMP 	1$
 
-;******************************************************
-;	MUSICAL CHAIR...
-;******************************************************
-;	(B)  ->  C  ->  D  ->  E  ->  H  	
-	MOV	A,B					;B IN A	
-
-	JNC	9$					;SET BIT 3?
-
-	ORI	8					;YES		
-9$:
-	RAL						;ROTATE LEFT THRU CARRY
-	MOV	B,A					;PUT BACK IN B
+	; Now build the string	
+5$:
 	
-;******************************************************
-;	 B   -> (C) ->  D  ->  E  ->  H  	
-	MOV	A,C					;C IN A	
-
-	JNC	10$					;SET BIT 3?
-
-	ORI	8					;YES		
-10$:
-	RAL						;ROTATE LEFT THRU CARRY
-	MOV	C,A					;PUT BACK IN C
-	
-;******************************************************
-;	 B   ->  C  -> (D) ->  E  ->  H  	
-	MOV	A,D					;D IN A	
-
-	JNC	11$					;SET BIT 3?
-
-	ORI	8					;YES		
-11$:
-	RAL						;ROTATE LEFT THRU CARRY
-	MOV	D,A					;PUT BACK IN D
-	
-;******************************************************
-;	 B   ->  C  ->  D  -> (E) ->  H  	
-	MOV	A,E					;E IN A	
-
-	JNC	12$					;SET BIT 3?
-
-	ORI	8					;YES		
-12$:
-	RAL						;ROTATE LEFT THRU CARRY
-	MOV	E,A					;PUT BACK IN E
-
-
-;******************************************************
-;	 B   ->  C  ->  D  ->  E  -> (H)  	
-	MOV	A,H					;H IN A	
-
-	JNC	13$					;SET BIT 3?
-
-	ORI	8					;YES		
-13$:
-	RAL						;ROTATE LEFT THRU CARRY
-	MOV	H,A					;PUT BACK IN H
-
-	JMP	2$
-	
-14$:
 	POP	PSW					;GET BACK THE SIGN FLAG
-
-;*******************************************************
-; 	PUT IN INT_ACCSTR (STRING - UNFORMATTED)
-	JP	15$
+	
+	JP	6$
 	
 	MVI	A,#'-
-	JMP	16$
-15$:
-	MVI	A,#' 
+	JMP	7$
+6$:
+	MVI	A,#' 	
+7$:
 
-16$:
 	STA	INT_ACCSTR				;SIGN CHAR
 	
-;	N * 10000	
-	MOV	A,H	
-	RRC
-	RRC						;DIVIDE BY 16 
-	RRC						;(HI NIBBLE -> LOW)
-	RRC						
+; 	N * 10000
+	MOV	A,C
 	ADI	#'0					;CONVERT TO CHAR
 	STA	INT_ACCSTR+1				;PUT IN STRING
 
-;	N * 1000	
-	MOV	A,E
+;	N * 1000
+	MOV	A,D
+	ANI	0xF0					;CLEAR LOW NIBBLE
 	RRC
 	RRC						;DIVIDE BY 16 
 	RRC						;(HI NIBBLE -> LOW)
@@ -855,40 +780,29 @@ INT_ITOA::
 
 ;	N * 100
 	MOV	A,D
-	RRC
-	RRC						;DIVIDE BY 16 
-	RRC						;(HI NIBBLE -> LOW)
-	RRC						
+	ANI	0x0F					;CLEAR HI NIBBLE		
 	ADI	#'0					;CONVERT TO CHAR
 	STA	INT_ACCSTR+3				;PUT IN STRING
 	
 ;	N * 10
-	MOV	A,C
+	MOV	A,E
+	ANI	0xF0					;CLEAR LOW NIBBLE
 	RRC
 	RRC						;DIVIDE BY 16 
 	RRC						;(HI NIBBLE -> LOW)
 	RRC						
 	ADI	#'0					;CONVERT TO CHAR
 	STA	INT_ACCSTR+4				;PUT IN STRING
-	
+
 ;	N * 1
-	MOV	A,B
-	RRC
-	RRC						;DIVIDE BY 16 
-	RRC						;(HI NIBBLE -> LOW)
-	RRC						
+	MOV	A,E
+	ANI	0x0F					;CLEAR HI NIBBLE		
 	ADI	#'0					;CONVERT TO CHAR
 	STA	INT_ACCSTR+5				;PUT IN STRING
 	
 	MVI	A,0
 	STA	INT_ACCSTR+6
 	
-
-;	RESTORE INT_ACC0
-	POP	H
-	SHLD	INT_ACC0
-
-
 ; 	'FORMAT' STRING (I.E. RETURN PTR TO FIRST NON-ZERO CHAR)
 
 	LXI	H,INT_ACCSTR+1				;FIRST NUMBER
