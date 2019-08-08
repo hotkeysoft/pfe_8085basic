@@ -8,7 +8,7 @@ void(*Logger::m_logCallbackFunc)(const char *str);
 char Logger::m_logBuffer[1024];
 Logger::ModuleList Logger::m_moduleList;
 
-Logger::Logger(const char* moduleID) : m_moduleID(moduleID)
+Logger::Logger(const char* moduleID) : m_moduleID(moduleID), m_enabled(true)
 {
 	RegisterModuleID(moduleID);
 }

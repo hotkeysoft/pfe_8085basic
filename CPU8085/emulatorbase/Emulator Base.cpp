@@ -3,12 +3,14 @@
 #include "stdafx.h"
 #include "Memory.h"
 #include "MemoryBlock.h"
+#include "MemoryMap.h"
 #include "CPU8080.h"
 #include "UART.h"
 #include <conio.h>
 #include <vector>
 #include <string>
 #include <iostream>
+#include <sstream>
 #include <fstream>
 #include <time.h>
 
@@ -74,6 +76,48 @@ void SaveROMBlock(std::vector<MemoryBlock> &out, int addr, std::vector<BYTE> &bu
 {
 	fprintf(stdout, "Saving block 0x%04X-0x%04X, size: %d\n", addr, addr + (int)buffer.size() - 1, (int)buffer.size());
 	out.push_back(MemoryBlock(addr, buffer, ROM));
+}
+
+// ASLINK map file
+bool readMapFile(const std::string &fileName, MemoryMap &mmap)
+{
+	std::ifstream file(fileName.c_str(), std::ios::in);
+
+	if (!file)
+	{
+		std::cerr << "Error opening file: " << fileName << std::endl;
+		return false;
+	}
+
+	int lastAddr = -1;
+	int items = 0;
+	std::vector<BYTE> currBuffer;
+
+	while (file)
+	{
+		std::string line;
+		std::getline(file, line);
+
+		if (!file)
+			break;
+
+		// Lines with map info start with 10 spaces ("          ")
+		size_t pos = line.find_first_not_of(' ');
+		if (pos != 10)
+		{
+			continue;
+		}
+
+		std::istringstream is(line);
+		MemoryMapItem item;
+		is >> std::hex >> item.address >> item.label >> item.module;
+
+		mmap.Add(item);
+		++items;
+	}
+	std::cout << "MemoryMap: Added " << items << " labels" << std::endl;
+
+	return true;
 }
 
 bool readIntelHex(const std::string &fileName, std::vector<MemoryBlock> &data)
@@ -235,11 +279,26 @@ abort:
 	return false;
 }
 
+unsigned long elapsed;
+
+void onCall(CPU* cpu, WORD addr)
+{
+	elapsed = cpu->getTime();
+}
+
+void onRet(CPU* cpu, WORD addr)
+{
+	fprintf(stderr, "\tELAPSED: %ul\n", cpu->getTime()-elapsed);
+}
+
 int main(void)
 {
 	Logger::RegisterLogCallback(LogCallback);
 
 	Memory memory;
+	memory.EnableLog(false);
+	MemoryMap mmap;
+	mmap.EnableLog(false);
 
 	std::vector<MemoryBlock> monitorRom;
 	if (readIntelHex("../basic/main/main.ihx", monitorRom))
@@ -249,29 +308,33 @@ int main(void)
 			memory.Allocate(&(monitorRom[i]));
 	}
 
-//	CFrameBuffer video_memory(0x1000, 1024);
+	if (!readMapFile("../basic/main/main.map", mmap))
+	{
+		fprintf(stderr, "Error reading map file\n");
+	}
 
 	MemoryBlock buffer_memory(0x8000, 0x8000, RAM);
-
-//	memory.Allocate(&video_memory);
 	memory.Allocate(&buffer_memory);
 
 	Timer timer;
 
 	UART uart(0x60);
 	uart.Init();
+	uart.EnableLog(false);
 
 	Interrupts interrupts;
 	interrupts.Allocate(CPU8080::RST65, &uart);
 	interrupts.Allocate(CPU8080::TRAP, &timer);
 
-	CPU8080 cpu(memory, interrupts);
+	CPU8080 cpu(memory, mmap, interrupts);
 
-	memory.EnableLog(false);
-	uart.EnableLog(false);
+	cpu.AddWatch("EXECUTE", onCall, onRet);
 
 	cpu.AddDevice(uart);
 	cpu.Reset();
+
+	fprintf(stderr, "Press any key to continue\n");
+	_getch();
 
 	time_t startTime, stopTime;
 	time(&startTime);

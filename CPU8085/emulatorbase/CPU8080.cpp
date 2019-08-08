@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "CPU8080.h"
 
-CPU8080::CPU8080(Memory & memory, Interrupts & interrupts)
-	:	CPU(memory), m_interrupts(interrupts), m_interruptsEnabled(false)
+CPU8080::CPU8080(Memory & memory, MemoryMap &mmap, Interrupts & interrupts)
+	:	CPU(memory, mmap), Logger("CPU8088"), m_interrupts(interrupts), m_interruptsEnabled(false)
 {
 	// -------------------
 	// 1. Data Transfer Group
@@ -669,13 +669,13 @@ bool CPU8080::Step()
 
 void CPU8080::Dump()
 {
-	fprintf(stderr, "AF = %02X %02X\tCY = %c\n", regA, flags, getFlag(CY_FLAG)?'1':'0');
-	fprintf(stderr, "BC = %02X %02X\tP  = %c\n", regB, regC, getFlag(P_FLAG)?'1':'0');
-	fprintf(stderr, "DE = %02X %02X\tAC = %c\n", regD, regE, getFlag(AC_FLAG)?'1':'0');
-	fprintf(stderr, "HL = %02X %02X\tZ  = %c\n", regH, regL, getFlag(Z_FLAG)?'1':'0');
-	fprintf(stderr, "SP = %04X   \tS  = %c\n", regSP, getFlag(S_FLAG)?'1':'0');
-	fprintf(stderr, "PC = %04X\n", m_programCounter);
-	fprintf(stderr, "\n");
+	LogPrintf(LOG_DEBUG, "AF = %02X %02X\tCY = %c\n", regA, flags, getFlag(CY_FLAG)?'1':'0');
+	LogPrintf(LOG_DEBUG, "BC = %02X %02X\tP  = %c\n", regB, regC, getFlag(P_FLAG)?'1':'0');
+	LogPrintf(LOG_DEBUG, "DE = %02X %02X\tAC = %c\n", regD, regE, getFlag(AC_FLAG)?'1':'0');
+	LogPrintf(LOG_DEBUG, "HL = %02X %02X\tZ  = %c\n", regH, regL, getFlag(Z_FLAG)?'1':'0');
+	LogPrintf(LOG_DEBUG, "SP = %04X   \tS  = %c\n", regSP, getFlag(S_FLAG)?'1':'0');
+	LogPrintf(LOG_DEBUG, "PC = %04X\n", m_programCounter);
+	LogPrintf(LOG_DEBUG, "\n");
 }
 
 
@@ -699,7 +699,7 @@ void CPU8080::interrupt(InterruptSource source)
 		case RST65:	vector = 0x34; break;
 		case RST55:	vector = 0x2C; break;
 		default:
-			fprintf(stderr, "FATAL: invalid interrupt source\n");
+			LogPrintf(LOG_ERROR, "Invalid interrupt source\n");
 		}
 
 		m_timeTicks += 12;
@@ -722,7 +722,7 @@ BYTE &CPU8080::getRegL(BYTE opcode)
 	case 070:	return regA;
 
 	default:
-		fprintf(stderr, "FATAL: reg flag = mem\n");
+		LogPrintf(LOG_ERROR, "reg flag = mem\n");
 	}
 
 	return dummy;
@@ -743,7 +743,7 @@ BYTE &CPU8080::getRegR(BYTE opcode)
 	case 007:	return regA;
 
 	default:
-		fprintf(stderr, "FATAL: reg flag = mem\n");
+		LogPrintf(LOG_ERROR, "reg flag = mem\n");
 	}
 
 	return dummy;
@@ -1121,6 +1121,7 @@ void CPU8080::callIF(bool condition)
 {
 	if (condition == true)
 	{
+		WORD calledFrom = m_programCounter;
 		BYTE valL, valH;
 		m_memory.Read(m_programCounter+1, valL);
 		m_memory.Read(m_programCounter+2, valH);
@@ -1132,6 +1133,8 @@ void CPU8080::callIF(bool condition)
 
 		m_timeTicks += 18;
 		m_programCounter = getWord(valH, valL);
+
+		OnCall(calledFrom, m_programCounter);
 	}
 	else
 	{
@@ -1197,7 +1200,10 @@ void CPU8080::retIF(bool condition, int timeT)
 		regSP++;		
 
 		m_timeTicks += timeT;
-		m_programCounter = getWord(valH, valL);
+		
+		WORD returnTo = getWord(valH, valL);
+		OnReturn(returnTo - 3);
+		m_programCounter = returnTo;
 	}
 	else
 	{
@@ -1902,7 +1908,7 @@ void CPU8080::NOP(BYTE opcode)
 
 void CPU8080::HLT(BYTE opcode)
 {
-	fprintf(stderr, "HLT\n");
+	LogPrintf(LOG_INFO, "HLT\n");
 	m_state = STOP;
 	m_timeTicks += 5;
 	m_programCounter++;

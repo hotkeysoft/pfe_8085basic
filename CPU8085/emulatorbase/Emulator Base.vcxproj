@@ -125,6 +125,7 @@
   <ItemGroup>
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="MemoryMap.cpp" />
     <ClCompile Include="PortAggregator.cpp" />
     <ClCompile Include="PortConnector.cpp" />
     <ClCompile Include="CPU.cpp" />
@@ -140,6 +141,7 @@
     <ClInclude Include="Common.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="MemoryMap.h" />
     <ClInclude Include="PortAggregator.h" />
     <ClInclude Include="PortConnector.h" />
     <ClInclude Include="CPU.h" />

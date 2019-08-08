@@ -8,7 +8,7 @@ public:
 	Logger(const char* moduleID);
 	virtual ~Logger();
 
-	enum SEVERITY { LOG_INFO, LOG_WARNING, LOG_ERROR };
+	enum SEVERITY { LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_DEBUG };
 
 	void EnableLog(bool enable);
 
