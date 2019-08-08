@@ -1,10 +1,8 @@
 #include "PortConnector.h"
 
-
-PortConnector::PortConnector() : Logger()
+PortConnector::PortConnector() : Logger("PORT")
 {
 }
-
 
 PortConnector::~PortConnector()
 {
@@ -12,12 +10,12 @@ PortConnector::~PortConnector()
 
 bool PortConnector::Connect(BYTE portNb, INFunction inFunc)
 {
-	LogPrintf("Connect input port 0x%02X", portNb);
+	LogPrintf(LOG_INFO, "Connect input port 0x%02X", portNb);
 
 	auto it = m_inputPorts.find(portNb);
 	if (it != m_inputPorts.end())
 	{
-		LogPrintf("ERROR: Port already exists");
+		LogPrintf(LOG_ERROR, "Port already exists");
 		return false;
 	}
 
@@ -28,12 +26,12 @@ bool PortConnector::Connect(BYTE portNb, INFunction inFunc)
 
 bool PortConnector::Connect(BYTE portNb, OUTFunction outFunc)
 {
-	LogPrintf("Connect output port 0x%02X", portNb);
+	LogPrintf(LOG_INFO, "Connect output port 0x%02X", portNb);
 
 	auto it = m_outputPorts.find(portNb);
 	if (it != m_outputPorts.end())
 	{
-		LogPrintf("ERROR: Port already exists");
+		LogPrintf(LOG_ERROR, "Port already exists");
 		return false;
 	}
 
@@ -47,7 +45,7 @@ bool PortConnector::In(BYTE port, BYTE & value)
 	auto it = m_inputPorts.find(port);
 	if (it == m_inputPorts.end())
 	{
-		LogPrintf("ERROR: PortConnector::In: port 0x%02X already allocated", port);
+		LogPrintf(LOG_WARNING, "PortConnector::In: port 0x%02X not allocated", port);
 		return false;
 	}
 
@@ -64,7 +62,7 @@ bool PortConnector::Out(BYTE port, BYTE value)
 	auto it = m_outputPorts.find(port);
 	if (it == m_outputPorts.end())
 	{
-		LogPrintf("ERROR: PortConnector::Out: port 0x%02X already allocated", port);
+		LogPrintf(LOG_WARNING, "PortConnector::Out: port 0x%02X not allocated", port);
 		return false;
 	}
 

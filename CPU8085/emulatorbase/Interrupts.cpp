@@ -1,28 +1,25 @@
 #include "StdAfx.h"
 #include "Interrupts.h"
-#include <stdarg.h>
 
-CInterrupts::CInterrupts()
+Interrupts::Interrupts() : Logger("INTR")
 {
-	m_logCallbackFunc = NULL;
-
 	for (int i = 0; i<MAXINTERRUPT; i++)
 	{
 		m_interrupts[i] = NULL;
 	}
 }
 
-CInterrupts::~CInterrupts()
+Interrupts::~Interrupts()
 {
 }
 
-bool CInterrupts::Allocate(BYTE intNb, CInterruptSource * intSource)
+bool Interrupts::Allocate(BYTE intNb, InterruptSource * intSource)
 {
-	LogPrintf("Request to allocate interrupt source #%d", intNb);
+	LogPrintf(LOG_INFO, "Request to allocate interrupt source #%d", intNb);
 
 	if (m_interrupts[intNb] != NULL)
 	{
-		LogPrintf("ERROR: Interrupt already exists");
+		LogPrintf(LOG_ERROR, "Interrupt already exists");
 		return false;
 	}
 
@@ -30,7 +27,7 @@ bool CInterrupts::Allocate(BYTE intNb, CInterruptSource * intSource)
 	{
 		if (m_interrupts[i] == intSource)
 		{
-			LogPrintf("ERROR: Object already allocated at #%d", i);
+			LogPrintf(LOG_INFO, "Object already allocated at #%d", i);
 			return false;
 		}
 	}
@@ -40,23 +37,23 @@ bool CInterrupts::Allocate(BYTE intNb, CInterruptSource * intSource)
 	return true;
 }
 
-bool CInterrupts::Free(CInterruptSource * intSource)
+bool Interrupts::Free(InterruptSource * intSource)
 {
 	for (int i = 0; i<MAXINTERRUPT; i++)
 	{
 		if (m_interrupts[i] == intSource)
 		{
-			LogPrintf("Freeing interrupt #%d", i);
+			LogPrintf(LOG_INFO, "Freeing interrupt #%d", i);
 			m_interrupts[i] = NULL;
 			return true;
 		}
 	}
 
-	LogPrintf("ERROR: CInterrupts::Free: interrupt source not found");
+	LogPrintf(LOG_ERROR, "Interrupts::Free: interrupt source not found");
 	return false;
 }
 
-bool CInterrupts::IsInterrupting(BYTE intNb)
+bool Interrupts::IsInterrupting(BYTE intNb)
 {
 	if (m_interrupts[intNb] == NULL)
 	{
@@ -64,28 +61,4 @@ bool CInterrupts::IsInterrupting(BYTE intNb)
 	}
 
 	return m_interrupts[intNb]->IsInterrupting();
-}
-
-//////////////////////////////////////////////////////////////////////
-
-void CInterrupts::RegisterLogCallback(void(*logCallbackFunc)(const char *))
-{
-	m_logCallbackFunc = logCallbackFunc;
-}
-
-void CInterrupts::LogPrintf(const char *msg, ...)
-{
-	va_list args;
-	va_start(args, msg);
-
-	vsprintf(m_logBuffer, msg, args);
-
-	va_end(args);
-
-	strcat(m_logBuffer, "\n");
-
-	if (m_logCallbackFunc)
-	{
-		m_logCallbackFunc(m_logBuffer);
-	}
 }

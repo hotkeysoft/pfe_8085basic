@@ -1,9 +1,12 @@
 #pragma once
-class CInterruptSource
+
+#include "Logger.h"
+
+class InterruptSource : virtual public Logger
 {
 public:
-	CInterruptSource() {}
-	virtual ~CInterruptSource() {}
+	InterruptSource() {}
+	virtual ~InterruptSource() {}
 
 	virtual bool IsInterrupting() = 0;
 };

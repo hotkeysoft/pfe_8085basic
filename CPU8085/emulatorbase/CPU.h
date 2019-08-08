@@ -1,15 +1,12 @@
-// CPU.h: interface for the CCPU class.
-//
-//////////////////////////////////////////////////////////////////////
 #pragma once
 #include "Memory.h"
 #include "Common.h"
 
-class CCPU  
+class CPU  
 {
 public:
-	CCPU(CMemory &memory);
-	virtual ~CCPU();
+	CPU(Memory &memory);
+	virtual ~CPU();
 
 	virtual void Reset();
 	void Run();
@@ -20,14 +17,14 @@ public:
 	void DumpUnassignedOpcodes();
 
 protected:
-	typedef void (CCPU::*OPCodeFunction)(BYTE);
+	typedef void (CPU::*OPCodeFunction)(BYTE);
 
 	void AddOpcode(BYTE, OPCodeFunction);
 
 	enum CPUState {STOP, RUN, STEP};
 
 	CPUState m_state;
-	CMemory &m_memory;
+	Memory &m_memory;
 
 	unsigned long m_timeTicks;
 	unsigned int m_programCounter;

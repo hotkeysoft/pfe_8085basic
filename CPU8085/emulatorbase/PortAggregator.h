@@ -1,11 +1,12 @@
 #pragma once
 #include "PortConnector.h"
+
 class PortAggregator : public PortConnector
 {
 public:
-	PortAggregator() {}
+	PortAggregator() : Logger("PORTS") {}
 	virtual ~PortAggregator() {}
 
-	bool Connect(PortConnector &ports);
+	void Connect(PortConnector &ports);
 };
 

@@ -5,7 +5,7 @@
 #include "PortConnector.h"
 #include "InterruptSource.h"
 
-class UART : public PortConnector, public CInterruptSource
+class UART : public PortConnector, public InterruptSource
 {
 public:
 	enum Regs {
@@ -21,7 +21,7 @@ public:
 	void Init();
 	void Reset();
 
-	// Inherited via CInterruptSource
+	// Inherited via InterruptSource
 	virtual bool IsInterrupting() override;
 
 	// Various registers

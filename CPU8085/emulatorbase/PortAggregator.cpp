@@ -1,6 +1,6 @@
 #include "PortAggregator.h"
 
-bool PortAggregator::Connect(PortConnector &ports)
+void PortAggregator::Connect(PortConnector &ports)
 {
 	InputPortMap &inputs = ports.GetInputPorts();
 
@@ -8,8 +8,7 @@ bool PortAggregator::Connect(PortConnector &ports)
 	{
 		if (m_inputPorts.find(it->first) != m_inputPorts.end())
 		{
-			LogPrintf("ERROR: Input Port 0x%02X already exists\n", it->first);
-			return false;
+			LogPrintf(LOG_ERROR, "Input Port 0x%02X already exists\n", it->first);
 		}
 
 		m_inputPorts[it->first] = it->second;
@@ -21,12 +20,9 @@ bool PortAggregator::Connect(PortConnector &ports)
 	{
 		if (m_outputPorts.find(it->first) != m_outputPorts.end())
 		{
-			LogPrintf("ERROR: Output Port 0x%02X already exists\n", it->first);
-			return false;
+			LogPrintf(LOG_ERROR, "Output Port 0x%02X already exists\n", it->first);
 		}
 
 		m_outputPorts[it->first] = it->second;
 	}
-
-	return true;
 }

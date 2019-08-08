@@ -1,6 +1,3 @@
-// MemoryBlock.h: interface for the CMemoryBlock class.
-//
-//////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "Common.h"
@@ -8,14 +5,14 @@
 
 enum MemoryType {RAM, ROM};
 
-class CMemoryBlock  
+class MemoryBlock  
 {
 public:
-	CMemoryBlock(WORD baseAddress, WORD size, MemoryType type=RAM);
-	CMemoryBlock(WORD baseAddress, const std::vector<BYTE>data, MemoryType type=RAM);
-	CMemoryBlock(const CMemoryBlock &block);
+	MemoryBlock(WORD baseAddress, WORD size, MemoryType type=RAM);
+	MemoryBlock(WORD baseAddress, const std::vector<BYTE>data, MemoryType type=RAM);
+	MemoryBlock(const MemoryBlock &block);
 
-	virtual ~CMemoryBlock();
+	virtual ~MemoryBlock();
 
 	void Clear(BYTE filler = 0xFF);
 

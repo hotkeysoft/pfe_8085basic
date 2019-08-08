@@ -1,39 +1,30 @@
-// Memory.h: interface for the CMemory class.
-//
-//////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "MemoryBlock.h"
 #include "Common.h"
+#include "Logger.h"
 #include <list>
 
-typedef std::list<CMemoryBlock *> MemoryListType;
+typedef std::list<MemoryBlock *> MemoryListType;
 
-class CMemory  
+class Memory : public Logger
 {
 public:
-	CMemory();
-	virtual ~CMemory();
+	Memory();
+	virtual ~Memory();
 
-	bool Allocate(CMemoryBlock *block);
-	bool Free(CMemoryBlock *block);
+	bool Allocate(MemoryBlock *block);
+	bool Free(MemoryBlock *block);
 
-	bool Read(WORD address, BYTE &value);
-	bool Write(WORD address, BYTE value);
-
-	void RegisterLogCallback(void (*)(const char *));
+	void Read(WORD address, BYTE &value);
+	void Write(WORD address, BYTE value);
 
 private:
 	MemoryListType m_memory;
 
-	CMemoryBlock *FindBlock(WORD address);
-	CMemoryBlock *FindOverlap(const CMemoryBlock *block);
+	MemoryBlock *FindBlock(WORD address);
+	MemoryBlock *FindOverlap(const MemoryBlock *block);
 
-	void LogPrintf(const char *, ...);
-	char m_logBuffer[1024];
-
-	CMemoryBlock *m_currBlock;
+	MemoryBlock *m_currBlock;
 	WORD m_currMin, m_currMax;
-
-	void (*m_logCallbackFunc)(const char *str);
 };

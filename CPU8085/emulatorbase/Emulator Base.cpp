@@ -3,7 +3,6 @@
 #include "stdafx.h"
 #include "Memory.h"
 #include "MemoryBlock.h"
-#include "FrameBuffer.h"
 #include "CPU8080.h"
 #include "UART.h"
 #include <conio.h>
@@ -15,8 +14,11 @@
 
 #include <Windows.h>
 
-class Timer : public CInterruptSource
+class Timer : public InterruptSource
 {
+public:
+	Timer() : Logger("TIMER") {}
+
 	virtual bool IsInterrupting() override
 	{
 		DWORD ticks = GetTickCount();
@@ -68,13 +70,13 @@ WORD hexToWord(const std::string &hexStr)
 		hexToByte(hexStr.substr(2, 2));
 }
 
-void SaveROMBlock(std::vector<CMemoryBlock> &out, int addr, std::vector<BYTE> &buffer)
+void SaveROMBlock(std::vector<MemoryBlock> &out, int addr, std::vector<BYTE> &buffer)
 {
 	fprintf(stdout, "Saving block 0x%04X-0x%04X, size: %d\n", addr, addr + (int)buffer.size() - 1, (int)buffer.size());
-	out.push_back(CMemoryBlock(addr, buffer, ROM));
+	out.push_back(MemoryBlock(addr, buffer, ROM));
 }
 
-bool readIntelHex(const std::string &fileName, std::vector<CMemoryBlock> &data)
+bool readIntelHex(const std::string &fileName, std::vector<MemoryBlock> &data)
 {
 	std::ifstream file(fileName.c_str(), std::ios::in);
 
@@ -163,7 +165,7 @@ abort:
 	return false;
 }
 
-bool readSRecord(const std::string &fileName, std::vector<CMemoryBlock> &data)
+bool readSRecord(const std::string &fileName, std::vector<MemoryBlock> &data)
 {
 	std::ifstream file(fileName.c_str(), std::ios::in);
 
@@ -235,12 +237,13 @@ abort:
 
 int main(void)
 {
-	CMemory memory;
-//	memory.RegisterLogCallback(LogCallback);
+	Logger::RegisterLogCallback(LogCallback);
 
-	std::vector<CMemoryBlock> monitorRom;
-	//if (readIntelHex("../basic/main/main.ihx", monitorRom))
-	if (readIntelHex("../basic/integer/integer.ihx", monitorRom))
+	Memory memory;
+
+	std::vector<MemoryBlock> monitorRom;
+	if (readIntelHex("../basic/main/main.ihx", monitorRom))
+	//if (readIntelHex("../basic/integer/integer.ihx", monitorRom))
 	{
 		for (int i=0; i<monitorRom.size(); i++)
 			memory.Allocate(&(monitorRom[i]));
@@ -248,7 +251,7 @@ int main(void)
 
 //	CFrameBuffer video_memory(0x1000, 1024);
 
-	CMemoryBlock buffer_memory(0x8000, 0x8000, RAM);
+	MemoryBlock buffer_memory(0x8000, 0x8000, RAM);
 
 //	memory.Allocate(&video_memory);
 	memory.Allocate(&buffer_memory);
@@ -256,15 +259,16 @@ int main(void)
 	Timer timer;
 
 	UART uart(0x60);
-	uart.RegisterLogCallback(LogCallback);
 	uart.Init();
 
-	CInterrupts interrupts;
-	interrupts.Allocate(CCPU8080::RST65, &uart);
-	interrupts.Allocate(CCPU8080::TRAP, &timer);
+	Interrupts interrupts;
+	interrupts.Allocate(CPU8080::RST65, &uart);
+	interrupts.Allocate(CPU8080::TRAP, &timer);
 
-	//TODO: Add logger
-	CCPU8080 cpu(memory, interrupts);
+	CPU8080 cpu(memory, interrupts);
+
+	memory.EnableLog(false);
+	uart.EnableLog(false);
 
 	cpu.AddDevice(uart);
 	cpu.Reset();

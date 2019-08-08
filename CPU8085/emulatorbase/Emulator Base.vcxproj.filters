@@ -21,9 +21,6 @@
     <ClCompile Include="Emulator Base.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FrameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -65,9 +62,6 @@
     <ClInclude Include="CPU8080.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="FrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Memory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -81,9 +75,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InterruptSource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Emulator Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UART.h">

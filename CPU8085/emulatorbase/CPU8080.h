@@ -1,6 +1,3 @@
-// CPU8080.h: interface for the CCPU8080 class.
-//
-//////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include "CPU.h"
@@ -8,15 +5,15 @@
 #include "PortAggregator.h"
 #include "Interrupts.h"
 
-class CCPU8080 : public CCPU  
+class CPU8080 : public CPU  
 {
 public:
 	enum InterruptSource {TRAP = 0, RST75, RST65, RST55 /*TODO INTR/INTA not implemented*/ };
 	
-	CCPU8080(CMemory &memory, CInterrupts &interrupts);
-	virtual ~CCPU8080();
+	CPU8080(Memory &memory, Interrupts &interrupts);
+	virtual ~CPU8080();
 
-	bool AddDevice(PortConnector& ports);
+	void AddDevice(PortConnector& ports);
 
 	void Dump();
 
@@ -26,7 +23,7 @@ public:
 
 protected:
 	PortAggregator m_ports;
-	CInterrupts &m_interrupts;
+	Interrupts &m_interrupts;
 
 	enum FLAG {S_FLAG=128, Z_FLAG=64, AC_FLAG=16, P_FLAG=4, CY_FLAG=1};
 

@@ -5,7 +5,7 @@
 #include <map>
 #include <tuple>
 
-class PortConnector : public Logger
+class PortConnector : virtual public Logger
 {
 public:
 	PortConnector();

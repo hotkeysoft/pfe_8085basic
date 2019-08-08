@@ -1,36 +1,26 @@
-// Memory.cpp: implementation of the CMemory class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#include <stdarg.h>
 #include "Memory.h"
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-
-CMemory::CMemory()
+Memory::Memory() : Logger("MEM")
 {
-	m_logCallbackFunc = NULL;
 	m_currBlock = NULL;
 	m_currMin = 0;
 	m_currMax = 0;
 }
 
-CMemory::~CMemory()
+Memory::~Memory()
 {
 
 }
 
-bool CMemory::Allocate(CMemoryBlock *block)
+bool Memory::Allocate(MemoryBlock *block)
 {
-	LogPrintf("Request to allocate block at %X, size = %d bytes", block->GetBaseAddress(), block->GetSize());
+	LogPrintf(LOG_INFO, "Request to allocate block at %X, size = %d bytes", block->GetBaseAddress(), block->GetSize());
 
-	CMemoryBlock *overlap = FindOverlap(block);
+	MemoryBlock *overlap = FindOverlap(block);
 	if (overlap != NULL)
 	{
-		LogPrintf("ERROR: Found overlap: block at %X, size = %d bytes", overlap->GetBaseAddress(), overlap->GetSize());
+		LogPrintf(LOG_ERROR, "Found overlap: block at %X, size = %d bytes", overlap->GetBaseAddress(), overlap->GetSize());
 		return false;
 	}
 
@@ -39,73 +29,72 @@ bool CMemory::Allocate(CMemoryBlock *block)
 	return true;
 }
 
-bool CMemory::Free(CMemoryBlock *block)
+bool Memory::Free(MemoryBlock *block)
 {
-	LogPrintf("Freeing block at %X", block->GetBaseAddress());
+	LogPrintf(LOG_INFO, "Freeing block at %X", block->GetBaseAddress());
 
 	m_memory.remove(block);
 
 	return true;
 }
 
-bool CMemory::Read(WORD address, BYTE &value)
+void Memory::Read(WORD address, BYTE &value)
 {
-	LogPrintf("Read(%X)", address);
+	LogPrintf(LOG_INFO, "Read(%X)", address);
 
-	CMemoryBlock *block = NULL;
+	MemoryBlock *block = NULL;
 
 	if (m_currBlock && address >= m_currMin && address <= m_currMax)
 	{
-		LogPrintf("\tUsing cached block. ret = %X", m_currBlock->read(address));
+		LogPrintf(LOG_INFO, "\tUsing cached block. ret = %X", m_currBlock->read(address));
 		block = m_currBlock;
 	}
 	else
 	{
-		CMemoryBlock *newBlock = FindBlock(address);
+		MemoryBlock *newBlock = FindBlock(address);
 		if (newBlock)
 		{
-			LogPrintf("\tNew block put in cache.  ret = %X", newBlock->read(address));
+			LogPrintf(LOG_INFO, "\tNew block put in cache.  ret = %X", newBlock->read(address));
 			block = newBlock;
 		}
 		else
 		{
-			LogPrintf("\tERROR: Reading unallocated memory space (%X)", address);
+			LogPrintf(LOG_ERROR, "Reading unallocated memory space (%X)", address);
 		}
 	}
 
 	if (block)
 	{
 		value = block->read(address); 
-		return true;
 	}
 	else
 	{
-		return false;
+		throw std::exception();
 	}
 }
 
-bool CMemory::Write(WORD address, BYTE value)
+void Memory::Write(WORD address, BYTE value)
 {
-	LogPrintf("Write(%X, %X)", address, value);
+	LogPrintf(LOG_INFO, "Write(%X, %X)", address, value);
 
-	CMemoryBlock *block = NULL;
+	MemoryBlock *block = NULL;
 
 	if (m_currBlock && address >= m_currMin && address <= m_currMax)
 	{
-		LogPrintf("\tUsing cached block.");
+		LogPrintf(LOG_INFO, "\tUsing cached block.");
 		block = m_currBlock;
 	}
 	else
 	{
-		CMemoryBlock *newBlock = FindBlock(address);
+		MemoryBlock *newBlock = FindBlock(address);
 		if (newBlock)
 		{
-			LogPrintf("\tNew block put in cache.");
+			LogPrintf(LOG_INFO, "\tNew block put in cache.");
 			block = newBlock;
 		}
 		else
 		{
-			LogPrintf("\tERROR: Writing unallocated memory space (%X)", address);
+			LogPrintf(LOG_ERROR, "Writing unallocated memory space (%X)", address);
 		}
 	}
 
@@ -113,22 +102,21 @@ bool CMemory::Write(WORD address, BYTE value)
 	{
 		if (block->GetType() == ROM)
 		{
-			LogPrintf("\tERROR: Attempting to write in ROM block at %X, size = %d bytes", block->GetBaseAddress(), block->GetSize());
-			return false;
+			LogPrintf(LOG_ERROR, "Attempting to write in ROM block at %X, size = %d bytes", block->GetBaseAddress(), block->GetSize());
+			throw std::exception();
 		}
 		else
 		{
 			block->write(address, value);
-			return true;
 		}
 	}
 	else
 	{
-		return false;
+		throw std::exception();
 	}
 }
 
-CMemoryBlock *CMemory::FindBlock(WORD address)
+MemoryBlock *Memory::FindBlock(WORD address)
 {
 	MemoryListType::const_iterator i;
 
@@ -149,7 +137,7 @@ CMemoryBlock *CMemory::FindBlock(WORD address)
 	return NULL;
 }
 
-CMemoryBlock *CMemory::FindOverlap(const CMemoryBlock *block)
+MemoryBlock *Memory::FindOverlap(const MemoryBlock *block)
 {
 	WORD min = block->GetBaseAddress();
 	WORD max = min + block->GetSize() - 1;
@@ -168,28 +156,4 @@ CMemoryBlock *CMemory::FindOverlap(const CMemoryBlock *block)
 	}
 
 	return NULL;
-}
-
-//////////////////////////////////////////////////////////////////////
-
-void CMemory::RegisterLogCallback(void (*logCallbackFunc)(const char *))
-{
-	m_logCallbackFunc = logCallbackFunc;
-}
-
-void CMemory::LogPrintf(const char *msg, ...)
-{
-	if (m_logCallbackFunc)
-	{
-		va_list args;
-		va_start(args, msg);
-
-		vsprintf(m_logBuffer, msg, args);
-
-		va_end(args);              
-
-		strcat(m_logBuffer, "\n");
-
-		m_logCallbackFunc(m_logBuffer);
-	}
 }

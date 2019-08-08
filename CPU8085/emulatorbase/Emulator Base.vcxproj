@@ -130,7 +130,6 @@
     <ClCompile Include="CPU.cpp" />
     <ClCompile Include="CPU8080.cpp" />
     <ClCompile Include="Emulator Base.cpp" />
-    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Interrupts.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="MemoryBlock.cpp" />
@@ -145,8 +144,6 @@
     <ClInclude Include="PortConnector.h" />
     <ClInclude Include="CPU.h" />
     <ClInclude Include="CPU8080.h" />
-    <ClInclude Include="Emulator Base.h" />
-    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Interrupts.h" />
     <ClInclude Include="InterruptSource.h" />
     <ClInclude Include="Memory.h" />

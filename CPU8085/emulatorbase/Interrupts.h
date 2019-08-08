@@ -1,31 +1,23 @@
 #pragma once
 
-
 #include "Common.h"
 #include "InterruptSource.h"
+#include "Logger.h"
 #include <list>
 
 const int MAXINTERRUPT = 16;
 
-class CInterrupts
+class Interrupts : public Logger
 {
 public:
-	CInterrupts();
-	virtual ~CInterrupts();
+	Interrupts();
+	virtual ~Interrupts();
 
-	bool Allocate(BYTE intNb, CInterruptSource *intSource);
-
-	bool Free(CInterruptSource *intSource);
+	bool Allocate(BYTE intNb, InterruptSource *intSource);
+	bool Free(InterruptSource *intSource);
 
 	bool IsInterrupting(BYTE intNb);
 
-	void RegisterLogCallback(void(*)(const char *));
-
 private:
-	CInterruptSource* m_interrupts[MAXINTERRUPT];
-
-	void LogPrintf(const char *, ...);
-	char m_logBuffer[1024];
-
-	void(*m_logCallbackFunc)(const char *str);
+	InterruptSource* m_interrupts[MAXINTERRUPT];
 };

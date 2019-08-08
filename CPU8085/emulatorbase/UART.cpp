@@ -2,7 +2,7 @@
 #include <conio.h>
 #include <fstream>
 
-UART::UART(BYTE baseAddress, int baseClockSpeed) : m_baseAddress(baseAddress), m_baseClockSpeed(baseClockSpeed),
+UART::UART(BYTE baseAddress, int baseClockSpeed) : Logger("UART"), m_baseAddress(baseAddress), m_baseClockSpeed(baseClockSpeed),
 													m_currChar(0) 
 {
 	Reset();
@@ -155,15 +155,15 @@ void UART::LCR_OUT(BYTE value)
 		parityIdx = (value & 0x10) ? 2 : 1;
 	}
 
-	LogPrintf("UART: Set LCR");
-	LogPrintf("\tWord Length:   %d", len);
-	LogPrintf("\tStop bits:     %s", stop[stopIdx]);
-	LogPrintf("\tParity:        %s", parity[parityIdx]);
+	LogPrintf(LOG_INFO, "UART: Set LCR");
+	LogPrintf(LOG_INFO, "\tWord Length:   %d", len);
+	LogPrintf(LOG_INFO, "\tStop bits:     %s", stop[stopIdx]);
+	LogPrintf(LOG_INFO, "\tParity:        %s", parity[parityIdx]);
 	// Stick / Break...
 
 	// Divisor Access Bit
 	m_dlab = (value & 0x80);
-	LogPrintf("\tDivisor Latch: %s", m_dlab ? "ON" : "OFF");
+	LogPrintf(LOG_INFO, "\tDivisor Latch: %s", m_dlab ? "ON" : "OFF");
 }
 
 BYTE UART::MCR_IN()
@@ -200,7 +200,7 @@ BYTE UART::DLL_IN()
 
 void UART::DLL_OUT(BYTE value)
 {
-	LogPrintf("UART: Set DLL");
+	LogPrintf(LOG_INFO, "UART: Set DLL");
 	m_dll = value;
 	printDivisor();
 }
@@ -212,7 +212,7 @@ BYTE UART::DLM_IN()
 
 void UART::DLM_OUT(BYTE value)
 {
-	LogPrintf("UART: Set DLM");
+	LogPrintf(LOG_INFO, "UART: Set DLM");
 	m_dlm = value;
 	printDivisor();
 }
@@ -220,6 +220,6 @@ void UART::DLM_OUT(BYTE value)
 void UART::printDivisor()
 {
 	WORD divisor = m_dll | (m_dlm << 8);
-	LogPrintf("\tDivisor:      0x%04X", divisor);
-	LogPrintf("\tFrequency =   %0.2fHz", m_baseClockSpeed / (float)16 / (float)divisor);
+	LogPrintf(LOG_INFO, "\tDivisor:      0x%04X", divisor);
+	LogPrintf(LOG_INFO, "\tFrequency =   %0.2fHz", m_baseClockSpeed / (float)16 / (float)divisor);
 }
