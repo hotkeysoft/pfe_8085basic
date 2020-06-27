@@ -7,9 +7,9 @@ Projet de fin d'études (PFE) École Polytechnique de Montréal (2002)
 The project presented consists of a simple BASIC interpreter built from scratch in 8085 assembly language
 
 To get there I built:
-- Prototype BASIC in C++ (CPU8085/basic/prototypes)
-- 8085 emulator in C++ (CPU8085/emulatorbase)
-- BASIC Interpreter in 8085 ASM (CPU8085/basic)
+- Prototype BASIC in C++ (basic/prototypes)
+- 8085 emulator in C++ (emulatorbase)
+- BASIC Interpreter in 8085 ASM (basic)
 
 In 2018 the C++ projects were upgraded to Visual Studio 2017 and a bit of work was done to enhance the 8085 emulator.
 
