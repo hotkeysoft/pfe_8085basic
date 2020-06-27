@@ -1,7 +1,8 @@
 # cpu8085
 BASIC Interpreter for 8085 CPU
 
-Graduation Project École Polytechnique de Montréal (2002)
+Projet de fin d'études (PFE) École Polytechnique de Montréal (2002)
+(Graduation Project)
 
 The project presented consists of a simple BASIC interpreter built from scratch in 8085 assembly language
 
