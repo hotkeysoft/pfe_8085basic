@@ -1,0 +1,11 @@
+*.bak
+*.lst
+*.rel
+*.rst
+*.ihx
+*.map
+*.user
+.vs
+x64
+Debug
+Release

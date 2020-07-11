@@ -9,7 +9,7 @@ bool findToken(const char *in, KEYWORDS &token, int &length)
 
 	while (currKeyword->id)
 	{
-		if (strnicmp(in, currKeyword->name, strlen(currKeyword->name)) == 0)
+		if (_strnicmp(in, currKeyword->name, strlen(currKeyword->name)) == 0)
 		{
 			token = currKeyword->id;
 			length = (int)strlen(currKeyword->name);
